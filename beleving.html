@@ -54,7 +54,7 @@ const DATA={"SCENES":{"gg1-o":{"id":"gg1-o","title":"Bij de oude school — uitz
 const {SCENES,PEOPLE,TOPICS,NAV_NODES}=DATA;
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const phaseOf={u01:'Ochtend · 12 september 1944',u14:'Ochtend · 12 september 1944',u06:'Tijdens de gevechten',u10:'Tijdens de gevechten',u11:'Tijdens de gevechten',u12:'Tijdens de gevechten','gg3-w':'Eerste contact · tijdstip in onderzoek','gg2-w':'Eerste contact · tijdstip in onderzoek','german-detail':'Eerste contact · tijdstip in onderzoek',u15:'Later op 12 september 1944'};
-const phaseGroup=id=>['u01','u14'].includes(id)?'nadering':['gg3-w','gg2-w','german-detail'].includes(id)?'contact':id==='u15'?'onthaal':'plek';
+const phaseGroup=id=>['u01','u14','u06','u10','u11','u12'].includes(id)?'ochtend':['gg3-w','gg2-w','german-detail'].includes(id)?'contact':id==='u15'?'onthaal':'ongedateerd';
 const links={};
 function pair(a,b,ax,ay,bx,by,labelAB,labelBA,uncertain=false){
  (links[a]??=[]).push({to:b,x:ax,y:ay,label:labelAB,uncertain});
@@ -90,8 +90,8 @@ $('close').onclick=closePanel;$('panel').addEventListener('click',e=>{if(e.targe
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closePanel()});
 function askTimeJump(dest,cb){
  const a=phaseGroup(current),b=phaseGroup(dest);
- if(a===b||a==='plek'||b==='plek'){cb();return}
- openPanel('<span class="pill">Let op: tijdsprong</span><h2>Je verplaatst je in de tijd</h2><p>Dit is niet alleen een volgende stap over straat. Je bekijkt een ander moment van 12 september 1944. De grensoversteek, het eerste contact en het latere onthaal gebeurden niet tegelijkertijd.</p><button class="pick" id="confirmJump">Bekijk dit andere moment</button><button class="pick" id="cancelJump">Blijf op deze plek</button>');
+ if(a===b){cb();return}
+ openPanel('<span class="pill">Let op: tijdsprong</span><h2>Je verplaatst je in de tijd</h2><p>Deze platen kunnen verschillende momenten voorstellen. Een stap op straat is niet automatisch een stap in de tijd: de grensoversteek, het eerste contact en het latere onthaal gebeurden niet tegelijkertijd. Bij sommige binnenruimtes is het precieze tijdstip onbekend.</p><button class="pick" id="confirmJump">Bekijk dit andere moment</button><button class="pick" id="cancelJump">Blijf op deze plek</button>');
  $('confirmJump').onclick=()=>{closePanel();cb()};$('cancelJump').onclick=closePanel;
 }
 function go(dest){if(!SCENES[dest])return;askTimeJump(dest,()=>{previous=current;current=dest;paint()})}
@@ -104,7 +104,7 @@ function buttonAt(h,click){
 }
 function paint(){
  const s=SCENES[current];$('art').src=s.image;$('art').alt=s.title+' — artistieke historische reconstructie';$('backdrop').src=s.image;
- $('sceneName').textContent=s.title;$('phase').textContent=phaseOf[current]||'Mesch · 12 september 1944 · tijdstip niet vastgelegd';
+ $('sceneName').textContent=s.title;$('phase').textContent=(phaseOf[current]||'Mesch · 12 september 1944 · tijdstip niet vastgelegd')+(/HOLD|MAQUETTE|nog te controleren/i.test(s.status||'')?' · VOORLOPIG':'');
  $('points').replaceChildren();$('points').classList.toggle('showtips',showTips);
  const acts=(s.hotspots||[]).filter(h=>(h.type==='talk'||h.type==='inspect')&&h.content).filter(h=>!(h.type==='talk'&&h.content==='resident'&&['u08','u09','u10','u11'].includes(current)));
  for(const h of acts)buttonAt({type:h.type,label:h.label,x:(h.marker_x||h.x+h.w/2),y:(h.marker_y||h.y+h.h/2)},()=>h.type==='talk'?talk(h.content):information(h.content));
@@ -125,9 +125,9 @@ $('sources').onclick=()=>information('sources');
 $('hints').onclick=()=>{showTips=!showTips;$('points').classList.toggle('showtips',showTips);$('hints').textContent=showTips?'Verberg hints':'Toon klikplekken'};
 $('guide').onclick=()=>openPanel('<span class="pill">Zo werkt de historische wandeling</span><h2>Kijk. Ontmoet. Onderzoek.</h2><p>Klik rechtstreeks in het schilderij op een <strong>pijl</strong> om te lopen, op een <strong>persoon</strong> om te praten, of op een <strong>i</strong> om historische bronnen te verkennen. Voor teruglopen gebruik je een plek of doorgang in het beeld.</p><p>Op een telefoon kun je het beeld het best liggend bekijken. Niet alle getoonde straten en kamers zijn al historisch ingemeten; onzekere overgangen zijn gemarkeerd.</p><p>Gebruik <kbd>Tab</kbd> en <kbd>Enter</kbd> om hotspots ook met een toetsenbord te bedienen.</p>');
 $('overview').onclick=()=>{
- let list=NAV_NODES.map(([id,n,t])=>'<button class="scenechoice" data-id="'+esc(id)+'">'+esc(n)+'<small>'+esc(t)+'</small></button>').join('');
- openPanel('<span class="pill">Plekkenoverzicht · geen exacte plattegrond</span><h2>Waar wil je kijken?</h2><p>Dit overzicht toont de beschikbare schilderingen. Het is nog geen historisch ingemeten kaart van Mesch. Normaal loop je via de klikplekken in het schilderij.</p><div id="atlasgrid">'+list+'</div><p class="muted">De overige beeldvarianten blijven bewaard in de bestaande platenatlas van de oorspronkelijke applicatie.</p>');
- $('atlasgrid').querySelectorAll('[data-id]').forEach(b=>b.onclick=()=>{const dest=b.dataset.id;closePanel();go(dest)});
+ let list=NAV_NODES.map(([id,n,t])=>'<div class="scenechoice">'+esc(n)+'<small>'+esc(t)+'</small></div>').join('');
+ openPanel('<span class="pill">Plekkenoverzicht · geen exacte plattegrond</span><h2>Waar wil je kijken?</h2><p>Dit overzicht toont de beschikbare schilderingen. Het is nog geen historisch ingemeten kaart van Mesch. Je kunt via dit overzicht niet springen: lopen en teruglopen doe je uitsluitend via klikplekken in het schilderij.</p><div id="atlasgrid">'+list+'</div><p class="muted">De overige beeldvarianten blijven bewaard in de bestaande platenatlas van de oorspronkelijke applicatie.</p>');
+ // Het plekkenoverzicht is bewust niet klikbaar: de scène is de navigatie-interface.
 };
 $('art').onerror=()=>{$('art').alt='Schildering tijdelijk niet geladen. Probeer de pagina opnieuw.'};
 paint();
