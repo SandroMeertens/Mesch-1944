@@ -45,6 +45,27 @@ kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 #footer{bottom:0;padding:9px 10px}#footer small{font-size:10px}
 #sheet{padding:15px}#sheet h2{font-size:23px}#atlasgrid{grid-template-columns:1fr}}
 @media (prefers-reduced-motion:no-preference){#art{transition:opacity .13s}}
+
+/* Gesprekken: portret los van het schilderij, eigen vragen mogelijk */
+.person-layout{display:grid;grid-template-columns:minmax(170px,36%) minmax(0,1fr);gap:18px;align-items:start;margin-top:15px}
+.person-figure{margin:0;overflow:hidden;border-radius:12px;background:#26382d;border:1px solid #dcc39765}
+.person-figure img{display:block;width:100%;aspect-ratio:3/4;object-fit:cover}
+.person-figure .missing-portrait{aspect-ratio:3/4;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:18px;text-align:center;background:linear-gradient(145deg,#304c3c,#142821);color:#edcf9c}
+.person-figure .missing-portrait span{font:600 48px Georgia,serif;border:2px solid #e5c18b80;border-radius:100%;height:95px;width:95px;display:grid;place-items:center}
+.person-figure figcaption{padding:10px;font-size:12px;line-height:1.35;color:#dfd1b3}
+.person-main h3{margin-top:0!important}
+.person-intro{line-height:1.6}
+#questionForm{display:flex;gap:8px;margin:14px 0 8px}
+#freeQuestion{flex:1;min-width:0;border:1px solid #d5bb8b80;border-radius:9px;background:#0e211b;color:#fff1d6;padding:12px;min-height:46px}
+#askButton{border:1px solid #ead19b;border-radius:9px;background:#cfae75;color:#13261c;font-weight:700;padding:0 15px}
+.chat-note{font-size:12px;line-height:1.5;color:#cfdecf}
+#chatHistory{max-height:230px;overflow:auto;display:flex;flex-direction:column;gap:8px;margin:12px 0}
+.chat-turn{padding:10px 12px;white-space:pre-wrap;line-height:1.5;border-radius:10px;font-size:14px}
+.chat-turn.question{background:#25483c;margin-left:11%}
+.chat-turn.answer{background:#102922;border-left:3px solid #eac88f;margin-right:4%}
+.chat-turn small{display:block;opacity:.75;margin-bottom:3px}
+.person-main .answer{font-size:13px;padding:9px 11px;margin:6px 0}
+@media(max-width:600px){.person-layout{grid-template-columns:1fr}.person-figure{max-width:260px;margin:0 auto 8px;width:100%}#questionForm{flex-wrap:wrap}#askButton{min-height:44px;width:100%}}
 </style></head><body>
 <header><div class="brand">MESCH <span>1944</span></div><div class="topbuttons"><button id="guide" title="Bediening">?</button><button id="overview">Plekken</button><button id="sources">Bronnen</button></div></header>
 <main><section id="scene"><img id="backdrop" alt="" aria-hidden="true"><div id="frame"><img id="art" alt="Historische, geschilderde reconstructie van Mesch" draggable="false"><div id="points"></div></div><div id="status" aria-live="polite"><span id="phase"></span><strong id="sceneName"></strong></div><div id="footer"><small>Historisch geïnformeerde reconstructie · geen archieffoto</small><button id="hints">Toon klikplekken</button></div></section></main>
@@ -114,11 +135,65 @@ function paint(){
  if(!mainIDs.has(current)&&!(links[current]||[]).length&&previous&&SCENES[previous])buttonAt({type:'move',label:'Terug naar de bezochte scène',x:15,y:87},()=>{const dest=previous;previous=current;current=dest;paint()});
  document.title=s.title+' | Mesch 1944';
 }
+// Elk portret is een afzonderlijke kunstweergave, niet de afgebeelde leerling-wereld.
+const PERSON_PORTRAITS={
+ resident:{src:'assets/portrait-resident.webp',caption:'Artistiek portret van een samengestelde dorpsbewoner. Geen historisch geïdentificeerde persoon.'},
+ american:{src:'assets/sc-american-detail.webp',caption:'Geschilderd detail van een Amerikaanse militair, geen verifieerbaar portret.'},
+ german:{src:'assets/sc-german-detail.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
+ medic:{src:null,caption:'Er is geen betrouwbaar portret van deze samengestelde hulpverlener beschikbaar.'},
+ warnier:{src:null,caption:'Geen geverifieerd historisch portret van Jef Warnier beschikbaar; daarom tonen we geen verzonnen gezicht als echt.'}
+};
+const QUESTION_PATTERNS={
+ warnier:[/kelder|schuil|angst|bang|schiet|schoot|schot|gevecht|vuur/,/buiten|soldaat|overgave|overgegeven|ontmoet|wat zag|amerika|duits/,/nederland|hele land|andere stad|alle mensen|iedereen vrij/],
+ american:[/waarvandaan|waar vandaan|belgie|belgisch|grens|gekomen|vandaan/,/voorzichtig|gevaar|schiet|geschot|duits|waarom alert/,/hoffman|sneuvel|overled|gedood|dood|slachtoffer|gesneuveld/],
+ german:[/handen|overgave|geef|overgeven|waarom omhoog/,/krijgsgevang|gevangen|gepakt|na overgave/,/dacht|voelde|bang|angst|gevoel|gedachten/],
+ medic:[/verband|medisch|gewond|hulppost|lazaret|hospitaal|verzorgen/,/veilig|gevaar|schiet|gevecht|angst/,/alle|wie|welke|duits|amerik|gewonden/],
+ resident:[/waarom|kelder|schuil|veilig|bang|angst|schiet|gevaar/,/amerikan|wisten|komen|hoorden|verwacht|bevrijder/,/later|daarna|buiten|afloop|na de bevrijding/]
+};
+function findGroundedAnswer(id,input){
+ const p=PEOPLE[id],q=String(input||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+ if(!p||!q)return null;
+ // Het prototype koppelt vragen alleen aan vooraf geschreven antwoorden.
+ const patterns=QUESTION_PATTERNS[id]||[];
+ const specificity=patterns.map((rx,i)=>({i,match:rx.exec(q)})).filter(x=>x.match);
+ if(specificity.length===1)return p.qa[specificity[0].i]?.[1]||null;
+ if(specificity.length>1){
+  // Een ambigue vraag niet aan een willekeurig antwoord koppelen.
+  return null;
+ }
+ // Vergelijk alleen voldoende specifieke begrippen met de voorbeeldvragen.
+ const words=x=>x.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').match(/[a-z]{4,}/g)||[];
+ const common=new Set(['waarom','welke','waren','heeft','hebt','jullie','deze','daar','hier','alleen','meer','kunt','konden','worden','werd','toen','sommige','gebeurde']);
+ const toks=words(q).filter(x=>!common.has(x));
+ let scored=(p.qa||[]).map(([question,answer],i)=>({i,score:words(question).filter(t=>!common.has(t)&&toks.some(w=>w===t)).length}));
+ scored.sort((a,b)=>b.score-a.score);
+ return scored.length&&scored[0].score>=2&&(!scored[1]||scored[0].score>scored[1].score)?p.qa[scored[0].i][1]:null;
+}
 function talk(id){
  const person=PEOPLE[id];if(!person){information('sources');return}
- openPanel('<span class="pill">Gesprek · gereconstrueerd</span><h2>'+esc(person.name)+'</h2><p class="muted">'+esc(person.status||'Educatief samengesteld personage')+'</p><p>'+esc(person.intro)+'</p><h3>Wat zou je vragen?</h3><div id="q"></div><div id="response" hidden aria-live="polite"></div><p class="muted">Bronindicatie: '+esc(person.source||'Historische context')+'. Geen letterlijke getuigenis tenzij afzonderlijk geciteerd.</p>');
- const holder=$('q');(person.qa||[]).forEach(([q,a])=>{const b=document.createElement('button');b.className='answer';b.textContent=q;b.onclick=()=>{$('response').hidden=false;$('response').textContent=a};holder.appendChild(b)});
+ const pic=PERSON_PORTRAITS[id]||{src:null,caption:'Geen betrouwbaar portret beschikbaar.'};
+ const portrait=pic.src?'<img src="'+esc(pic.src)+'" alt="Artistiek persoonsbeeld, geen bewezen portret van de historische persoon" loading="lazy">':'<div class="missing-portrait" role="img" aria-label="Geen historisch portret bevestigd"><span aria-hidden="true">?</span><strong>Portret nog niet historisch bevestigd</strong></div>';
+ openPanel('<span class="pill">Historisch gesprek · gereconstrueerd</span><h2>'+esc(person.name)+'</h2><p class="muted">'+esc(person.status||'Historisch geïnspireerd personage')+'</p><div class="person-layout"><figure class="person-figure">'+portrait+'<figcaption>'+esc(pic.caption)+'</figcaption></figure><div class="person-main"><p class="person-intro">'+esc(person.intro||'')+'</p><h3>Stel je eigen vraag</h3><p class="chat-note">Dit is een proef zonder live AI. Je vraag wordt op dit apparaat vergeleken met de bestaande historische antwoorden; niets wordt verzonden.</p><form id="questionForm"><input id="freeQuestion" type="text" maxlength="180" autocomplete="off" placeholder="Wat wil je weten over Mesch?" aria-label="Stel zelf een historische vraag"><button type="submit" id="askButton">Vraag</button></form><div id="chatHistory" role="log" aria-live="polite" aria-label="Gesprek"></div><h3>Of kies een onderzoeksvraag</h3><div id="q"></div><p class="muted">Bronindicatie: '+esc(person.source||'Historische context')+'. Antwoorden zijn navertellingen, geen letterlijke uitspraken.</p></div></div>');
+ const history=$('chatHistory');
+ function appendTurn(kind,txt,label){
+  const div=document.createElement('div');div.className='chat-turn '+kind;
+  const small=document.createElement('small');small.textContent=label;div.appendChild(small);
+  const span=document.createElement('span');span.textContent=txt;div.appendChild(span);
+  history.appendChild(div);history.scrollTop=history.scrollHeight;
+ }
+ function reply(question,answer){
+  appendTurn('question',question,'Vraag van de leerling');
+  if(answer){appendTurn('answer',answer,'Historische uitleg · bestaande gesprekstekst')}
+  else{appendTurn('answer','Dat kan ik op basis van de beschikbare gespreksteksten nog niet betrouwbaar beantwoorden. Kies hieronder een onderzoeksvraag, of probeer een vraag over wat deze persoon heeft meegemaakt. In een latere versie kan een beveiligde AI-historische gids dit via gecontroleerde bronnen verder onderzoeken.','Geen betrouwbaar antwoord beschikbaar')}
+ }
+ $('questionForm').addEventListener('submit',e=>{
+  e.preventDefault();const inp=$('freeQuestion'),v=inp.value.trim();
+  if(!v)return;
+  reply(v,findGroundedAnswer(id,v));inp.value='';inp.focus();
+ });
+ (person.qa||[]).forEach(([q,a])=>{const b=document.createElement('button');b.className='answer';b.type='button';b.textContent=q;b.onclick=()=>reply(q,a);$('q').appendChild(b)});
 }
+
 function information(id){
  const s=SCENES[current],v=TOPICS[id]||{title:'Over deze plek',body:s.description,status:s.status,source:'Bronnenregister Mesch 1944'};
  openPanel('<span class="pill">Historisch onderzoeken</span><h2>'+esc(v.title||s.title)+'</h2><p>'+esc(v.body||s.description)+'</p><h3>Wat weten we zeker?</h3><p class="muted">'+esc(v.status||s.status||'Reconstructie; details niet volledig geverifieerd')+'</p><p class="muted"><strong>Bron / dossier:</strong> '+esc(v.source||'Historische documentatie Mesch 1944')+'</p><p class="muted">Deze schildering is geen archieffoto. Exacte gevels, interieurs en posities kunnen artistiek zijn ingevuld.</p>');
