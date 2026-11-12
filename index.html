@@ -87,7 +87,32 @@ function renderPortraitQuestions(s){
    button.addEventListener('click',()=>{response.textContent=answer});wrap.appendChild(button)
  }
 }
-function displayScene(id,{push=true}={}){if(!SCENES[id])return; if(push&&id!==current)history.push(current);current=id;const s=scene();$('canvas').classList.toggle('wide-painting',!!s.wide);$('canvas').classList.toggle('person-focused',s.personKey==='american');$('mainImage').src=s.image;$('mainImage').alt=s.title;$('asideImage').src=s.thumb;$('sceneTitle').textContent=s.title;$('placeTitle').textContent=s.title;$('placeIntro').textContent=s.description||'Een artistieke verbeelding van Mesch rond de bevrijding.';$('sceneLabel').textContent=(s.place||'MESCH').toUpperCase();$('questionTitle').textContent=s.prompt;renderPortraitQuestions(s);$('answerBox').value=notes[id]||'';$('hintText').hidden=true;$('hotspotOverlay').replaceChildren();for(const h of s.hotspots||[]){const b=document.createElement('button');b.className='point kind-'+h.type;b.style.left=h.x+'%';b.style.top=h.y+'%';b.style.width=h.w+'%';b.style.height=h.h+'%';b.setAttribute('aria-label',h.label);b.innerHTML='<span class="point-dot">'+({talk:'♟',enter:'⌂',move:'➜',inspect:'i'}[h.type]||'i')+'</span><span class="point-tip">'+esc(h.label)+'</span>';b.addEventListener('click',e=>{e.stopPropagation();handleHotspot(h)});$('hotspotOverlay').appendChild(b)}
+const warmCache=new Map();
+let shownPainting=null;
+function warmPainting(id){
+ const item=SCENES[id];if(!item||warmCache.has(id))return;
+ const img=new Image();img.decoding='async';img.src=item.image;warmCache.set(id,img);
+ if(img.decode)img.decode().catch(()=>{});
+ if(warmCache.size>5){const oldest=warmCache.keys().next().value;if(oldest!==id&&oldest!==current)warmCache.delete(oldest)}
+}
+function warmNeighbors(id){
+ const i=ROUTE.indexOf(id);
+ if(i>=0){if(i+1<ROUTE.length)warmPainting(ROUTE[i+1]);if(i>0)warmPainting(ROUTE[i-1]);}
+ if(id==='u14')warmPainting('gg3-w');
+ if(id==='gg3-w')warmPainting('gg2-w');
+ if(id==='gg2-w')warmPainting('german-detail');
+}
+function transitionPainting(id,s){
+ if(shownPainting===id)return;shownPainting=id;
+ const im=$('mainImage');im.decoding='async';im.src=s.image;im.alt=s.title;
+ if(im.animate&&!matchMedia('(prefers-reduced-motion: reduce)').matches){
+  im.getAnimations().forEach(a=>a.cancel());
+  im.animate([{opacity:.78},{opacity:1}],{duration:105,easing:'ease-out'});
+ }
+ if('requestIdleCallback' in window)requestIdleCallback(()=>warmNeighbors(id),{timeout:280});
+ else setTimeout(()=>warmNeighbors(id),80);
+}
+function displayScene(id,{push=true}={}){if(!SCENES[id])return; if(push&&id!==current)history.push(current);current=id;const s=scene();$('canvas').classList.toggle('wide-painting',!!s.wide);$('canvas').classList.toggle('person-focused',s.personKey==='american');transitionPainting(id,s);$('asideImage').src=s.thumb;$('sceneTitle').textContent=s.title;$('placeTitle').textContent=s.title;$('placeIntro').textContent=s.description||'Een artistieke verbeelding van Mesch rond de bevrijding.';$('sceneLabel').textContent=(s.place||'MESCH').toUpperCase();$('questionTitle').textContent=s.prompt;renderPortraitQuestions(s);$('answerBox').value=notes[id]||'';$('hintText').hidden=true;$('hotspotOverlay').replaceChildren();for(const h of s.hotspots||[]){const b=document.createElement('button');b.className='point kind-'+h.type;b.style.left=h.x+'%';b.style.top=h.y+'%';b.style.width=h.w+'%';b.style.height=h.h+'%';b.setAttribute('aria-label',h.label);b.innerHTML='<span class="point-dot">'+({talk:'♟',enter:'⌂',move:'➜',inspect:'i'}[h.type]||'i')+'</span><span class="point-tip">'+esc(h.label)+'</span>';b.addEventListener('click',e=>{e.stopPropagation();handleHotspot(h)});$('hotspotOverlay').appendChild(b)}
 $('canvas').classList.toggle('show-points',highlightPoints);let ix=ROUTE.indexOf(current);
 $('btnPrev').disabled=!(history.length||ix>0);$('btnNext').disabled=ix<0||ix>=ROUTE.length-1}
 function handleHotspot(h){if(h.type==='talk'){openPersonScene(h.content,h.label)}else if(h.type==='inspect'){showInfo(h.content,h.label)}else if(h.target){displayScene(h.target)}else showInfo('sources',h.label)}
