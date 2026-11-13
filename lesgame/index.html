@@ -20,6 +20,10 @@ main{display:grid;place-items:center;height:100dvh;padding:12px}
 .schaduw{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#11130fe8 0%,transparent 23%,transparent 75%,#11130fe0 100%)}
 header{position:absolute;inset:clamp(10px,2.8cqh,30px) clamp(12px,3cqw,40px) auto;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
 header button{pointer-events:auto}
+.kopknoppen{display:flex;gap:2px}
+.kopknop{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid transparent;border-radius:50%;background:transparent;color:#e4dac5;text-shadow:0 1px 3px #111;font-size:13px}
+.kopknop:hover,.kopknop:focus-visible{background:#22221ab3;border-color:#e4d8b447;color:var(--ink)}
+.kopknop svg{width:14px;height:14px;filter:drop-shadow(0 1px 2px #111)}
 h1,h2,p{margin:0}
 h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #111}
 #plek{font-size:clamp(13px,2.5cqh,19px);color:var(--muted);text-shadow:0 2px 5px #000;margin-top:3px}
@@ -27,25 +31,25 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .knop:hover{background:#49442e;border-color:var(--accent)}
 #routes{--route-onder:calc(96% - 72px)}
 .route{position:absolute;left:clamp(23%,var(--route-links),77%);top:clamp(66px,var(--route-hoogte),var(--route-onder));transform:translate(-50%,-50%);min-height:42px;white-space:nowrap;font-size:clamp(12px,2.4cqh,16px)}
-.route,.knop#praat,.knop#info,.knop#sluit{
+.route,.knop#praat,.knop#sluit{
   background:#1c1d16a6;
   border-color:#e4d8b447;
   box-shadow:none;
   text-shadow:0 1px 3px #14140f;
 }
-.route:focus-visible,.knop#praat:focus-visible,.knop#info:focus-visible,.knop#sluit:focus-visible{
+.route:focus-visible,.knop#praat:focus-visible,.knop#sluit:focus-visible{
   background:#26261ded;
   border-color:var(--accent);
 }
 @media(hover:hover){
-  .route:hover,.knop#praat:hover,.knop#info:hover,.knop#sluit:hover{
+  .route:hover,.knop#praat:hover,.knop#sluit:hover{
     background:#26261ded;
     border-color:#e4d8b493;
   }
 }
-.route b{font-size:1.35em;line-height:1;font-weight:500;color:var(--accent)}
+.route b{font-size:1em;line-height:1;font-weight:500;color:var(--muted)}
 #praat{position:absolute;right:3%;bottom:4%;font-size:clamp(12px,2.4cqh,16px)}
-#praat span{font-size:1.2em;color:var(--accent)}
+#praat span{font-size:.9em;color:var(--muted)}
 #gesprek{position:absolute;inset:0;background:#211f17}
 #gesprek .beeld{object-fit:cover;object-position:36% center}
 #gesprek .schaduw{background:linear-gradient(90deg,transparent 29%,#151611d6 54%,#151611f0 100%)}
@@ -98,7 +102,12 @@ main{padding:0}
 <div class="schaduw"></div>
 <header>
 <div><h1>Mesch</h1><p id="plek" aria-live="polite" tabindex="-1"></p></div>
-<button class="knop" id="info" type="button" aria-label="Over deze game">?</button>
+<div class="kopknoppen">
+<button class="kopknop" id="herstart" type="button" aria-label="Nieuwe ronde" title="Nieuwe ronde">
+<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 11a8 8 0 1 1 2.3 6.7M4 5v6h6"/></svg>
+</button>
+<button class="kopknop" id="info" type="button" aria-label="Over deze game" title="Over deze game">?</button>
+</div>
 </header>
 <nav id="routes" aria-label="Loop door Mesch"></nav>
 <button class="knop" id="praat" type="button" hidden><span aria-hidden="true">◇</span><strong></strong></button>
@@ -120,6 +129,11 @@ main{padding:0}
 <p>De game speelt rond de bevrijding van Mesch op 12 september 1944. De gesprekken zijn geschreven voor het spel. De schoolmeester is gebaseerd op het verslag van Jef Warnier. De andere rollen zijn samengesteld uit historische bronnen. De schilderingen vullen details van de omgeving en de mensen in.</p>
 <button class="knop" id="nieuwe-ronde" type="button" hidden>Start een nieuwe lesronde</button>
 <form method="dialog"><button class="knop" autofocus>Sluiten</button></form>
+</dialog>
+<dialog id="bevestig-ronde" aria-labelledby="ronde-titel" aria-describedby="ronde-uitleg">
+<h2 id="ronde-titel">Nieuwe ronde?</h2>
+<p id="ronde-uitleg">Je gaat terug naar de dorpsrand. Je antwoorden van deze ronde worden gewist.</p>
+<form method="dialog"><button class="knop" autofocus>Verder spelen</button> <button class="knop" id="start-ronde" type="button">Start nieuwe ronde</button></form>
 </dialog>
 <script>
 const beelden = {
@@ -275,6 +289,9 @@ const plek = document.querySelector("#plek");
 const routes = document.querySelector("#routes");
 const praat = document.querySelector("#praat");
 const info = document.querySelector("#info");
+const herstart = document.querySelector("#herstart");
+const bevestigRonde = document.querySelector("#bevestig-ronde");
+const startRonde = document.querySelector("#start-ronde");
 const over = document.querySelector("#over");
 const nieuweRonde = document.querySelector("#nieuwe-ronde");
 const gesprek = document.querySelector("#gesprek");
@@ -451,6 +468,7 @@ function zetGesprek(open){
   gesprek.hidden = !open;
   routes.inert = open;
   info.inert = open;
+  herstart.inert = open;
   praat.inert = open;
   if (!open) praat.focus({preventScroll:true});
 }
@@ -521,9 +539,15 @@ function toonLesbediening(){
 window.addEventListener("hashchange",toonLesbediening);
 toonLesbediening();
 info.addEventListener("click",() => over.showModal());
-nieuweRonde.addEventListener("click",async () => {
-  if (nieuweRonde.hidden || !over.open || !gesprek.hidden) return;
-  if (!window.confirm("Een nieuwe ronde start bij de dorpsrand en wist de antwoorden van deze ronde. Wil je doorgaan?")) return;
+herstart.addEventListener("click",() => {
+  if (gesprek.hidden && !over.open && !bevestigRonde.open) bevestigRonde.showModal();
+});
+nieuweRonde.addEventListener("click",() => {
+  if (!nieuweRonde.hidden && over.open && gesprek.hidden && !bevestigRonde.open) bevestigRonde.showModal();
+});
+startRonde.addEventListener("click",async () => {
+  if (!bevestigRonde.open || !gesprek.hidden) return;
+  bevestigRonde.close();
   gekozenAntwoorden.clear();
   directeTekst.clear();
   try{
@@ -552,7 +576,7 @@ document.addEventListener("keydown",event => {
     }
     return;
   }
-  if (over.open || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (over.open || bevestigRonde.open || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
   const passendeUitgangen = uitgangen(plaats).filter(({positie}) => richtingen[positie[2]].includes(event.key));
   if (passendeUitgangen.length === 1){
     event.preventDefault();
