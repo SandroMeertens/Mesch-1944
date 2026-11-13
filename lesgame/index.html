@@ -1,0 +1,566 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#171913">
+<title>Mesch · De bevrijding</title>
+<style>
+:root{color-scheme:dark;--ink:#fff5dd;--muted:#dfd1b6;--panel:#26261e;--edge:#bca67780;--accent:#efdb9d}
+*{box-sizing:border-box}
+html,body{width:100%;height:100%;margin:0;overflow:hidden}
+body{background:#151711;color:var(--ink);font:500 16px/1.4 system-ui,sans-serif}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:3px solid #fbe4a0;outline-offset:4px}
+[hidden]{display:none!important}
+main{display:grid;place-items:center;height:100dvh;padding:12px}
+#spel{position:relative;isolation:isolate;width:min(100%,calc((100dvh - 24px)*1.77778));aspect-ratio:16/9;overflow:hidden;border:1px solid #85765562;border-radius:12px;background:#22241b;container-type:size}
+.beeld{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#1a1c15}
+#plaat{filter:brightness(var(--helderheid,1)) contrast(var(--contrast,1)) saturate(var(--kleur,1))}
+.schaduw{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#11130fe8 0%,transparent 23%,transparent 75%,#11130fe0 100%)}
+header{position:absolute;inset:clamp(10px,2.8cqh,30px) clamp(12px,3cqw,40px) auto;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
+header button{pointer-events:auto}
+h1,h2,p{margin:0}
+h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #111}
+#plek{font-size:clamp(13px,2.5cqh,19px);color:var(--muted);text-shadow:0 2px 5px #000;margin-top:3px}
+.knop{background:#202118dc;border:1px solid var(--edge);border-radius:999px;min-width:44px;min-height:44px;padding:6px 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 2px 14px #18160e44}
+.knop:hover{background:#49442e;border-color:var(--accent)}
+#routes{--route-onder:calc(96% - 72px)}
+.route{position:absolute;left:clamp(23%,var(--route-links),77%);top:clamp(66px,var(--route-hoogte),var(--route-onder));transform:translate(-50%,-50%);min-height:42px;white-space:nowrap;font-size:clamp(12px,2.4cqh,16px)}
+.route,.knop#praat,.knop#info,.knop#sluit{
+  background:#1c1d16a6;
+  border-color:#e4d8b447;
+  box-shadow:none;
+  text-shadow:0 1px 3px #14140f;
+}
+.route:focus-visible,.knop#praat:focus-visible,.knop#info:focus-visible,.knop#sluit:focus-visible{
+  background:#26261ded;
+  border-color:var(--accent);
+}
+@media(hover:hover){
+  .route:hover,.knop#praat:hover,.knop#info:hover,.knop#sluit:hover{
+    background:#26261ded;
+    border-color:#e4d8b493;
+  }
+}
+.route b{font-size:1.35em;line-height:1;font-weight:500;color:var(--accent)}
+#praat{position:absolute;right:3%;bottom:4%;font-size:clamp(12px,2.4cqh,16px)}
+#praat span{font-size:1.2em;color:var(--accent)}
+#gesprek{position:absolute;inset:0;background:#211f17}
+#gesprek .beeld{object-fit:cover;object-position:36% center}
+#gesprek .schaduw{background:linear-gradient(90deg,transparent 29%,#151611d6 54%,#151611f0 100%)}
+#sluit{position:absolute;z-index:1;top:3%;right:3%;min-height:42px;font-size:clamp(12px,2.4cqh,16px)}
+#chat{position:absolute;top:14%;bottom:5%;right:4%;width:47%;display:flex;flex-direction:column;justify-content:center;gap:clamp(5px,1.35cqh,14px)}
+#rol{font:700 clamp(19px,4.2cqh,39px)/1.04 Georgia,serif}
+.tekst{padding:clamp(8px,1.9cqh,19px);border:1px solid #ae9c7063;background:#28271de8;border-radius:10px;font-size:clamp(13px,2.9cqh,21px);line-height:1.33;overflow-wrap:anywhere}
+#antwoord{display:grid}
+#antwoord span{grid-area:1/1}
+#antwoord[data-typt] #leesbare-tekst{opacity:0}
+#opties{display:grid;gap:clamp(4px,1cqh,9px)}
+.keuze{width:100%;padding:clamp(6px,1.35cqh,13px) 10px;text-align:left;line-height:1.2;font-size:clamp(12px,2.55cqh,18px);border:1px solid #b7a37388;border-radius:8px;background:#28271eea}
+.keuze:hover{background:#51482c;border-color:var(--accent)}
+dialog{color:var(--ink);background:var(--panel);border:1px solid var(--edge);border-radius:12px;width:min(500px,calc(100vw - 36px));max-height:calc(100dvh - 28px);padding:20px}
+dialog::backdrop{background:#11130ddd}
+dialog h2{font:700 26px Georgia,serif;margin-bottom:10px}
+dialog p{margin-bottom:12px}
+dialog .knop{margin-top:9px}
+@media(max-aspect-ratio:1/1){
+main{padding:0}
+#spel{width:100%;height:100%;aspect-ratio:auto;border:0;border-radius:0}
+.beeld{object-fit:cover}
+#plaat{object-position:var(--uitsnede,50%) center}
+#routes{--route-onder:calc(97% - 72px - env(safe-area-inset-bottom))}
+.route{max-width:44%;font-size:12px;padding:6px 9px;white-space:normal;text-align:left;line-height:1.15}
+#praat{bottom:calc(3% + env(safe-area-inset-bottom));font-size:13px}
+#gesprek .beeld{height:57%;object-position:24% 36%}
+#gesprek .schaduw{background:linear-gradient(180deg,transparent 31%,#211f17 57%)}
+#chat{top:auto;bottom:calc(3% + env(safe-area-inset-bottom));left:5%;right:5%;width:auto;gap:6px}
+#rol{font-size:clamp(20px,4.4cqh,30px)}
+.tekst{font-size:clamp(13px,2.55cqh,18px);padding:9px 10px}
+.keuze{font-size:clamp(12px,2.3cqh,16px);padding:8px 10px}
+}
+@media(max-height:460px) and (min-aspect-ratio:1/1){
+main{padding:0}
+#spel{width:min(100%,calc(100dvh*1.77778));border:0;border-radius:0}
+#chat{top:14%;bottom:2%;right:3%;width:49%;gap:4px}
+#sluit{min-height:30px;padding:3px 10px;top:2%}
+.tekst{font-size:clamp(11px,3.6cqh,14px);padding:5px 7px}
+.keuze{font-size:clamp(11px,3.3cqh,13px);padding:4px 7px}
+}
+
+</style>
+<link rel="preload" as="image" href="beelden/22-99e25aa361.webp" fetchpriority="high">
+</head>
+<body>
+<main>
+<section id="spel" aria-label="Verken de bevrijding van Mesch">
+<img id="plaat" class="beeld" alt="" decoding="async">
+<div class="schaduw"></div>
+<header>
+<div><h1>Mesch</h1><p id="plek" aria-live="polite" tabindex="-1"></p></div>
+<button class="knop" id="info" type="button" aria-label="Over deze game">?</button>
+</header>
+<nav id="routes" aria-label="Loop door Mesch"></nav>
+<button class="knop" id="praat" type="button" hidden><span aria-hidden="true">◇</span><strong></strong></button>
+<section id="gesprek" role="dialog" aria-modal="true" aria-labelledby="rol" hidden>
+<img id="portret" class="beeld" alt="">
+<div class="schaduw"></div>
+<button class="knop" id="sluit" type="button">Terug naar de plaat</button>
+<div id="chat">
+<h2 id="rol"></h2>
+<p class="tekst" id="antwoord" tabindex="-1"><span id="leesbare-tekst"></span><span id="typende-tekst" aria-hidden="true"></span></p>
+<div id="opties"></div>
+</div>
+</section>
+</section>
+</main>
+<dialog id="over" aria-labelledby="over-titel">
+<h2 id="over-titel">Over deze game</h2>
+<p>Loop met de pijlen door Mesch. Tik op ‘Praat met…’ en lees het verhaal. Daarna kies je één antwoord. Vertel elkaar wat je te weten bent gekomen.</p>
+<p>De game speelt rond de bevrijding van Mesch op 12 september 1944. De gesprekken zijn geschreven voor het spel. De schoolmeester is gebaseerd op het verslag van Jef Warnier. De andere rollen zijn samengesteld uit historische bronnen. De schilderingen vullen details van de omgeving en de mensen in.</p>
+<button class="knop" id="nieuwe-ronde" type="button" hidden>Start een nieuwe lesronde</button>
+<form method="dialog"><button class="knop" autofocus>Sluiten</button></form>
+</dialog>
+<script>
+const beelden = {
+  "14": "beelden/14-5548580760.webp",
+  "22": "beelden/22-99e25aa361.webp",
+  "10": "beelden/10-7da81f88ee.webp",
+  "12": "beelden/12-7759df69ef.webp",
+  "11": "beelden/11-a81b18d1c7.webp",
+  "09": "beelden/09-cc889f5d4b.webp",
+  "01": "beelden/01-8ed1456ed0.webp",
+  "20": "beelden/20-33d05d31f5.webp",
+  "13": "beelden/13-40dd9fd336.webp",
+  "21": "beelden/21-c2f03c2244.webp",
+  "02": "beelden/02-839239e720.webp",
+  "04": "beelden/04-14bc4a1e45.webp",
+  "06": "beelden/06-cc0e3fd621.webp",
+  "meester": "beelden/meester-4a478b8341.webp",
+  "inwoner": "beelden/inwoner-f308fed5bf.webp",
+  "soldaat": "beelden/soldaat-3f81e1903e.webp",
+  "cafe": "beelden/cafe-11956debc8.webp"
+};
+const plekken = [
+  {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,beeldcorrectie:[1.065,1.03,.96],stem:"soldaat",
+    heen:[55,65,"↗","Volg de weg"]},
+  {beeld:"20",naam:"Bij de heg",alt:"Bewoners kijken over de heg naar de soldaten die over de dorpsweg naderen.",focus:45,stem:"inwoner",
+    terug:[44,88,"↙","Dorpsrand"],heen:[85,62,"↗","Verder langs de heg"]},
+  {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,stem:"soldaat",
+    terug:[54,88,"↘","Terug langs de heg"],heen:[32,60,"↖","Volg de dorpsweg"]},
+  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,stem:"meester",school:true,
+    terug:[41,87,"↙","Terug naar de weg"],heen:[80,63,"↗","Naar de Grijzegraaf"]},
+  {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,stem:"meester",school:true,
+    terug:[42,88,"↙","Bij de school"],heen:[91,66,"↗","Volg de Grijzegraaf"]},
+  {beeld:"11",naam:"Tussen de dorpshuizen",alt:"Amerikaanse militairen passeren huizen waar bewoners in de deuropening staan.",focus:57,stem:"soldaat",
+    terug:[43,86,"↙","Grijzegraaf"],heen:[60,58,"↗","Verder door de straat"]},
+  {beeld:"14",naam:"De dorpsstraat",alt:"Kinderen en volwassenen zien Amerikaanse soldaten verderop in de straat.",focus:47,stem:"inwoner",
+    terug:[43,89,"↙","Terug tussen de huizen"],heen:[61,61,"↗","Verder de straat in"]},
+  {beeld:"12",naam:"Bij de buren",alt:"Bewoners komen naar buiten en kijken naar de militairen in de straat.",focus:45,stem:"inwoner",
+    terug:[56,88,"↙","Terug door de straat"],heen:[74,62,"↗","Naar het dorpshart"]},
+  {beeld:"10",naam:"Het dorpshart",alt:"Een Amerikaanse soldaat en een dorpsbewoner geven elkaar een hand tussen de omstanders.",focus:58,stem:"inwoner",
+    terug:[42,88,"↙","Terug naar de buren"],heen:[76,61,"↗","Langs de velden"]},
+  {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,stem:"inwoner",
+    terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
+  {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bewoners en soldaten staan voor het café, waar enkele Nederlandse vlaggen hangen.",focus:27,verhouding:1.5,stem:"cafe",
+    terug:[87,61,"→","Volg de straat terug"],heen:[28,35,"←","Ga het café in"]},
+  {beeld:"02",naam:"In Café Van Hoven",alt:"In het café maakt iemand de tafels schoon en verzamelt gebruikte doeken.",focus:53,stem:"cafe",
+    terug:[19,83,"↙","Weer naar buiten"]},
+  {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
+    terug:[18,65,"↖"]}
+];
+const schoolwoning = plekken.length - 1;
+const richtingen = {
+  "↖":["ArrowLeft","ArrowUp"],"↗":["ArrowRight","ArrowUp"],
+  "↙":["ArrowLeft","ArrowDown"],"↘":["ArrowRight","ArrowDown"],
+  "←":["ArrowLeft"],"→":["ArrowRight"]
+};
+const gesprekken = {
+  soldaat:{
+    naam:"Een Amerikaanse soldaat",knop:"de soldaat",
+    verhaal:[
+      "Wij komen uit België. Ik hoor bij de Amerikaanse 30e Infanteriedivisie. Onze bijnaam is Old Hickory. Een divisie is een grote groep soldaten die in kleinere eenheden is verdeeld.",
+      "Rond Mesch loopt de grens ook door akkers en boomgaarden. Aan de bomen kun je niet zien waar België ophoudt. Langs de weg kunnen grenspalen je helpen.",
+      "Bij grenspaal 35 kwam een groep van onze divisie Nederland binnen. Verderop trokken andere groepen over de grens. De bewoners zagen ons daardoor op verschillende plekken aankomen.",
+      "Buiten het dorp werd gevochten. Ook toen de eerste Amerikanen in Mesch waren, ging de strijd verder in de streek. Een bevrijd dorp kon nog dicht bij het front liggen.",
+      "Wie ons vanuit zijn huis zag, kende maar één stukje van onze tocht. Als je meer wilt weten, kun je onderzoeken welke wegen we namen of vergelijken wie waar aankwam."
+    ],
+    vraag:"Wat wil jij over onze aankomst uitzoeken?",
+    keuzes:[
+      ["Ik wil weten welke wegen jullie namen.",[
+        "In het plaatselijke geschiedboek staan drie wegen waarlangs Amerikaanse troepen Mesch bereikten: de Bovenste Berneauweg, de Onderste Berneauweg en de Moelingenweg.",
+        "Warnier beschreef ook hoe soldaten vanuit een wei door een heg op de Grijzegraaf kwamen. Een groep jeeps kwam via de Onderste Berneauweg en stopte bij de school.",
+        "Na Mesch ging de voorhoede verder richting Mescherheide en Moerslag. Als je die plaatsnamen op een kaart zoekt, kun je de tocht van grens naar dorp en verder volgen."
+      ]],
+      ["Ik wil weten wie het eerst aankwam.",[
+        "Het gedenkteken bij Mesch herinnert aan de grensoversteek van de Old Hickory. De familie Smeets in Laag-Caestert vertelde wanneer Amerikaanse voertuigen hun boerderij bereikten.",
+        "Ook Noorbeek wordt genoemd als eerste bevrijde dorp. De grensoversteek, de aankomst bij een boerderij en de bevrijding van een dorp zijn verschillende gebeurtenissen.",
+        "Als twee bronnen allebei zeggen dat hun plek de eerste was, zoek dan uit wat ze precies bedoelen. Kijk wie het opschreef, waar die persoon was en welke gebeurtenis werd bedoeld."
+      ]]
+    ]
+  },
+  inwoner:{
+    naam:"Een inwoner van Mesch",knop:"de inwoner",
+    verhaal:[
+      "De familie Warnier woonde bij de school aan de Grijzegraaf. Aan de overkant woonde de familie Van Hoven bij het café. Toen het schieten dichterbij kwam, schuilden beide gezinnen in hun kelder.",
+      "Van beneden kon je de schoten horen. Om te zien wie er buiten liep, moest je naar boven. De schoolmeester ging kijken toen het stiller werd.",
+      "De familie Van Hoven bleef nog beneden. Toen ze weer boven kwamen, moesten ze eerst opruimen. Voor buren aan dezelfde straat kon de bevrijding er heel verschillend uitzien.",
+      "Pastoor Hanöver schreef een korte aantekening in het boek van de kerk. De schoolmeester hield een eigen verslag bij. De pastoor schreef over de pastorie, de schoolmeester over zijn huis en de school.",
+      "Op een schildering kun je in één keer veel zien. Een ooggetuige ziet wat vanaf zijn eigen plek zichtbaar is. Juist daarom is het interessant om de twee verhalen naast elkaar te leggen."
+    ],
+    vraag:"Welk ooggetuigenverhaal wil je volgen?",
+    keuzes:[
+      ["Ik kies het verhaal van de schoolmeester.",[
+        "Warnier schreef dat hij beneden schoten hoorde. Toen het stil werd en hij boven kwam, zag hij een Duitse soldaat met zijn handen omhoog. Voor hem stond een Amerikaanse soldaat.",
+        "Warnier liep naar buiten om de Amerikaan welkom te heten. Hij beschreef ook hoe andere Amerikanen vanuit de wei, door de heg, op de Grijzegraaf kwamen.",
+        "Het verslag helpt je zijn volgorde te begrijpen: eerst hoorde hij schoten, daarna zag hij de overgave. Voor wat tegelijk aan de andere kant van Mesch gebeurde, heb je een ander verslag nodig."
+      ]],
+      ["Ik kies de aantekening van de pastoor.",[
+        "Pastoor Herman Hanöver hield het boek van de kerk bij. Over de bevrijding schreef hij maar drie regels. Daarin noemt hij de Brul, het pad achter de pastorie.",
+        "Hij schreef dat Amerikaanse troepen via dat pad Mesch binnenkwamen. In zijn aantekening zette hij een later tijdstip dan het plaatselijke geschiedboek noemt voor de aankomst van troepen langs andere wegen.",
+        "De plaats helpt je het verschil onderzoeken. Een bericht over de troepen bij de pastorie gaat over een andere plek dan een bericht over de eerste aankomst bij de dorpsrand."
+      ]]
+    ]
+  },
+  meester:{
+    naam:"De schoolmeester",knop:"de schoolmeester",
+    verhaal:[
+      "Ik ben Jef Warnier, de schoolmeester van Mesch. Mijn gezin woonde bij de school. In de laatste nachten van de bezetting zochten we beschutting in onze kelder.",
+      "We hoorden buiten schieten. Later klonk er een harde knal. Duitse militairen hadden hun voorraad munitie opgeblazen. Toen het rustiger werd, ging ik boven kijken.",
+      "Ik zag een Duitse soldaat met zijn handen omhoog. Er stond een Amerikaan tegenover hem. Ik ging naar buiten om de Amerikaan welkom te heten.",
+      "Er verschenen jeeps bij de school. Ik vond ze er maar klein uitzien. Toen een Amerikaanse officier mij vroeg de weg te wijzen, reed ik zelf mee in zo’n jeep.",
+      "Ik heb mijn belevenissen met potlood opgeschreven. Twee ontmoetingen zijn me bijgebleven: een soldaat die iets wilde ruilen en een soldaat die bij ons bleef slapen."
+    ],
+    vraag:"Over welke ontmoeting wil jij meer weten?",
+    keuzes:[
+      ["Ik wil weten wat u ruilde.",[
+        "Een Amerikaanse soldaat wilde een flesje inkt. Ik gaf hem inkt van de school. Hij gaf mij een pakje sigaretten van het merk Raleigh.",
+        "Ik bewaarde de verpakking en schreef op een briefje hoe ik eraan kwam. Op de verpakking kun je het merk lezen. Het briefje vertelt met wie ik ruilde en wat ik ervoor gaf.",
+        "Stel je voor dat alleen de verpakking was bewaard. Dan kon je zien welk merk het was, maar de ruil voor inkt stond er niet op. Het voorwerp en het briefje vullen elkaar aan."
+      ]],
+      ["Ik wil weten wie er bleef slapen.",[
+        "De meeste Amerikanen trokken door de wei naast de school in de richting van de Mescherhei. Eén soldaat bleef achter. We brachten de avond bij kaarslicht door.",
+        "We probeerden met elkaar te praten, zo goed als het lukte. Hij sliep in een bed van ons. Mijn gezin ging weer naar de kelder.",
+        "De volgende ochtend vertrok hij achter zijn kameraden aan. Bij het afscheid maakte hij op mij een terneergeslagen indruk. Dat schreef ik later op als mijn indruk van hem."
+      ]]
+    ]
+  },
+  cafe:{
+    naam:"Een medewerker van het café",knop:"de cafémedewerker",
+    verhaal:[
+      "Dit is Café Van Hoven, aan de Grijzegraaf. Duitse militairen trokken uit de Belgische Voerstreek terug naar Mesch. Ze gebruikten het café als noodhospitaal, een tijdelijke plek om gewonden te verzorgen.",
+      "Achter het café stonden wagens met munitie. De familie Van Hoven kreeg te horen dat ze in de kelder moest schuilen. Aan de overkant woonde de schoolmeester.",
+      "In het dorp klonk een harde ontploffing. Duitse militairen hadden hun voorraad munitie opgeblazen. De familie Van Hoven bleef beneden terwijl er in de buurt nog werd geschoten.",
+      "Toen de Duitse militairen weg waren, kwam de familie weer uit de kelder. Boven begon de grote schoonmaak. In het plaatselijke geschiedboek staat welke spullen ze aantroffen.",
+      "De schildering laat zien hoe die opruiming eruit kan hebben gezien. Aan een verslag kun je andere vragen stellen dan aan een schilderij. Jij mag kiezen wat je onderzoekt."
+    ],
+    vraag:"Wat wil jij over het noodhospitaal onderzoeken?",
+    keuzes:[
+      ["Ik wil weten wat er nog in de kamer lag.",[
+        "In het verslag staan verband en scharen. Verband beschermt een wond. Met een schaar kun je bijvoorbeeld verband op maat knippen. Zulke spullen passen bij de verzorging van gewonden.",
+        "De familie kwam uit de kelder om op te ruimen. Dat laat zien hoe de oorlog ook een gewone plek in het dorp veranderde: een café werd tijdelijk een plek voor ziekenzorg.",
+        "Uit verband en scharen kun je afleiden waarvoor de ruimte werd gebruikt. Als je wilt weten welke mensen hier werden verzorgd, zou je een verslag zoeken waarin hun namen staan."
+      ]],
+      ["Ik wil weten hoe de kamer eruitzag.",[
+        "Het verslag noemt wat er in de kamer lag, zoals scharen en verband. Het beschrijft niet waar de tafels stonden of hoe de ramen eruitzagen.",
+        "Een foto van de kamer zou kunnen helpen. Kijk dan wanneer die is gemaakt. Als de foto van veel later is, kan de inrichting intussen zijn veranderd.",
+        "Je kunt ook zoeken naar een beschrijving uit die tijd. Vergelijk daarna welke details uit de bron komen en welke de schilder zelf moest invullen."
+      ]]
+    ]
+  }
+};
+const spel = document.querySelector("#spel");
+const plaat = document.querySelector("#plaat");
+const plek = document.querySelector("#plek");
+const routes = document.querySelector("#routes");
+const praat = document.querySelector("#praat");
+const info = document.querySelector("#info");
+const over = document.querySelector("#over");
+const nieuweRonde = document.querySelector("#nieuwe-ronde");
+const gesprek = document.querySelector("#gesprek");
+const portret = document.querySelector("#portret");
+const sluit = document.querySelector("#sluit");
+const rol = document.querySelector("#rol");
+const antwoord = document.querySelector("#antwoord");
+const opties = document.querySelector("#opties");
+const cache = new Map();
+let plaats = 0;
+let wissel = 0;
+let schoolVertrek;
+const staand = window.matchMedia("(max-aspect-ratio: 1/1)");
+function uitgangen(index){
+  const {terug,heen} = plekken[index];
+  if (index === schoolwoning){
+    const label = plekken[schoolVertrek].beeld === "09" ? "Terug naar de school" : "Terug naar de Grijzegraaf";
+    return [{doel:schoolVertrek,positie:[...terug.slice(0,3),label]}];
+  }
+  const lijst = [];
+  if (terug) lijst.push({doel:index - 1,positie:terug});
+  if (heen) lijst.push({doel:index + 1,positie:heen});
+  return lijst;
+}
+function plaatsPijlen(){
+  const breedte = spel.clientWidth;
+  const hoogte = spel.clientHeight;
+  if (!breedte || !hoogte) return;
+  const {focus,verhouding = 16/9} = plekken[plaats];
+  const beeldHoogte = staand.matches
+    ? Math.max(hoogte,breedte/verhouding)
+    : Math.min(hoogte,breedte/verhouding);
+  const beeldBreedte = beeldHoogte * verhouding;
+  const links = (breedte - beeldBreedte) * (staand.matches ? focus/100 : .5);
+  const boven = (hoogte - beeldHoogte) / 2;
+  const uit = uitgangen(plaats);
+  const voet = hoogte * (staand.matches ? .97 : .96) - 72;
+  const hoogtes = uit.map(({positie:[,y]}) => Math.min(voet,boven + beeldHoogte*y/100));
+  if (uit.length === 2){
+    const ruimte = (routes.children[0].offsetHeight + routes.children[1].offsetHeight)/2 + 6;
+    hoogtes[1] = Math.min(hoogtes[1],hoogtes[0]-ruimte);
+  }
+  for (const [i,{positie:[x]}] of uit.entries()){
+    const knop = routes.children[i];
+    if (!knop) continue;
+    knop.style.setProperty("--route-links",links + beeldBreedte*x/100 + "px");
+    knop.style.setProperty("--route-hoogte",hoogtes[i] + "px");
+  }
+}
+function laadBeeld(id){
+  if (!cache.has(id)){
+    const img = new Image();
+    img.src = beelden[id];
+    cache.set(id,img);
+  }
+  return cache.get(id);
+}
+function maakRoute({doel,positie:[,,pijl,label]}){
+  const knop = document.createElement("button");
+  knop.type = "button";
+  knop.className = "knop route";
+  const icoon = document.createElement("b");
+  icoon.setAttribute("aria-hidden","true");
+  icoon.textContent = pijl;
+  knop.append(icoon,document.createTextNode(label));
+  knop.setAttribute("aria-label",label);
+  knop.addEventListener("click",() => toonPlek(doel,true));
+  routes.append(knop);
+}
+async function toonPlek(index,focusRoute = false){
+  const aanvraag = ++wissel;
+  const vorig = plaats;
+  const nieuw = plekken[index];
+  praat.disabled = true;
+  const beeld = laadBeeld(nieuw.beeld);
+  if (!beeld.complete) await beeld.decode().catch(() => {});
+  if (aanvraag !== wissel) return;
+  plaats = index;
+  plaat.src = beeld.src;
+  plaat.alt = nieuw.alt;
+  plaat.style.setProperty("--uitsnede",nieuw.focus + "%");
+  const [helderheid,contrast,kleur] = nieuw.beeldcorrectie ?? [1,1,1];
+  plaat.style.setProperty("--helderheid",helderheid);
+  plaat.style.setProperty("--contrast",contrast);
+  plaat.style.setProperty("--kleur",kleur);
+  plek.textContent = nieuw.naam;
+  routes.replaceChildren();
+  for (const uitgang of uitgangen(index)){
+    maakRoute(uitgang);
+    laadBeeld(plekken[uitgang.doel].beeld);
+  }
+  plaatsPijlen();
+  praat.hidden = !nieuw.stem;
+  praat.disabled = false;
+  if (nieuw.stem){
+    praat.querySelector("strong").textContent = "Praat met " + gesprekken[nieuw.stem].knop;
+    laadBeeld(nieuw.stem);
+  }
+  if (nieuw.school) laadBeeld(plekken[schoolwoning].beeld);
+  if (index === schoolwoning && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    plaat.animate([{opacity:.14},{opacity:1}],{duration:360,easing:"ease-out"});
+  }
+  if (focusRoute && !over.open){
+    const route = index > vorig ? routes.lastElementChild : routes.firstElementChild;
+    (vorig === schoolwoning ? praat : route)?.focus({preventScroll:true});
+  }
+}
+const leesbareTekst = document.querySelector("#leesbare-tekst");
+const typendeTekst = document.querySelector("#typende-tekst");
+const minderBeweging = window.matchMedia("(prefers-reduced-motion: reduce)");
+const gekozenAntwoorden = new Map();
+const directeTekst = new Set();
+const antwoordSleutel = "mesch-verhaalkeuze-v1";
+let typTimer;
+let wachtOpAntwoord = false;
+
+try{
+  const bewaard = JSON.parse(window.sessionStorage.getItem(antwoordSleutel));
+  for (const [id,persoon] of Object.entries(gesprekken)){
+    const keuze = bewaard?.[id];
+    if (Number.isInteger(keuze) && persoon.keuzes[keuze]) gekozenAntwoorden.set(id,keuze);
+  }
+} catch {
+  // Playing from a local file can limit access to browser storage.
+}
+function stopTypen(){
+  window.clearInterval(typTimer);
+  antwoord.removeAttribute("data-typt");
+  typendeTekst.textContent = "";
+}
+function toonAntwoord(tekst,keuzes,{stem,typen = false} = {}){
+  stopTypen();
+  leesbareTekst.textContent = tekst;
+  opties.replaceChildren();
+  const voegKeuzeToe = (label,actie) => {
+    const knop = document.createElement("button");
+    knop.type = "button";
+    knop.className = "keuze";
+    knop.textContent = label;
+    knop.addEventListener("click",actie);
+    opties.append(knop);
+    return knop;
+  };
+  const toonKeuzes = () => {
+    opties.replaceChildren();
+    for (const [label,actie] of keuzes) voegKeuzeToe(label,actie);
+  };
+  if (typen && !minderBeweging.matches && !directeTekst.has(stem)){
+    const maakAf = () => {
+      const knopHadFocus = document.activeElement === opties.firstElementChild;
+      stopTypen();
+      toonKeuzes();
+      if (knopHadFocus) opties.firstElementChild.focus({preventScroll:true});
+    };
+    voegKeuzeToe("Toon hele tekst",() => {
+      directeTekst.add(stem);
+      maakAf();
+    });
+    antwoord.setAttribute("data-typt","");
+    let zichtbaar = 0;
+    typTimer = window.setInterval(() => {
+      zichtbaar += 2;
+      if (zichtbaar >= tekst.length) maakAf();
+      else typendeTekst.textContent = tekst.slice(0,zichtbaar);
+    },30);
+  } else {
+    toonKeuzes();
+  }
+  antwoord.focus({preventScroll:true});
+}
+function zetGesprek(open){
+  if (!open && wachtOpAntwoord) return;
+  if (!open) stopTypen();
+  gesprek.hidden = !open;
+  routes.inert = open;
+  info.inert = open;
+  praat.inert = open;
+  if (!open) praat.focus({preventScroll:true});
+}
+function openGesprek(){
+  if (praat.disabled) return;
+  const scene = plekken[plaats];
+  if (!scene.stem) return;
+  const persoon = gesprekken[scene.stem];
+  const terug = () => zetGesprek(false);
+  const naarWoning = () => {
+    schoolVertrek = plaats;
+    terug();
+    toonPlek(schoolwoning,true);
+  };
+  const einde = [["Terug naar de plaat",terug]];
+  const vergelijk = (deel = 0) => {
+    const opdracht = [
+      "Zoek een klasgenoot die bij de inwoner het andere verhaal koos. Vertel elkaar wie iets opschreef, waar die persoon was en wat die zag.",
+      "Leg jullie verhalen naast elkaar. Wat weet je nu over de bevrijding dat je uit jouw eigen verhaal nog niet wist?"
+    ];
+    toonAntwoord(opdracht[deel],deel === 0 ? [["Lees verder",() => vergelijk(1)],...einde] : einde);
+  };
+  const toonGekozenInfo = (keuze,deel = 0,typen = true) => {
+    const delen = persoon.keuzes[keuze][1];
+    const laatste = deel === delen.length - 1;
+    const acties = [...einde];
+    if (scene.school && keuze === 1) acties.unshift(["Kijk in de schoolwoning",naarWoning]);
+    if (scene.stem === "inwoner") acties.unshift(["Vergelijk met een klasgenoot",vergelijk]);
+    const volgende = laatste ? acties : [["Lees verder",() => toonGekozenInfo(keuze,deel + 1)]];
+    toonAntwoord(delen[deel],volgende,{stem:scene.stem,typen});
+  };
+  const stelVraag = () => {
+    wachtOpAntwoord = true;
+    sluit.hidden = true;
+    toonAntwoord(persoon.vraag,persoon.keuzes.map(([label],keuze) => [label,() => {
+      if (gekozenAntwoorden.has(scene.stem)) return;
+      gekozenAntwoorden.set(scene.stem,keuze);
+      try{
+        window.sessionStorage.setItem(antwoordSleutel,JSON.stringify(Object.fromEntries(gekozenAntwoorden)));
+      } catch {
+        // The choice remains available in this open game.
+      }
+      wachtOpAntwoord = false;
+      sluit.hidden = false;
+      toonGekozenInfo(keuze);
+    }]));
+  };
+  const vertel = (deel = 0) => {
+    const laatste = deel === persoon.verhaal.length - 1;
+    toonAntwoord(persoon.verhaal[deel],[
+      laatste ? ["Naar de vraag",stelVraag] : ["Lees verder",() => vertel(deel + 1)]
+    ],{stem:scene.stem,typen:true});
+  };
+  rol.textContent = persoon.naam;
+  portret.src = laadBeeld(scene.stem).src;
+  portret.alt = "Geschilderd portret van " + persoon.knop;
+  sluit.hidden = false;
+  zetGesprek(true);
+  const keuze = gekozenAntwoorden.get(scene.stem);
+  if (keuze === undefined) vertel();
+  else toonGekozenInfo(keuze,0,false);
+}
+praat.addEventListener("click",openGesprek);
+sluit.addEventListener("click",() => zetGesprek(false));
+function toonLesbediening(){
+  nieuweRonde.hidden = window.location.hash !== "#leerkracht";
+}
+window.addEventListener("hashchange",toonLesbediening);
+toonLesbediening();
+info.addEventListener("click",() => over.showModal());
+nieuweRonde.addEventListener("click",async () => {
+  if (nieuweRonde.hidden || !over.open || !gesprek.hidden) return;
+  if (!window.confirm("Een nieuwe ronde start bij de dorpsrand en wist de antwoorden van deze ronde. Wil je doorgaan?")) return;
+  gekozenAntwoorden.clear();
+  directeTekst.clear();
+  try{
+    window.sessionStorage.removeItem(antwoordSleutel);
+  } catch {
+    // The new round still works when browser storage is unavailable.
+  }
+  schoolVertrek = undefined;
+  over.close();
+  await toonPlek(0);
+  plek.focus({preventScroll:true});
+});
+document.addEventListener("keydown",event => {
+  if (!gesprek.hidden){
+    if (event.key === "Escape") zetGesprek(false);
+    if (event.key === "Tab"){
+      const eerste = sluit.hidden ? opties.firstElementChild : sluit;
+      const laatste = opties.lastElementChild;
+      if (event.shiftKey && [eerste,antwoord].includes(document.activeElement)){
+        event.preventDefault();
+        laatste?.focus({preventScroll:true});
+      } else if (!event.shiftKey && document.activeElement === laatste){
+        event.preventDefault();
+        eerste?.focus({preventScroll:true});
+      }
+    }
+    return;
+  }
+  if (over.open || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  const passendeUitgangen = uitgangen(plaats).filter(({positie}) => richtingen[positie[2]].includes(event.key));
+  if (passendeUitgangen.length === 1){
+    event.preventDefault();
+    toonPlek(passendeUitgangen[0].doel,true);
+  }
+});
+new ResizeObserver(plaatsPijlen).observe(spel);
+toonPlek(0);
+</script>
+</body>
+</html>
