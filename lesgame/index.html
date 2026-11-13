@@ -195,7 +195,8 @@ const beelden = {
   "portret-21": "beelden/portret-21-682eab0f07.webp",
   "portret-09": "beelden/portret-09-a1b05e2100.webp",
   "kelder": "beelden/kelder-4ce8f6b5da.webp",
-  "veldkeuken": "beelden/veldkeuken-9ad792959d.webp"
+  "veldkeuken": "beelden/veldkeuken-9ad792959d.webp",
+  "schoollokaal": "beelden/schoollokaal-d3b897e804.webp"
 };
 const plekken = [
   {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,stem:"soldaat",portret:"portret-22",
@@ -205,7 +206,7 @@ const plekken = [
   {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,stem:"soldaat",portret:"portret-01",
     terug:[54,88,"↘","Terug langs de heg"],heen:[32,60,"↖","Volg de dorpsweg"]},
   {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,stem:"meester",portret:"portret-09",portretfocus:33,school:true,
-    terug:[41,87,"↙","Terug naar de weg"],heen:[80,63,"↗","Naar de Grijzegraaf"]},
+    terug:[41,87,"↙","Terug naar de weg"],heen:[86,63,"→","Naar de Grijzegraaf"],ingang:[70,48,"↑","Ga het schoollokaal in"]},
   {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,stem:"inwoner",portret:"portret-21",
     terug:[42,88,"↙","Bij de school"],heen:[91,66,"↗","Volg de Grijzegraaf"]},
   {beeld:"11",naam:"Tussen de dorpshuizen",alt:"Amerikaanse militairen passeren huizen waar bewoners in de deuropening staan.",focus:57,stem:"soldaat",portret:"portret-11",
@@ -227,14 +228,18 @@ const plekken = [
   {beeld:"veldkeuken",naam:"Bij de veldkeuken",alt:"Een Amerikaanse kok geeft een kind een stuk brood bij een veldkeuken aan de rand van het dorp.",focus:48,stem:"veldkeuken",portret:"veldkeuken",portretfocus:43,
     terug:[30,83,"↖","Terug naar de schuilkelder"]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
-    terug:[18,65,"↖"]}
+    terug:[18,65,"↖"]},
+  {beeld:"schoollokaal",naam:"In het schoollokaal",alt:"Meester Warnier staat bij de deur. Op het bureau voor de houten schoolbanken staat een inktflesje.",focus:45,stem:"schoollokaal",portret:"schoollokaal",portretfocus:12,
+    terug:[12,72,"↓","Terug naar buiten bij de school"]}
 ];
-const schoolwoning = plekken.length - 1;
+const schoolBuiten = plekken.findIndex(scene => scene.school);
+const schoolwoning = plekken.findIndex(scene => scene.beeld === "04");
+const schoollokaal = plekken.findIndex(scene => scene.beeld === "schoollokaal");
 const veldkeuken = plekken.findIndex(scene => scene.beeld === "veldkeuken");
 const richtingen = {
   "↖":["ArrowLeft","ArrowUp"],"↗":["ArrowRight","ArrowUp"],
   "↙":["ArrowLeft","ArrowDown"],"↘":["ArrowRight","ArrowDown"],
-  "←":["ArrowLeft"],"→":["ArrowRight"]
+  "←":["ArrowLeft"],"→":["ArrowRight"],"↑":["ArrowUp"],"↓":["ArrowDown"]
 };
 const gesprekken = {
   soldaat:{
@@ -460,6 +465,40 @@ const gesprekken = {
       }
     ]
   },
+  schoollokaal:{
+    naam:"De schoolmeester",knop:"de schoolmeester",
+    verhaal:[
+      "In die tijd had de openbare lagere school van Mesch één leslokaal. Mijn gezin woonde in de onderwijzerswoning ernaast. Toen we schoten hoorden, zochten we daar beschutting in de kelder.",
+      "Op de dag van de bevrijding kreeg het schoolterrein een andere functie. Er kwamen Amerikaanse jeeps op de speelplaats. Ook iets uit de school, een potje inkt, kreeg een andere bestemming."
+    ],
+    vraag:"Welk spoor uit het verhaal wil je onderzoeken?",
+    keuzes:[
+      ["Waarom is het briefje bij het pakje belangrijk?",[
+        "Ik gaf een Amerikaan wat schoolinkt en kreeg er een pakje Raleigh-sigaretten voor terug. Ik bewaarde het omhulsel en schreef op een briefje hoe ik eraan was gekomen.",
+        "Op het pakje staat het merk. Het briefje legt uit van wie ik het kreeg en wat ik ervoor gaf. Bij elkaar vertellen ze over een ontmoeting tussen iemand uit het dorp en een bevrijder."
+      ]],
+      ["Wat veranderde er op de speelplaats?",[
+        "In de loop van die dag zag ik Amerikaanse jeeps op de speelplaats. Een plek die bij de school hoorde, werd tijdelijk gebruikt door soldaten die door het dorp trokken.",
+        "Later trok de grootste groep Amerikanen via de wei naast de school verder. Wat ik bij de school zag, vertelt iets over hoe het dorp veranderde toen de bevrijders erdoorheen kwamen."
+      ]]
+    ],
+    vervolg:[
+      {
+        vraag:"Een leerling ziet het inktflesje op deze plaat. Hoe kan die nagaan of de ruil in het lokaal plaatsvond?",
+        opties:[
+          ["Zoek of Warnier ook de plek van de ruil opschreef.","Het briefje helpt je te begrijpen wat er werd geruild. Voor de precieze plek heb je een beschrijving nodig die die plek ook noemt. De schilder heeft het flesje hier op het bureau gezet."],
+          ["Kijk of het flesje duidelijk op het bureau staat.","Dat vertelt waar de schilder het flesje heeft gezet. Voor de plek van de ruil zoek je een beschrijving uit die tijd of een getuige die erbij was."]
+        ]
+      },
+      {
+        vraag:"Warnier zag jeeps op de speelplaats. Hoe kun je onderzoeken waar ze daarna heen gingen?",
+        opties:[
+          ["Vergelijk zijn verhaal met dat van iemand verderop.","Warnier wist wat hij bij de school zag. Een bewoner verderop of een verslag van de soldaten kan helpen om te volgen waar ze daarna kwamen."],
+          ["Zoek een scherpere afbeelding van de speelplaats.","Daarop kun je misschien meer details zien van wat er bij de school stond. Om te weten waar de jeeps daarna kwamen, heb je ook informatie van een andere plek nodig."]
+        ]
+      }
+    ]
+  },
   veldkeuken:{
     naam:"Het verhaal van Jean",knop:"het verhaal van Jean Spons",label:"Lees het verhaal van Jean Spons",
     verhaal:[
@@ -539,13 +578,15 @@ let wissel = 0;
 let schoolVertrek;
 const staand = window.matchMedia("(max-aspect-ratio: 1/1)");
 function uitgangen(index){
-  const {terug,heen} = plekken[index];
+  const {terug,heen,ingang} = plekken[index];
   if (index === schoolwoning){
     const label = plekken[schoolVertrek].beeld === "09" ? "Terug naar de school" : "Terug naar de Grijzegraaf";
     return [{doel:schoolVertrek,positie:[...terug.slice(0,3),label]}];
   }
+  if (index === schoollokaal) return [{doel:schoolBuiten,positie:terug}];
   const lijst = [];
   if (terug) lijst.push({doel:index - 1,positie:terug});
+  if (ingang) lijst.push({doel:schoollokaal,positie:ingang,heen:true});
   if (heen) lijst.push({doel:index + 1,positie:heen,heen:true});
   return lijst;
 }
@@ -568,9 +609,11 @@ function plaatsBediening(){
   const uit = uitgangen(plaats);
   const voet = hoogte * (staand.matches ? .97 : .96) - 72;
   const hoogtes = uit.map(({positie:[,y]}) => Math.min(voet,boven + beeldHoogte*y/100));
-  if (uit.length === 2){
-    const ruimte = (routes.children[0].offsetHeight + routes.children[1].offsetHeight)/2 + 6;
-    hoogtes[1] = Math.min(hoogtes[1],hoogtes[0]-ruimte);
+  if (uit.length > 1){
+    const laatste = uit.length - 1;
+    const ruimte = (routes.children[0].offsetHeight + routes.children[laatste].offsetHeight)/2 + 6;
+    hoogtes[laatste] = Math.min(hoogtes[laatste],hoogtes[0]-ruimte);
+    if (uit.length === 3) hoogtes[1] = Math.min(hoogtes[1],hoogtes[laatste]-ruimte);
   }
   for (const [i,{positie:[x]}] of uit.entries()){
     const knop = routes.children[i];
@@ -645,7 +688,7 @@ async function toonPlek(index,focusRoute = false){
   }
   if (focusRoute && !over.open){
     const route = index > vorig ? routes.lastElementChild : routes.firstElementChild;
-    (nieuw.doeken || index === veldkeuken || vorig === schoolwoning ? praat : route)?.focus({preventScroll:true});
+    (nieuw.doeken || index === veldkeuken || index === schoollokaal || vorig === schoolwoning || vorig === schoollokaal ? praat : route)?.focus({preventScroll:true});
   }
 }
 const leesbareTekst = document.querySelector("#leesbare-tekst");
