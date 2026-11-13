@@ -9,14 +9,14 @@
 button{font:inherit;cursor:pointer}button:focus-visible{outline:3px solid #fff;outline-offset:4px}
 header{height:56px;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:0 max(12px,env(safe-area-inset-left));background:#152b24;border-bottom:1px solid var(--line)}
 .brand{font:700 21px Georgia,serif;white-space:nowrap}.brand span{color:var(--gold)}.topbuttons{display:flex;gap:7px;align-items:center}.topbuttons button{background:#2c4439;border:1px solid #d6c29355;color:var(--ink);border-radius:8px;padding:8px 11px;font-size:13px}
-main{min-height:calc(100dvh - 56px);position:relative;display:flex;flex-direction:column}
-#scene{flex:1;position:relative;display:grid;place-items:center;min-height:350px;isolation:isolate;overflow:hidden;background:#10231d}
+main{height:calc(100dvh - 56px);min-height:0;position:relative;display:flex;flex-direction:column}
+#scene{flex:1;position:relative;display:grid;grid-template-rows:minmax(0,1fr);place-items:center;min-height:0;isolation:isolate;overflow:hidden;background:#10231d}
 #backdrop{position:absolute;inset:-16px;width:calc(100% + 32px);height:calc(100% + 32px);object-fit:cover;filter:blur(12px) brightness(.3);opacity:.58;pointer-events:none}
 .plate-frame{position:relative;width:min(100vw,calc((100dvh - 57px)*1.5));aspect-ratio:3/2;max-height:calc(100dvh - 60px);box-shadow:0 16px 80px #0008;background:#0e1c18;overflow:hidden}
 #art{width:100%;height:100%;object-fit:contain;display:block;user-select:none}
 #points{position:absolute;inset:0;pointer-events:none}
 .hot-area{position:absolute;pointer-events:auto;border:0;background:transparent;padding:0;z-index:1}
-.hot.side-route{background:#182a23df;border-style:dashed}.hot.side-route b{font-size:18px}
+.hot.move b{display:block;transform:rotate(var(--heading,0deg))}
 .hot{position:absolute;z-index:3;pointer-events:auto;transform:translate(-50%,-50%);border:1px solid #fff7d39c;background:#17362bdc;color:#fff0d2;border-radius:24px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 9px;box-shadow:0 4px 14px #0009}
 .hot b{font-size:23px;line-height:1}.hot .tip{display:none;position:absolute;left:50%;top:calc(100% + 5px);transform:translateX(-50%);width:max-content;max-width:min(240px,75vw);text-align:center;font-size:12px;line-height:1.3;padding:7px 10px;background:#0b1d17f5;border-radius:7px;border:1px solid #ecd29b91;z-index:5}
 .hot:hover .tip,.hot:focus-visible .tip,.showtips .hot .tip{display:block}
@@ -24,14 +24,16 @@ main{min-height:calc(100dvh - 56px);position:relative;display:flex;flex-directio
 .hot.move{background:#1b392fb5}.hot.talk{background:#4b3524e6}.hot.inspect{background:#223e47dd}
 #status{position:absolute;top:14px;left:14px;background:#071b16dd;color:var(--gold);z-index:6;max-width:min(78%,400px);border:1px solid var(--line);padding:9px 12px;border-radius:10px;pointer-events:none}
 #status strong{display:block;color:#fff0d5;font:600 clamp(16px,2vw,22px) Georgia,serif}#status span{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
-#footer{position:absolute;bottom:0;left:0;right:0;z-index:6;pointer-events:none;display:flex;justify-content:space-between;align-items:flex-end;gap:8px;padding:18px;background:linear-gradient(transparent,#03130fea)}
+#footer{position:absolute;bottom:0;left:0;right:0;z-index:6;pointer-events:none;display:flex;justify-content:flex-end;align-items:flex-end;gap:8px;padding:18px;background:linear-gradient(transparent,#03130fea)}
 #footer small{font-size:12px;color:#efdfc1;text-shadow:0 1px 7px black}#footer button{pointer-events:auto;background:#22392fde;color:#ffe5ba;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:12px}
 .footer-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
-#footer .footer-actions button{min-height:44px}
+#footer .footer-actions button{min-height:38px}
+#frame[data-chat-open] #footer,#frame[data-chat-open] #status{visibility:hidden}
+#frame[data-chat-open]:has(.chat-portrait[hidden]) #status{visibility:visible}
 .route-list .pick small{display:block;color:#d6c8a8;margin-top:4px}
-#panel{display:none;position:fixed;z-index:20;inset:0;background:#030c0acc;align-items:center;justify-content:center;padding:15px}
+#panel{display:none;position:absolute;z-index:20;inset:0;background:#030c0acc;align-items:center;justify-content:center;padding:15px}
 #panel.open{display:flex}
-#sheet{width:min(660px,100%);max-height:min(88dvh,850px);overflow:auto;border:1px solid #eac48b66;border-radius:16px;background:#192b26;padding:22px;box-shadow:0 20px 90px #000c}
+#sheet{width:min(660px,100%);max-height:100%;overflow:hidden;border:1px solid #eac48b66;border-radius:16px;background:#192b26;padding:22px;box-shadow:0 20px 90px #000c}
 #sheet h2{font:600 27px Georgia,serif;margin:5px 42px 13px 0}#sheet h3{font:600 20px Georgia,serif;margin:18px 0 9px}
 #sheet p{margin:8px 0 13px;line-height:1.65}#sheet .muted{color:#bfcabf;font-size:13px}
 #sheet .pill{display:inline-block;border:1px solid #f3cc8866;border-radius:50px;padding:5px 9px;font-size:11px;letter-spacing:.03em;color:#f5d8a7}
@@ -46,64 +48,85 @@ main{min-height:calc(100dvh - 56px);position:relative;display:flex;flex-directio
 .chip[aria-selected=true]{background:#e5c18b;color:#19352c}
 kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 @media (max-width:700px){header{height:51px}.brand{font-size:17px}.topbuttons{gap:4px}.topbuttons button{font-size:11px;padding:7px 8px}
-#scene{min-height:calc(100dvh - 51px)}.plate-frame{width:100%;max-height:none}
+main{height:calc(100dvh - 51px)}.plate-frame{width:100%;max-height:100%}
 #status{top:8px;left:8px;max-width:90%;padding:7px 10px}#status strong{font-size:16px}#status span{font-size:9px}
 .hot{min-width:42px;min-height:42px;padding:6px}.hot b{font-size:20px}
 #footer{bottom:0;padding:9px 10px}#footer small{font-size:10px}
 #sheet{padding:15px}#sheet h2{font-size:23px}#atlasgrid{grid-template-columns:1fr}}
 
-#walk{display:flex;flex:1;flex-direction:column}
-#walk[hidden],#conversation[hidden],.topbuttons[hidden],.person-main[hidden]{display:none}
-#conversation{flex:1;position:relative;display:grid;align-items:stretch;background:#10231d}
-.person-layout{position:relative;display:grid;place-items:center;min-height:350px}
-.person-figure{display:grid;place-items:center;align-content:center;width:100%;margin:0}
-.person-figure .plate-frame{width:100%;max-height:none}
-.person-figure picture{display:block;width:100%;height:100%}
-.person-figure img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;background:#0e1c18}
-.person-figure .missing-portrait{width:100%;height:100%;display:grid;place-items:center;padding:8px;text-align:center;color:var(--gold)}
-.person-figure figcaption{padding:8px 12px;max-width:68ch;font-size:12px;line-height:1.35;color:#dfd1b3;text-align:center}
-.person-name{position:absolute;z-index:1;top:10px;left:10px;max-width:calc(100% - 20px);margin:0;padding:8px 10px;background:#071b16ee;border:1px solid var(--line);border-radius:8px;font:600 clamp(16px,2.5vw,27px)/1.15 Georgia,serif}
-.portrait-source{display:inline-block;color:var(--gold);margin-top:5px}
-.person-main{position:absolute;z-index:2;right:0;top:0;bottom:0;width:min(290px,calc(100vw - 18px));padding:16px;overflow:auto;background:#192b26;border-left:1px solid var(--line);box-shadow:-8px 0 25px #0006}
-.person-main h2:first-child{margin-top:0}
-.person-main h2{font:600 clamp(16px,2vw,23px) Georgia,serif;margin:15px 0 6px}
-.person-status{color:#bccdc2;font-size:12px;margin:0 0 10px}
-.person-main details{margin-top:16px;font-size:13px;color:#cfdecf}
-.person-main summary{cursor:pointer}
-#questionForm{display:flex;flex-wrap:wrap;gap:6px;margin:8px 0}
-#freeQuestion{flex:1;min-width:0;border:1px solid #d5bb8b80;border-radius:9px;background:#0e211b;color:#fff1d6;padding:12px;min-height:46px}
-#askButton{min-height:44px;border:1px solid #ead19b;border-radius:9px;background:#cfae75;color:#13261c;font-weight:700;padding:0 10px}
-#chatHistory{max-height:40dvh;overflow:auto;display:flex;flex-direction:column;gap:8px;margin:12px 0}
-#chatHistory:empty{display:none}
-.chat-turn{padding:10px 12px;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.5;border-radius:10px;font-size:14px}
-.chat-turn.question{background:#25483c;margin-left:11%}
-.chat-turn.answer{background:#102922;border-left:3px solid #eac88f;margin-right:4%}
-.chat-turn small{display:block;opacity:.75;margin-bottom:3px}
-.person-main .answer{min-height:44px;font-size:13px;padding:9px 11px;margin:6px 0}
-@media(min-width:701px){
- .person-layout:has(.person-main:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(270px,320px);align-items:stretch}
- .person-main{position:sticky;top:0;width:auto;max-height:calc(100dvh - 56px)}
+html,body{height:100%;overflow:hidden}
+#walk{display:flex;flex:1;min-height:0;flex-direction:column}
+#frame{max-height:100%}
+#frame[data-chat-open]{z-index:8;height:100%;width:min(100%,1400px);aspect-ratio:auto}
+#conversation{position:absolute;z-index:9;inset:0;pointer-events:none}
+#conversation[hidden]{display:none}
+#personContent{height:100%;display:grid;grid-template-columns:minmax(0,1fr) minmax(320px,41%);grid-template-rows:minmax(0,1fr)}
+.chat-portrait{position:relative;min-height:0;background:#0b1916}
+.chat-portrait[hidden]{display:block;visibility:hidden}
+.chat-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 40%}
+.chat-portrait img[src*="-closeup"]{object-position:center 42%}
+.person-main{pointer-events:auto;min-width:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:8px;padding:12px;background:#132820f5;border-left:1px solid var(--line);box-shadow:-6px 0 30px #0006}
+.chat-head{display:flex;align-items:center;gap:10px;min-width:0}
+.chat-head h2{font:600 clamp(16px,2.2vw,23px)/1.12 Georgia,serif;margin:0}
+.chat-head button,.chat-nav button,#panelPager button{background:#29463b;color:var(--ink);border:1px solid var(--line);border-radius:7px;padding:5px 9px;min-height:34px}
+.chat-head button{font-size:13px;white-space:nowrap}.chat-head #returnToWalk{font-size:22px}.chat-head #portraitToggle{margin-left:auto}
+.chat-nav button:disabled,#panelPager button:disabled{opacity:.45;cursor:default}
+#chatHistory{min-height:0;overflow:hidden;display:grid;align-content:start;gap:5px;overflow-wrap:anywhere;font-size:clamp(12px,1.65vw,15px)}
+#chatHistory p{margin:0}
+.chat-turn{background:#0b211a;border-left:2px solid var(--gold);border-radius:5px;padding:7px 9px}
+.chat-turn.question{background:#25483c;border-left:0}
+.chat-turn small{display:block;color:#dfd0a8}
+.chat-nav,.chat-tools,#panelPager{display:flex;gap:6px;align-items:center;justify-content:space-between}
+.chat-nav span,#panelPager span{font-size:12px}
+#questionForm{display:flex;gap:5px}
+#freeQuestion{flex:1;min-width:0;border:1px solid var(--line);border-radius:7px;background:#0e211b;color:#fff1d6;padding:6px 8px;font-size:16px}
+#askButton{min-height:38px;border:1px solid #ead19b;border-radius:7px;background:#cfae75;color:#13261c;font-weight:700;padding:0 8px}
+#chatHistory a{color:var(--gold)}
+#chatHistory .answer{margin:0;padding:6px 8px}
+#panelPager{margin-top:8px}
+#panelPager[hidden]{display:none}
+.route-list .pick{margin:4px 0;padding:7px}
+@media(max-width:700px) and (orientation:portrait){
+ #personContent{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,28%) minmax(0,1fr)}
+ .chat-portrait img{object-position:center 35%}
+ .person-main{border-left:0;border-top:1px solid var(--line);padding:8px;gap:5px}
+ #status strong{font-size:14px}
 }
-@media(max-width:700px){
- .person-main{position:static;width:100%;border-left:0;border-top:1px solid var(--line)}
+@media(max-height:480px){
+ .person-main{padding:5px;gap:3px}
+ .chat-head h2{font-size:15px}
+ #chatHistory{font-size:12px;gap:3px}
+ .chat-turn{padding:3px 6px}
+ .chat-nav button,.chat-head button{min-height:28px;padding:2px 6px}
+ #askButton{min-height:29px}
+ #sheet{padding:8px;font-size:13px}
+ #sheet h2{font-size:18px}
 }
-@media(max-width:700px){
- #conversation{min-height:calc(100dvh - 51px)}
- #returnToWalk,#toggleChat{min-height:40px}
- #freeQuestion{font-size:16px}
+@media(max-height:320px) and (orientation:portrait){
+ #personContent{grid-template-rows:minmax(0,15%) minmax(0,1fr)}
 }
 </style></head><body>
-<header><div class="brand">MESCH <span>1944</span></div><div class="topbuttons" id="walkTools"><button id="guide" title="Bediening">?</button><button id="overview">Plekken</button></div><div class="topbuttons" id="conversationTools" hidden><button id="returnToWalk" type="button" aria-label="Terug naar de wandeling">← Wandeling</button><button id="toggleChat" type="button" aria-controls="personChat" aria-expanded="false">Open chat</button></div></header>
+<header><div class="brand">MESCH <span>1944</span></div><div class="topbuttons"><button id="guide" title="Bediening">?</button><button id="overview">Plekken</button></div></header>
 <main>
- <section id="walk"><section id="scene"><img id="backdrop" alt="" aria-hidden="true" fetchpriority="low" decoding="async"><div id="frame" class="plate-frame"><img id="art" alt="Historische, geschilderde reconstructie van Mesch" draggable="false" fetchpriority="high"><div id="points"></div></div><div id="status" aria-live="polite"><strong id="sceneName" tabindex="-1"></strong></div><div id="footer"><small>Historisch geïnformeerde reconstructie · geen archieffoto</small><div class="footer-actions"><button id="routes" aria-haspopup="dialog" hidden>Andere routes</button><button id="hints">Toon klikplekken</button></div></div></section></section>
- <section id="conversation" aria-labelledby="personName" hidden>
-  <div id="personContent" class="person-layout"></div>
- </section>
+ <section id="walk"><section id="scene">
+  <img id="backdrop" alt="" aria-hidden="true" fetchpriority="low" decoding="async">
+  <div id="frame" class="plate-frame">
+   <img id="art" alt="Historische, geschilderde reconstructie van Mesch" draggable="false" fetchpriority="high">
+   <div id="points"></div>
+   <div id="status" aria-live="polite"><strong id="sceneName" tabindex="-1"></strong></div>
+   <div id="footer"><div class="footer-actions"><button id="routes" aria-haspopup="dialog" hidden>Andere routes</button><button id="hints">Toon klikplekken</button></div></div>
+   <section id="conversation" aria-labelledby="personName" hidden><div id="personContent"></div></section>
+  </div>
+  <div id="panel" role="dialog" aria-modal="true" aria-label="Historische informatie"><div id="sheet"><button id="close" aria-label="Sluiten">×</button><div id="content"></div><div id="panelPager" hidden><button id="panelPrev" aria-label="Vorige pagina">←</button><span id="panelCount"></span><button id="panelNext" aria-label="Volgende pagina">→</button></div></div></div>
+ </section></section>
 </main>
-<div id="panel" role="dialog" aria-modal="true" aria-label="Historische informatie"><div id="sheet"><button id="close" aria-label="Sluiten">×</button><div id="content"></div></div></div>
 <script>
 const DATA={"SCENES":{"gg1-o":{"id":"gg1-o","title":"Bij de oude school — uitzicht richting oost","place":"Grijzegraaf · schoolzijde (GG1-O)","image":"assets/sc-gg1-o.webp","thumb":"assets/th-gg1-o.webp","description":"Originele 3D-maquette bij de oude school. De afgeronde schilderplaat ontbreekt nog; de nieuwe materiaalstudie staat afzonderlijk in de platenatlas.","prompt":"Waaraan herken je het oude schoolgebouw?","tip":"Klik op de schoolgevel links en ontdek welke details bekend zijn.","status":"MAQUETTE · BRON","hotspots":[{"id":"gg1-road","type":"move","label":"Loop in de richting van de ontmoeting (voorlopige verbinding)","target":"gg3-w","x":37,"y":65,"w":31,"h":32,"marker_x":53,"marker_y":81,"tentative":true,"route_evidence":"nog niet geverifieerd","verified_path":false,"clip_polygon":"polygon(0% 100%,100% 100%,70% 0%,44% 0%)"},{"id":"gg1-place","type":"inspect","label":"Wat is hier wel en niet vastgesteld?","content":"camera_unknown","x":9,"y":23,"w":22,"h":33,"marker_x":22,"marker_y":43},{"id":"gg1-school","type":"inspect","label":"Bekijk de oude school","content":"school","x":20,"y":17,"w":15,"h":33,"marker_x":28,"marker_y":34,"clip_polygon":"polygon(10% 100%,97% 100%,70% 0%,27% 0%)"},{"id":"gg1-roadinfo","type":"inspect","label":"Wat weten we van de straat?","content":"road","x":73,"y":82,"w":16,"h":16,"marker_x":82,"marker_y":88},{"id":"gg1-to-class","type":"enter","label":"Bekijk het klaslokaal (artistieke binnenruimte)","target":"u04","tentative":true,"x":12,"y":23,"w":12,"h":36,"marker_x":18,"marker_y":40}]},"gg3-w":{"id":"gg3-w","title":"De eerste ontmoeting op de Grijzegraaf","place":"Grijzegraaf — zicht uit het oosten","image":"assets/sc-gg3-w.webp","thumb":"assets/th-gg3-w.webp","description":"Amerikaanse soldaten stuiten in de omgeving van Mesch op Duitse militairen. De spanning is voelbaar en één van de Duitsers maakt duidelijk dat hij zich overgeeft. Deze sfeervolle schildering is geen fotografische reconstructie van het exacte standpunt.","prompt":"Waaraan herken je dat een soldaat zich overgeeft?","tip":"Klik op de Amerikaanse of de Duitse soldaat om de volgende grote schilderplaat te bekijken.","status":"NIEUW OLIEVERFSCHILDERIJ · ARTISTIEKE RECONSTRUCTIE · GEOMETRIE NOG TE CONTROLEREN","hotspots":[{"id":"p15-american","type":"move","label":"Bekijk de overgave van dichtbij","x":5,"y":19,"w":40,"h":75,"target":"gg2-w"},{"id":"p15-german","type":"move","label":"Ga naar de Duitse overgave — plaat 16","x":66,"y":26,"w":31,"h":65,"target":"gg2-w"},{"id":"p15-road","type":"move","label":"Loop naar plaat 16","x":41,"y":77,"w":27,"h":22,"target":"gg2-w"}],"wide":true},"gg2-w":{"id":"gg2-w","title":"De Duitse overgave van dichtbij","place":"Grijzegraaf — nabij de heg","image":"assets/sc-gg2-w.webp","thumb":"assets/th-gg2-w.webp","description":"Een Duitse soldaat toont zijn open handen; een Amerikaanse infanterist blijft alert. De overgave laat zien hoe persoonlijk de eerste confrontaties rond de bevrijding konden zijn. De gezichten en de precieze details zijn artistiek verzonnen.","prompt":"Waarom houden de Duitse soldaten hun handen omhoog?","tip":"Klik op de Duitse soldaat voor zijn eigen grote detailplaat of op de Amerikaan om terug te lopen.","status":"NIEUW OLIEVERFSCHILDERIJ · ARTISTIEKE RECONSTRUCTIE · GEOMETRIE NOG TE CONTROLEREN","hotspots":[{"id":"p16-german","type":"move","label":"Bekijk de soldaat van dichtbij in een nieuwe plaat","x":45,"y":19,"w":38,"h":76,"target":"german-detail"},{"id":"p16-american","type":"move","label":"Terug naar de eerste ontmoeting","x":1,"y":20,"w":38,"h":74,"target":"gg3-w"},{"id":"p16-back","type":"move","label":"Loop terug langs de Grijzegraaf","x":39,"y":77,"w":21,"h":22,"target":"gg3-w"}],"wide":true},"br1-zw":{"id":"br1-zw","title":"Café Van Hoven vanaf De Breul","place":"De Breul — weilandzijde","image":"assets/sc-br1-zw.webp","thumb":"assets/th-br1-zw.webp","description":"Vanuit de weilandzijde kijk je naar het café, de dwarslopende Grijzegraaf en de soldaten bij de heg.","prompt":"Van welke kant kwamen de Amerikanen naar de Grijzegraaf?","tip":"Klik op de heg of het weiland. De cafédeur is een onzekere artistieke invulling.","status":"ARTISTIEKE RECONSTRUCTIE · HOLD","hotspots":[{"id":"br1-door","type":"inspect","label":"Onderzoek de cafékopgevel en de geschilderde deur","x":61,"y":26,"w":10,"h":31,"marker_x":65,"marker_y":42,"tentative":true,"route_evidence":"nog niet geverifieerd","verified_path":false,"content":"cafe_facade"},{"id":"br1-people","type":"talk","label":"Wat betekent deze overgave?","content":"german","x":14,"y":30,"w":12,"h":18,"marker_x":19,"marker_y":38},{"id":"br1-meadow","type":"inspect","label":"Ontdek hoe de Amerikanen door het weiland kwamen","content":"meadow","x":4,"y":50,"w":32,"h":31,"marker_x":17,"marker_y":67},{"id":"br1-path","type":"move","label":"Volg het voetpad terug naar de weg (verbinding te ijken)","target":"gg2-w","x":49,"y":71,"w":26,"h":28,"marker_x":61,"marker_y":86,"tentative":true,"route_evidence":"nog niet geverifieerd","verified_path":false,"clip_polygon":"polygon(28% 100%,100% 100%,68% 0%,48% 0%)"}]},"cafe-context":{"id":"cafe-context","title":"Café Van Hoven — de medische post","place":"Café Van Hoven · educatief kijkvenster","image":"assets/sc-cafe-context.webp","thumb":"assets/th-cafe-context.webp","description":"Het café was tijdens de gevechten ingericht als Duits lazaret. Dit beeld helpt begrijpen wat dat betekende, maar hoort niet als gelijktijdige gebeurtenis bij de wandeling.","prompt":"Waarom werd een gewoon café een noodhospitaal?","tip":"Klik op het medische gedeelte om te begrijpen wat een lazaret was.","status":"HISTORISCH KIJKVENSTER","hotspots":[{"id":"cafe-medical","type":"inspect","label":"Waarom werd het café een lazaret?","content":"lazaret","x":46,"y":35,"w":37,"h":50,"marker_x":59,"marker_y":57},{"id":"cafe-back","type":"move","label":"Ga terug door de cafédeur","target":"br1-zw","x":1,"y":53,"w":21,"h":45,"marker_x":12,"marker_y":78,"route_evidence":"nog niet geverifieerd"}]},"gg2-studie":{"id":"gg2-studie","title":"GG2-W — geometrie- en materiaalstudie","place":"Grijzegraaf · dezelfde camera als GG2-W","image":"assets/sc-gg2-studie.webp","thumb":"assets/th-gg2-studie.webp","description":"Een proef voor verftextuur met de oorspronkelijke 3D-volumes; nog niet geschikt als definitieve leerlingplaat.","prompt":"Welke vormen van de maquette herken je?","tip":"Vergelijk dit ontwerp met de oorspronkelijke onderlegger.","status":"GEOMETRIESTUDIE · HOLD","hotspots":[{"id":"back-gg2","type":"move","label":"Terug naar het geschilderde verhaal van de overgave","target":"gg2-w","x":30,"y":79,"w":38,"h":20,"marker_x":50,"marker_y":88}]},"gg3-studie":{"id":"gg3-studie","title":"GG3-W — geometrie- en materiaalstudie","place":"Grijzegraaf · dezelfde camera als GG3-W","image":"assets/sc-gg3-studie.webp","thumb":"assets/th-gg3-studie.webp","description":"Materiaalstudie bij een bestaande cameravorm. Niet vrijgegeven voor historische reconstructie.","prompt":"Wat is in de onderlegger echt vastgelegd?","tip":"Vergelijk de straatrichting en gebouwen.","status":"GEOMETRIESTUDIE · HOLD","hotspots":[{"id":"back-gg3","type":"move","label":"Terug naar de eerste ontmoeting","target":"gg3-w","x":30,"y":79,"w":38,"h":20,"marker_x":50,"marker_y":88}]},"u01":{"id":"u01","title":"De nadering van Mesch","place":"Landschap vóór het dorp","image":"assets/sc-u01.webp","thumb":"assets/th-u01.webp","description":"De nadering van Mesch. De nadering van een dorp is niet automatisch het moment dat alle bewoners vrij zijn.","prompt":"Wat verandert er wanneer soldaten het dorp naderen?","tip":"De nadering van een dorp is niet automatisch het moment dat alle bewoners vrij zijn.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"border-info","type":"inspect","label":"Waarom kwamen de Amerikanen?","x":7,"y":31,"w":29,"h":42,"marker_x":21.5,"marker_y":52,"content":"border35"},{"id":"approach-soldier","type":"talk","label":"Praat met de Amerikaanse soldaat","x":27,"y":36,"w":23,"h":40,"marker_x":38.5,"marker_y":56,"content":"american"},{"id":"arrival-road","type":"move","label":"Bekijk de Grijzegraaf (artistieke overgang)","x":54,"y":60,"w":35,"h":37,"marker_x":71.5,"marker_y":78.5,"target":"u02","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"u02":{"id":"u02","title":"De Grijzegraaf — schoolzijde","place":"Grijzegraaf","image":"assets/sc-u02.webp","thumb":"assets/th-u02.webp","description":"De Grijzegraaf — schoolzijde. Vergelijk wegverloop en gebouwvormen met de maquette.","prompt":"Wat herken je aan deze straat?","tip":"Vergelijk wegverloop en gebouwvormen met de maquette.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"school-bldg","type":"inspect","label":"Herken de oude school","x":5,"y":10,"w":34,"h":46,"marker_x":22,"marker_y":33,"content":"school"},{"id":"school-entry","type":"enter","label":"Ga naar het klaslokaal","x":32,"y":37,"w":13,"h":29,"marker_x":38.5,"marker_y":51.5,"target":"u04"},{"id":"schoolstreet-road","type":"move","label":"Verder naar de school (artistieke overgang)","x":58,"y":57,"w":31,"h":39,"marker_x":73.5,"marker_y":76.5,"target":"u03","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false},{"id":"schoolstreet-soldier","type":"talk","label":"Praat met een militair","x":67,"y":35,"w":18,"h":33,"marker_x":76,"marker_y":51.5,"content":"american"}]},"u03":{"id":"u03","title":"Bij de oude school","place":"Oude school","image":"assets/sc-u03.webp","thumb":"assets/th-u03.webp","description":"Bij de oude school. Een schoolhoofd beschreef de ontmoeting met Amerikaanse soldaten.","prompt":"Waarom is de school belangrijk in dit verhaal?","tip":"Een schoolhoofd beschreef de ontmoeting met Amerikaanse soldaten.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"schooldoor","type":"enter","label":"Open de schooldeur","x":30,"y":36,"w":14,"h":37,"marker_x":37,"marker_y":54.5,"target":"u04"},{"id":"schoolinfo","type":"inspect","label":"Onderzoek de schoolgevel","x":6,"y":13,"w":29,"h":24,"marker_x":20.5,"marker_y":25,"content":"school"},{"id":"school-civilian","type":"talk","label":"Praat met een dorpsbewoner","x":42,"y":46,"w":19,"h":34,"marker_x":51.5,"marker_y":63,"content":"resident"},{"id":"school-road","type":"move","label":"Loop verder langs de Grijzegraaf (artistieke route)","x":64,"y":58,"w":32,"h":40,"marker_x":80,"marker_y":78,"target":"u13","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"u04":{"id":"u04","title":"Het oude klaslokaal","place":"Binnen in de oude school","image":"assets/sc-u04.webp","thumb":"assets/th-u04.webp","description":"Het oude klaslokaal. De kamerinrichting is artistiek verbeeld, niet exact gedocumenteerd.","prompt":"Hoe was het om tijdens een bezetting naar school te gaan?","tip":"De kamerinrichting is artistiek verbeeld, niet exact gedocumenteerd.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"classroom-map","type":"inspect","label":"Waarom hing hier een landkaart?","x":56,"y":15,"w":29,"h":33,"marker_x":70.5,"marker_y":31.5,"content":"classroom"},{"id":"classroom-book","type":"inspect","label":"Ontdek het schoolleven","x":29,"y":65,"w":39,"h":28,"marker_x":48.5,"marker_y":79,"content":"classroom"},{"id":"classroom-exit","type":"enter","label":"Ga terug naar buiten","x":81,"y":44,"w":17,"h":48,"marker_x":89.5,"marker_y":68,"target":"u03"}]},"u05":{"id":"u05","title":"De schoolwoning — woonkamer","place":"Schoolwoning","image":"assets/sc-u05.webp","thumb":"assets/th-u05.webp","description":"De schoolwoning — woonkamer. Het gewone leven werd onderbroken door gevaar en onzekerheid.","prompt":"Wat merkten gezinnen van de oorlog?","tip":"Het gewone leven werd onderbroken door gevaar en onzekerheid.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"family-table","type":"inspect","label":"Hoe leefden gezinnen in oorlogstijd?","x":25,"y":49,"w":51,"h":43,"marker_x":50.5,"marker_y":70.5,"content":"family"},{"id":"family-person","type":"talk","label":"Spreek met een bewoner","x":6,"y":33,"w":26,"h":39,"marker_x":19,"marker_y":52.5,"content":"resident"},{"id":"family-cellar","type":"enter","label":"Ontdek de schuilkelder (verhaal)","x":75,"y":23,"w":23,"h":49,"marker_x":86.5,"marker_y":47.5,"target":"u06"},{"id":"family-front","type":"enter","label":"Bekijk de schoolwoning buiten","x":1,"y":13,"w":14,"h":42,"marker_x":8,"marker_y":34,"target":"v8-schoolhome-exterior"}]},"u06":{"id":"u06","title":"De schuilkelder van de schoolwoning","place":"Schoolwoning · kelder","image":"assets/sc-u06.webp","thumb":"assets/th-u06.webp","description":"De schuilkelder van de schoolwoning. Schuilen bood bescherming maar geen zekerheid over wat buiten gebeurde.","prompt":"Waarom bleven bewoners hier beneden?","tip":"Schuilen bood bescherming maar geen zekerheid over wat buiten gebeurde.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"cellar-people","type":"talk","label":"Spreek een schuilende bewoner","x":23,"y":35,"w":40,"h":49,"marker_x":43,"marker_y":59.5,"content":"resident"},{"id":"cellar-stairs","type":"enter","label":"Terug naar de woonruimte","x":76,"y":14,"w":23,"h":56,"marker_x":87.5,"marker_y":42,"target":"u05"},{"id":"cellar-objects","type":"inspect","label":"Waarom zochten mensen beschutting?","x":1,"y":18,"w":20,"h":30,"marker_x":11,"marker_y":33,"content":"shelter"}]},"u07":{"id":"u07","title":"Café Van Hoven — buiten","place":"Grijzegraaf · café","image":"assets/sc-u07.webp","thumb":"assets/th-u07.webp","description":"Café Van Hoven — buiten. De functie als tijdelijk Duits lazaret is bekend; de precieze gevel niet.","prompt":"Waarom was dit gebouw zo belangrijk?","tip":"De functie als tijdelijk Duits lazaret is bekend; de precieze gevel niet.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"cafe-sign","type":"inspect","label":"Wat weten we van deze cafégevel?","x":71,"y":5,"w":27,"h":31,"marker_x":84.5,"marker_y":20.5,"content":"cafe_facade"},{"id":"cafe-door","type":"enter","label":"Open de cafédeur","x":79,"y":29,"w":19,"h":59,"marker_x":88.5,"marker_y":58.5,"target":"u08"},{"id":"cafe-resident","type":"talk","label":"Praat met een dorpsbewoner","x":59,"y":37,"w":18,"h":46,"marker_x":68,"marker_y":60,"content":"resident"},{"id":"cafe-road","type":"move","label":"Kijk verder over de Grijzegraaf (artistieke route)","x":1,"y":60,"w":35,"h":37,"marker_x":18.5,"marker_y":78.5,"target":"u13","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"u08":{"id":"u08","title":"Café Van Hoven — gelagkamer","place":"Café Van Hoven · binnen","image":"assets/sc-u08.webp","thumb":"assets/th-u08.webp","description":"Café Van Hoven — gelagkamer. De inrichting is artistiek ingevuld; de functie van het café is historisch.","prompt":"Hoe veranderde een ontmoetingsplek door de oorlog?","tip":"De inrichting is artistiek ingevuld; de functie van het café is historisch.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"gelagkamertable","type":"inspect","label":"Wat was een gelagkamer?","x":6,"y":62,"w":44,"h":33,"marker_x":28,"marker_y":78.5,"content":"cafe_room"},{"id":"gelagkamer-lisa","type":"talk","label":"Praat met een cafébewoner","x":56,"y":30,"w":18,"h":48,"marker_x":65,"marker_y":54,"content":"resident"},{"id":"gelagkamer-door","type":"enter","label":"Ga naar de achterkamer","x":81,"y":24,"w":18,"h":51,"marker_x":90,"marker_y":49.5,"target":"u09"},{"id":"gelagkamer-story","type":"inspect","label":"Waarom was hier een lazaret?","x":39,"y":10,"w":27,"h":25,"marker_x":52.5,"marker_y":22.5,"content":"lazaret"}]},"u09":{"id":"u09","title":"Café Van Hoven — achterkamer","place":"Café Van Hoven · binnen","image":"assets/sc-u09.webp","thumb":"assets/th-u09.webp","description":"Café Van Hoven — achterkamer. Het interieur toont een mogelijke situatie, geen exacte inventaris van 1944.","prompt":"Welke sporen liet de oorlog in het café achter?","tip":"Het interieur toont een mogelijke situatie, geen exacte inventaris van 1944.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"rear-pantry","type":"inspect","label":"Ontdek het leven achter het café","x":24,"y":31,"w":37,"h":45,"marker_x":42.5,"marker_y":53.5,"content":"cafe_room"},{"id":"rear-door","type":"enter","label":"Terug naar de gelagkamer","x":80,"y":20,"w":18,"h":67,"marker_x":89,"marker_y":53.5,"target":"u08"},{"id":"rear-cellar","type":"enter","label":"Ontdek de voorraadkelder (kijkplaat)","x":56,"y":74,"w":25,"h":24,"marker_x":68.5,"marker_y":86,"target":"u11"}]},"u10":{"id":"u10","title":"Café Van Hoven — Duitse medische post","place":"Café Van Hoven · lazaret","image":"assets/sc-u10.webp","thumb":"assets/th-u10.webp","description":"Café Van Hoven — Duitse medische post. Een gewone plek in het dorp kreeg een medische functie tijdens de strijd.","prompt":"Waarom verzorgde men hier gewonden?","tip":"Een gewone plek in het dorp kreeg een medische functie tijdens de strijd.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"medic","type":"talk","label":"Praat met de hulpverlener","x":33,"y":25,"w":24,"h":56,"marker_x":45,"marker_y":53,"content":"medic"},{"id":"wounded","type":"inspect","label":"Waarom was het café noodhospitaal?","x":7,"y":45,"w":29,"h":46,"marker_x":21.5,"marker_y":68,"content":"lazaret"},{"id":"medic-back","type":"enter","label":"Kijk in de gelagkamer","x":80,"y":19,"w":19,"h":60,"marker_x":89.5,"marker_y":49,"target":"u08"}]},"u11":{"id":"u11","title":"Café Van Hoven — voorraadkelder","place":"Café Van Hoven · kelder","image":"assets/sc-u11.webp","thumb":"assets/th-u11.webp","description":"Café Van Hoven — voorraadkelder. De kelderinrichting is een verbeelding van een mogelijk dagelijks leven.","prompt":"Waarvoor hadden inwoners hun voorraden nodig?","tip":"De kelderinrichting is een verbeelding van een mogelijk dagelijks leven.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"supplies","type":"inspect","label":"Waarvoor waren de voorraden?","x":4,"y":17,"w":44,"h":70,"marker_x":26,"marker_y":52,"content":"supplies"},{"id":"supplies-stairs","type":"enter","label":"Ga de trap op naar het café","x":75,"y":16,"w":24,"h":68,"marker_x":87,"marker_y":50,"target":"u08"}]},"u12":{"id":"u12","title":"Schuilkelder — bewoners","place":"Café Van Hoven · kelder","image":"assets/sc-u12.webp","thumb":"assets/th-u12.webp","description":"Schuilkelder — bewoners. De figuren zijn fictief, maar het schuilen is onderdeel van de herinnering.","prompt":"Wat konden de schuilende mensen buiten horen?","tip":"De figuren zijn fictief, maar het schuilen is onderdeel van de herinnering.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"shelter-resident","type":"talk","label":"Spreek met iemand uit de kelder","x":20,"y":30,"w":37,"h":52,"marker_x":38.5,"marker_y":56,"content":"resident"},{"id":"shelter-why","type":"inspect","label":"Wat betekende schuilen?","x":55,"y":69,"w":27,"h":28,"marker_x":68.5,"marker_y":83,"content":"shelter"},{"id":"shelter-up","type":"enter","label":"Terug naar het café","x":76,"y":9,"w":23,"h":55,"marker_x":87.5,"marker_y":36.5,"target":"u08"}]},"u13":{"id":"u13","title":"De Grijzegraaf — terugweg","place":"Grijzegraaf","image":"assets/sc-u13.webp","thumb":"assets/th-u13.webp","description":"De Grijzegraaf — terugweg. Een belangrijke plek kan vanuit twee richtingen herkenbaar blijven.","prompt":"Hoe anders lijkt dezelfde straat wanneer je terugkijkt?","tip":"Een belangrijke plek kan vanuit twee richtingen herkenbaar blijven.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"street-life","type":"inspect","label":"Hoe liep de Grijzegraaf?","x":6,"y":27,"w":26,"h":37,"marker_x":19,"marker_y":45.5,"content":"road"},{"id":"street-soldier","type":"talk","label":"Spreek een Amerikaanse soldaat","x":42,"y":38,"w":22,"h":45,"marker_x":53,"marker_y":60.5,"content":"american"},{"id":"street-to-cafe","type":"move","label":"Loop richting het café (artistieke verbinding)","x":62,"y":58,"w":32,"h":40,"marker_x":78,"marker_y":78,"target":"u07","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false},{"id":"street-to-school","type":"move","label":"Terug naar de school (artistieke verbinding)","x":0,"y":72,"w":23,"h":25,"marker_x":11.5,"marker_y":84.5,"target":"u03","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"u14":{"id":"u14","title":"Amerikaanse infanterie nadert Mesch","place":"Weiland bij Mesch","image":"assets/sc-u14.webp","thumb":"assets/th-u14.webp","description":"In september 1944 trekken Amerikaanse militairen via het Limburgse landschap richting Mesch. De soldaten gebruiken het weiland en de begroeiing om voorzichtig op te rukken. Het schilderij is een artistieke impressie; de getoonde gevels en het kerkzicht zijn niet geografisch geijkt.","prompt":"Waarom bewegen de soldaten voorzichtig door het weiland?","tip":"Klik op een soldaat om naar de eerste ontmoeting te gaan. Je bekijkt dan een nieuwe grote schilderplaat.","status":"NIEUW OLIEVERFSCHILDERIJ · ARTISTIEKE RECONSTRUCTIE · GEOMETRIE NOG TE CONTROLEREN","hotspots":[{"id":"p13-american","type":"move","label":"Volg de soldaten naar de eerste ontmoeting","x":1,"y":18,"w":37,"h":75,"target":"gg3-w"},{"id":"p13-field","type":"inspect","label":"Waarom gebruiken zij de weilanden?","x":40,"y":52,"w":40,"h":28,"content":"meadow"},{"id":"p13-next","type":"move","label":"Loop verder naar plaat 15","x":61,"y":79,"w":36,"h":19,"target":"gg3-w"}],"wide":true},"u15":{"id":"u15","title":"Het onthaal van Amerikaanse militairen","place":"Mesch · later op de bevrijdingsdag","image":"assets/sc-u15.webp","thumb":"assets/th-u15.webp","description":"Het onthaal van Amerikaanse militairen. Het onthaal is een artistiek verbeeld later moment, geen live tijdsprong.","prompt":"Wanneer durfden bewoners opgelucht te zijn?","tip":"Het onthaal is een artistiek verbeeld later moment, geen live tijdsprong.","status":"NIEUWE SCHILDERPLAAT · ARTISTIEK","hotspots":[{"id":"welcome-meaning","type":"inspect","label":"Waarom betekende bevrijding zoveel?","x":25,"y":36,"w":38,"h":47,"marker_x":44,"marker_y":59.5,"content":"liberation"},{"id":"welcome-local","type":"talk","label":"Spreek met een dorpsbewoner","x":4,"y":36,"w":23,"h":48,"marker_x":15.5,"marker_y":60,"content":"resident"},{"id":"welcome-street","type":"move","label":"Bekijk de Grijzegraaf (artistieke verbinding)","x":66,"y":62,"w":30,"h":36,"marker_x":81,"marker_y":80,"target":"u13","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"original-1":{"id":"original-1","title":"P01 · Amerikaanse nadering","place":"Historische schilderreeks · zelfstandig beeld","image":"assets/sc-original-1.webp","thumb":"assets/th-original-1.webp","description":"Dit is een los geschilderd referentiebeeld over p01 · amerikaanse nadering. Het wordt als afzonderlijk historisch kijkvenster getoond.","prompt":"Welk historisch moment herken je?","tip":"Klik op het schilderij om de historische kern te ontdekken.","status":"Volledige schilderplaat · artistiek","hotspots":[{"id":"orig-1-info","type":"inspect","label":"Ontdek het historische verhaal","content":"hedge","x":12,"y":23,"w":76,"h":63,"marker_x":50,"marker_y":58}]},"original-2":{"id":"original-2","title":"P03 · Café als Duits lazaret","place":"Historische schilderreeks · zelfstandig beeld","image":"assets/sc-original-2.webp","thumb":"assets/th-original-2.webp","description":"Dit is een los geschilderd referentiebeeld over p03 · café als duits lazaret. Het wordt als afzonderlijk historisch kijkvenster getoond.","prompt":"Welk historisch moment herken je?","tip":"Klik op het schilderij om de historische kern te ontdekken.","status":"Volledige schilderplaat · artistiek","hotspots":[{"id":"orig-2-info","type":"inspect","label":"Ontdek het historische verhaal","content":"lazaret","x":12,"y":23,"w":76,"h":63,"marker_x":50,"marker_y":58}]},"original-3":{"id":"original-3","title":"P04 · Eerste contact","place":"Historische schilderreeks · zelfstandig beeld","image":"assets/sc-original-3.webp","thumb":"assets/th-original-3.webp","description":"Dit is een los geschilderd referentiebeeld over p04 · eerste contact. Het wordt als afzonderlijk historisch kijkvenster getoond.","prompt":"Welk historisch moment herken je?","tip":"Klik op het schilderij om de historische kern te ontdekken.","status":"Volledige schilderplaat · artistiek","hotspots":[{"id":"orig-3-info","type":"inspect","label":"Wat betekent overgave?","content":"surrender","x":12,"y":23,"w":76,"h":63,"marker_x":50,"marker_y":58}]},"original-4":{"id":"original-4","title":"P05 · Onthaal van militairen","place":"Historische schilderreeks · zelfstandig beeld","image":"assets/sc-original-4.webp","thumb":"assets/th-original-4.webp","description":"Dit is een los geschilderd referentiebeeld over p05 · onthaal van militairen. Het wordt als afzonderlijk historisch kijkvenster getoond.","prompt":"Welk historisch moment herken je?","tip":"Klik op het schilderij om de historische kern te ontdekken.","status":"Volledige schilderplaat · artistiek","hotspots":[{"id":"orig-4-info","type":"inspect","label":"Ontdek het historische verhaal","content":"liberation","x":12,"y":23,"w":76,"h":63,"marker_x":50,"marker_y":58}]},"original-5":{"id":"original-5","title":"P06 · Café na lazaret","place":"Historische schilderreeks · zelfstandig beeld","image":"assets/sc-original-5.webp","thumb":"assets/th-original-5.webp","description":"Dit is een los geschilderd referentiebeeld over p06 · café na lazaret. Het wordt als afzonderlijk historisch kijkvenster getoond.","prompt":"Welk historisch moment herken je?","tip":"Klik op het schilderij om de historische kern te ontdekken.","status":"Volledige schilderplaat · artistiek","hotspots":[{"id":"orig-5-info","type":"inspect","label":"Ontdek het historische verhaal","content":"lazaret","x":12,"y":23,"w":76,"h":63,"marker_x":50,"marker_y":58}]},"concept_cafe_ornament":{"id":"concept_cafe_ornament","title":"BR1-ZW — sfeervolle cafégevel (variant)","place":"Alternatieve artistieke reconstructie","image":"assets/sc-concept-cafe-ornament.webp","thumb":"assets/th-concept-cafe-ornament.webp","description":"Dit is een alternatieve schilderstudie, niet bedoeld als zelfstandig geijkt wandelstandpunt. Gevelverschillen tonen de onzekerheid in de reconstructie.","prompt":"Wat is hier echt en wat is verbeeld?","tip":"Klik op de gevel voor uitleg over de artistieke invulling.","status":"CONCEPT · VRIJE GEVELINTERPRETATIE","hotspots":[{"id":"concept_cafe_ornament-ins","type":"inspect","label":"Wat is hier onzeker?","content":"cafe_facade","x":34,"y":20,"w":53,"h":55,"marker_x":60,"marker_y":46}]},"concept_cafe_blank":{"id":"concept_cafe_blank","title":"BR1-ZW — neutrale kopgevel","place":"Alternatieve artistieke reconstructie","image":"assets/sc-concept-cafe-blank.webp","thumb":"assets/th-concept-cafe-blank.webp","description":"Dit is een alternatieve schilderstudie, niet bedoeld als zelfstandig geijkt wandelstandpunt. Gevelverschillen tonen de onzekerheid in de reconstructie.","prompt":"Wat is hier echt en wat is verbeeld?","tip":"Klik op de gevel voor uitleg over de artistieke invulling.","status":"CONCEPT · GEVEL ONZEKER","hotspots":[{"id":"concept_cafe_blank-ins","type":"inspect","label":"Wat is hier onzeker?","content":"cafe_facade","x":34,"y":20,"w":53,"h":55,"marker_x":60,"marker_y":46}]},"concept_hedge":{"id":"concept_hedge","title":"BR1-ZW — vanuit het weiland","place":"Alternatieve artistieke reconstructie","image":"assets/sc-concept-hedge.webp","thumb":"assets/th-concept-hedge.webp","description":"Dit is een alternatieve schilderstudie, niet bedoeld als zelfstandig geijkt wandelstandpunt. Gevelverschillen tonen de onzekerheid in de reconstructie.","prompt":"Wat is hier echt en wat is verbeeld?","tip":"Klik op de gevel voor uitleg over de artistieke invulling.","status":"CONCEPT · GEOMETRIE NOG CONTROLEREN","hotspots":[{"id":"concept_hedge-ins","type":"inspect","label":"Wat is hier onzeker?","content":"cafe_facade","x":34,"y":20,"w":53,"h":55,"marker_x":60,"marker_y":46}]},"concept_gg3wide":{"id":"concept_gg3wide","title":"GG3-W — eerste ontmoeting vanaf de weg","place":"Alternatieve artistieke reconstructie","image":"assets/sc-concept-gg3wide.webp","thumb":"assets/th-concept-gg3wide.webp","description":"Dit is een alternatieve schilderstudie, niet bedoeld als zelfstandig geijkt wandelstandpunt. Gevelverschillen tonen de onzekerheid in de reconstructie.","prompt":"Wat is hier echt en wat is verbeeld?","tip":"Klik op de gevel voor uitleg over de artistieke invulling.","status":"CONCEPT · GEVEL ONZEKER","hotspots":[{"id":"concept_gg3wide-ins","type":"inspect","label":"Wat is hier onzeker?","content":"cafe_facade","x":34,"y":20,"w":53,"h":55,"marker_x":60,"marker_y":46}]},"concept_cafe_end":{"id":"concept_cafe_end","title":"BR1-ZW — sfeervolle café-ingang","place":"Alternatieve artistieke reconstructie","image":"assets/sc-concept-cafe-end.webp","thumb":"assets/th-concept-cafe-end.webp","description":"Dit is een alternatieve schilderstudie, niet bedoeld als zelfstandig geijkt wandelstandpunt. Gevelverschillen tonen de onzekerheid in de reconstructie.","prompt":"Wat is hier echt en wat is verbeeld?","tip":"Klik op de gevel voor uitleg over de artistieke invulling.","status":"CONCEPT · GEVEL ONZEKER","hotspots":[{"id":"concept_cafe_end-ins","type":"inspect","label":"Wat is hier onzeker?","content":"cafe_facade","x":34,"y":20,"w":53,"h":55,"marker_x":60,"marker_y":46}]},"concept_cafe_reveal":{"id":"concept_cafe_reveal","title":"BR1-ZW — zicht op overgave","place":"Alternatieve artistieke reconstructie","image":"assets/sc-concept-cafe-reveal.webp","thumb":"assets/th-concept-cafe-reveal.webp","description":"Dit is een alternatieve schilderstudie, niet bedoeld als zelfstandig geijkt wandelstandpunt. Gevelverschillen tonen de onzekerheid in de reconstructie.","prompt":"Wat is hier echt en wat is verbeeld?","tip":"Klik op de gevel voor uitleg over de artistieke invulling.","status":"CONCEPT · COMPOSITIE NOG CONTROLEREN","hotspots":[{"id":"concept_cafe_reveal-ins","type":"inspect","label":"Wat is hier onzeker?","content":"cafe_facade","x":34,"y":20,"w":53,"h":55,"marker_x":60,"marker_y":46}]},"concept_gg_road":{"id":"concept_gg_road","title":"Grijzegraaf — rustige wegstudie","place":"Alternatieve artistieke reconstructie","image":"assets/sc-concept-gg-road.webp","thumb":"assets/th-concept-gg-road.webp","description":"Dit is een alternatieve schilderstudie, niet bedoeld als zelfstandig geijkt wandelstandpunt. Gevelverschillen tonen de onzekerheid in de reconstructie.","prompt":"Wat is hier echt en wat is verbeeld?","tip":"Klik op de gevel voor uitleg over de artistieke invulling.","status":"CONCEPT · NIET GEOGRAFISCH GEÏJKT","hotspots":[{"id":"concept_gg_road-ins","type":"inspect","label":"Wat is hier onzeker?","content":"cafe_facade","x":34,"y":20,"w":53,"h":55,"marker_x":60,"marker_y":46}]},"v8-school-alternative":{"id":"v8-school-alternative","title":"Schoolstraat — sfeerbeeld","place":"School en Grijzegraaf","image":"assets/sc-v8-school-alternative.webp","thumb":"assets/th-v8-school-alternative.webp","description":"Dit is een extra beeld bij het verhaal van Mesch. De personages en architectonische details zijn artistiek ingevuld.","prompt":"Waarom is de school belangrijk in dit verhaal?","tip":"Een schoolhoofd beschreef de ontmoeting met Amerikaanse soldaten.","status":"EXTRA SCHILDERPLAAT · CONCEPT","hotspots":[{"id":"alt-school","type":"inspect","label":"Wat herkennen we van de school?","x":5,"y":15,"w":38,"h":53,"marker_x":24,"marker_y":41.5,"content":"school"},{"id":"alt-school-door","type":"enter","label":"Ga naar het klaslokaal","x":25,"y":40,"w":15,"h":36,"marker_x":32.5,"marker_y":58,"target":"u04"},{"id":"alt-street","type":"move","label":"Terug naar de schoolstraat (artistiek)","x":52,"y":57,"w":43,"h":40,"marker_x":73.5,"marker_y":77,"target":"u03","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"v8-schoolhome-exterior":{"id":"v8-schoolhome-exterior","title":"De schoolwoning — buiten","place":"Bij de school","image":"assets/sc-v8-schoolhome-exterior.webp","thumb":"assets/th-v8-schoolhome-exterior.webp","description":"Dit is een extra beeld bij het verhaal van Mesch. De personages en architectonische details zijn artistiek ingevuld.","prompt":"Wat merkten gezinnen van de oorlog?","tip":"Het gewone leven werd onderbroken door gevaar en onzekerheid.","status":"EXTRA SCHILDERPLAAT · CONCEPT","hotspots":[{"id":"home-door","type":"enter","label":"Ga de schoolwoning binnen","x":51,"y":28,"w":13,"h":53,"marker_x":57.5,"marker_y":54.5,"target":"u05"},{"id":"home-people","type":"talk","label":"Spreek de bewoner","x":70,"y":41,"w":21,"h":37,"marker_x":80.5,"marker_y":59.5,"content":"resident"},{"id":"home-street","type":"move","label":"Loop naar de school (artistieke verbinding)","x":16,"y":68,"w":39,"h":30,"marker_x":35.5,"marker_y":83,"target":"u03","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"v8-grijzegraaf-quiet":{"id":"v8-grijzegraaf-quiet","title":"Grijzegraaf — landelijk dorpsgezicht","place":"Grijzegraaf","image":"assets/sc-v8-grijzegraaf-quiet.webp","thumb":"assets/th-v8-grijzegraaf-quiet.webp","description":"Dit is een extra beeld bij het verhaal van Mesch. De personages en architectonische details zijn artistiek ingevuld.","prompt":"Hoe anders lijkt dezelfde straat wanneer je terugkijkt?","tip":"Een belangrijke plek kan vanuit twee richtingen herkenbaar blijven.","status":"EXTRA SCHILDERPLAAT · CONCEPT","hotspots":[{"id":"quiet-rd","type":"inspect","label":"Ontdek het straatleven in 1944","x":37,"y":60,"w":37,"h":38,"marker_x":55.5,"marker_y":79,"content":"road"},{"id":"quiet-resident","type":"talk","label":"Praat met een dorpsbewoner","x":4,"y":50,"w":24,"h":38,"marker_x":16,"marker_y":69,"content":"resident"},{"id":"quiet-cont","type":"move","label":"Bekijk de volgende Grijzegraafplaat","x":63,"y":61,"w":35,"h":36,"marker_x":80.5,"marker_y":79,"target":"u13","tentative":true,"route_evidence":"artistieke overgang; route nog niet met RD-cameragegevens geijkt","verified_path":false}]},"v8-welcome-extra":{"id":"v8-welcome-extra","title":"Ontvangst bij de school — tweede schilderij","place":"Grijzegraaf","image":"assets/sc-v8-welcome-extra.webp","thumb":"assets/th-v8-welcome-extra.webp","description":"Dit is een extra beeld bij het verhaal van Mesch. De personages en architectonische details zijn artistiek ingevuld.","prompt":"Wanneer durfden bewoners opgelucht te zijn?","tip":"Het onthaal is een artistiek verbeeld later moment, geen live tijdsprong.","status":"EXTRA SCHILDERPLAAT · CONCEPT","hotspots":[{"id":"extra-welcome","type":"inspect","label":"Waarom was het onthaal zo bijzonder?","x":42,"y":27,"w":37,"h":61,"marker_x":60.5,"marker_y":57.5,"content":"liberation"},{"id":"extra-talk","type":"talk","label":"Spreek een dorpsbewoner","x":11,"y":37,"w":25,"h":47,"marker_x":23.5,"marker_y":60.5,"content":"resident"}]},"v8-breul-conflict":{"id":"v8-breul-conflict","title":"De Breul — spanningsbeeld","place":"Weiland De Breul","image":"assets/sc-v8-breul-conflict.webp","thumb":"assets/th-v8-breul-conflict.webp","description":"Dit is een extra beeld bij het verhaal van Mesch. De personages en architectonische details zijn artistiek ingevuld.","prompt":"Waar kwamen de Amerikaanse soldaten vandaan?","tip":"Let op: het caféopschrift op dit artistieke schilderij is niet historisch juist.","status":"EXTRA SCHILDERPLAAT · CONCEPT","hotspots":[{"id":"conflict-meaning","type":"inspect","label":"Wat betekende Duits verzet?","x":58,"y":31,"w":39,"h":49,"marker_x":77.5,"marker_y":55.5,"content":"border35"},{"id":"conflict-soldier","type":"talk","label":"Praat met een soldaat","x":2,"y":43,"w":35,"h":46,"marker_x":19.5,"marker_y":66,"content":"american"},{"id":"conflict-go","type":"enter","label":"Bekijk de nadering vanuit het weiland","x":40,"y":65,"w":29,"h":31,"marker_x":54.5,"marker_y":80.5,"target":"u14"}]},"v8-breul-facade":{"id":"v8-breul-facade","title":"Cafékopgevel — artistieke variant","place":"Bij De Breul","image":"assets/sc-v8-breul-facade.webp","thumb":"assets/th-v8-breul-facade.webp","description":"Dit is een extra beeld bij het verhaal van Mesch. De personages en architectonische details zijn artistiek ingevuld.","prompt":"Waar kwamen de Amerikaanse soldaten vandaan?","tip":"De nadering door het weiland en de heg is historisch beschreven.","status":"EXTRA SCHILDERPLAAT · CONCEPT","hotspots":[{"id":"facade-unknown","type":"inspect","label":"Hoe zeker is deze cafégevel?","x":35,"y":8,"w":44,"h":55,"marker_x":57,"marker_y":35.5,"content":"cafe_facade"},{"id":"facade-meadow","type":"enter","label":"Bekijk de eerdere nadering als verhaal","x":9,"y":49,"w":35,"h":43,"marker_x":26.5,"marker_y":70.5,"target":"u14"}]},"v8-cafe-other":{"id":"v8-cafe-other","title":"Café Van Hoven — andere gevelinterpretatie","place":"Omgeving café","image":"assets/sc-v8-cafe-other.webp","thumb":"assets/th-v8-cafe-other.webp","description":"Dit is een extra beeld bij het verhaal van Mesch. De personages en architectonische details zijn artistiek ingevuld.","prompt":"Waarom was dit gebouw zo belangrijk?","tip":"De functie als tijdelijk Duits lazaret is bekend; de precieze gevel niet.","status":"EXTRA SCHILDERPLAAT · CONCEPT","hotspots":[{"id":"other-cafe","type":"inspect","label":"Historische functie van Café Van Hoven","x":5,"y":20,"w":44,"h":44,"marker_x":27,"marker_y":42,"content":"cafe_facade"},{"id":"other-us","type":"talk","label":"Spreek een Amerikaan","x":38,"y":50,"w":30,"h":37,"marker_x":53,"marker_y":68.5,"content":"american"},{"id":"other-cafe-entrance","type":"enter","label":"Kijk binnen in het café","x":5,"y":35,"w":24,"h":35,"marker_x":17,"marker_y":52.5,"target":"u08"}]},"german-detail":{"id":"german-detail","title":"De Duitse soldaat — een moment van overgave","place":"Grijzegraaf · detailbeeld","image":"assets/sc-german-detail.webp","thumb":"assets/th-german-detail.webp","description":"De soldaat is moe en houdt zijn handen zichtbaar omhoog. Hij weet niet wat er gaat gebeuren. Dit is een artistiek detailbeeld uit plaat 16, geen portret van een geïdentificeerde historische persoon.","prompt":"Wat betekent het om je over te geven?","tip":"Dit is een detailbeeld. Klik op de knop in het schilderij om terug te keren naar de overgave.","status":"DETAILUITSNede UIT NIEUWE PLAAT 16 · ARTISTIEK","hotspots":[{"id":"german-detail-back","type":"move","target":"gg2-w","label":"Terug naar plaat 16","x":1,"y":77,"w":27,"h":22},{"id":"german-detail-info","type":"inspect","content":"surrender","label":"Wat is overgave?","x":31,"y":18,"w":60,"h":67}]}},"PEOPLE":{"warnier":{"name":"Jef Warnier","status":"historische persoon · nagespeelde dialoog","intro":"Schoolhoofd Warnier beschreef hoe hij bij de Grijzegraaf een Duitse soldaat met opgeheven handen zag en Amerikaanse militairen ontmoette.","qa":[["Waarom was u eerder in de kelder?","Er werd in de omgeving geschoten. Bewoners zochten dekking. In zijn verslag beschreef Warnier de angst en onzekerheid van die ochtend."],["Wat zag u buiten?","Volgens zijn relaas zag Warnier een Duitse soldaat die zich overgaf en een Amerikaanse militair."],["Was heel Nederland toen vrij?","Nee. Mesch behoorde tot de eerste bevrijde plaatsen, maar voor veel andere inwoners van Nederland zou de bezetting nog maanden duren."]],"source":"Stichting Eijsdens Verleden · De bevrijding van Eijsden-Margraten"},"german":{"name":"De overgevende Duitse soldaat","status":"samengesteld personage · uitleg, geen authentieke uitspraken","intro":"De overgave van een Duitse soldaat is historisch beschreven. Zijn identiteit, precieze gedachten en woorden zijn hier niet vastgesteld.","qa":[["Waarom zijn zijn handen omhoog?","Dat is een duidelijk teken van overgave: hij laat zien dat hij niet verder vecht."],["Wat gebeurde er met soldaten die zich overgaven?","Ze konden krijgsgevangen worden genomen. Ze mochten niet zomaar opnieuw deelnemen aan het gevecht."],["Weten we wat deze soldaat dacht?","Nee. Uitputting en angst zijn plausibele artistieke interpretaties, geen letterlijk bekende gevoelens van deze persoon."]],"source":"Ooggetuigenverslag Jef Warnier, via Stichting Eijsdens Verleden"},"american":{"name":"Amerikaanse infanterist","status":"samengesteld personage · nagespeelde dialoog","intro":"Soldaten van het 117e regiment, 30e Amerikaanse Infanteriedivisie, bereikten op 12 september 1944 Nederland.","qa":[["Waar kwamen de Amerikanen vandaan?","Ze waren via België naar de Nederlandse grens bij Mesch opgerukt."],["Waarom bleven ze voorzichtig?","In de omgeving waren nog Duitse militairen en werd geschoten. De situatie kon snel veranderen."],["Wie sneuvelde bij de grens?","Leonard J. Hoffman, een Amerikaan uit Pennsylvania, kwam tijdens de gevechten bij grenspaal 35 om het leven."]],"source":"NIMH en informatiebord Leonard Hoffman"},"medic":{"name":"Militaire hulpverlener — samengesteld personage","intro":"Deze man is een educatief samengesteld personage, geen geïdentificeerde historische persoon. Hij helpt uitleggen hoe een geïmproviseerd lazaret werkte.","status":"Fictieve gids bij een gedocumenteerde medische functie","source":"Getuigenissen Café Van Hoven en algemene historische context","qa":[["Waarom lag hier verband?","De gewonden moesten worden verbonden en verzorgd. Een café had daarvoor niet alle voorzieningen van een ziekenhuis."],["Was het veilig?","Niet helemaal. Ook in een noodhulppost was de oorlog dichtbij."],["Waren alle gewonden Duitse soldaten?","Wie hier precies op welk moment werd verzorgd, kunnen we uit deze afbeelding niet vaststellen."]]},"resident":{"name":"Bewoner van Mesch — samengesteld personage","intro":"Dit is een fictieve dorpsbewoner die laat zien hoe schuilen tijdens de bevrijding kon aanvoelen.","status":"Fictieve dialoog, historisch plausibele ervaring","source":"Herinneringen aan het schuilen in Mesch","qa":[["Waarom zat u hier?","Buiten hoorden we schoten en we wisten niet waar het gevaar vandaan kwam."],["Wist u dat de Amerikanen kwamen?","We hoopten op bevrijding, maar konden vanuit de kelder niet zien wat er op straat gebeurde."],["Wat gebeurde er later?","Pas toen het veiliger werd, durfden mensen weer naar buiten."]]}},"TOPICS":{"hedge":{"title":"De heg en de eerste Amerikanen","body":"In de historische beschrijvingen komen Amerikaanse militairen vanuit het weiland en door de heg richting Grijzegraaf. De precieze stapplaats en het uiterlijk van de heg zijn niet overal in beeldmateriaal bewezen. Een echte wandelroute mag daarom niet zomaar door een gesloten heg worden getekend.","status":"historische gebeurtenis + artistieke ligging","source":"Stichting Eijsdens Verleden"},"meadow":{"title":"Vanuit het weiland","body":"De nadering van Amerikaanse infanteristen vanuit het veld is historisch beschreven. De aantallen, houdingen en individuele gezichten op deze plaat zijn artistiek gereconstrueerd.","status":"feit + interpretatie","source":"Stichting Eijsdens Verleden"},"lazaret":{"title":"Café als tijdelijk Duits lazaret","body":"Café Van Hoven was tijdens de gevechten als Duits noodhospitaal ingericht. Later werd beschreven dat er veel verbandmateriaal en sporen van de gewondenzorg achterbleven. De exacte ruimte-indeling en afgebeelde medici zijn niet door de afbeelding bewezen.","status":"historische functie, artistiek interieur","source":"Stichting Eijsdens Verleden; getuigenissen van de familie Van Hoven"},"camera_unknown":{"title":"Waarom is dit nog een maquette?","body":"Het onderleggerbeeld laat ons de vaste bouwmassa, weg en horizon zien. De werkelijke ramen, gevelafwerking en gedetailleerde 1944-inrichting zijn nog niet allemaal vastgesteld. De exacte camera-RD-gegevens van dit standpunt zijn evenmin meegeleverd.","status":"geometrische bron, historische aankleding open","source":"Aangeleverde 3D-onderlegger"},"border35":{"title":"De grensoversteek bij Mesch","body":"Soldaten van het Amerikaanse 117e Infanterieregiment, 30e Infanteriedivisie, bereikten op 12 september 1944 bij Mesch de Nederlandse grens. Voor de inwoners van dit dorp begon de bevrijding eerder dan voor veel andere Nederlanders. Dit is een uitleg over een eerdere gebeurtenis, niet iets wat je op de huidige plek letterlijk ziet.","status":"historisch gebeurtenisoverzicht · geen tijdsprong","source":"NIMH: We are now fighting in Holland; Stichting Eijsdens Verleden"},"shelter":{"title":"Waarom inwoners in kelders schuilden","body":"Tijdens de gevechten zochten inwoners bescherming in kelders. Jef Warnier beschreef de angst en onzekerheid, het geweervuur en de stilte die later viel. De ingerichte schuilkelderplaat moet nog worden geproduceerd. Dit is brongebonden uitleg, geen live-scène in deze kamer.","status":"ooggetuigencontext · interieur nog niet beschikbaar","source":"Jef Warnier, De bevrijding van Eijsden-Margraten (Stichting Eijsdens Verleden)"},"hoffman":{"title":"Leonard J. Hoffman — de menselijke prijs","body":"Leonard J. Hoffman was een Amerikaanse soldaat die bij de grensgevechten om het leven kwam. Zijn verhaal herinnert eraan dat bevrijding ook offers kostte. De app toont hem niet alsof hij bij de latere overgave aanwezig was.","status":"historisch persoon · herdenking, geen reconstructie van overlijden","source":"Stichting Eijsdens Verleden, informatiebord Leonard Hoffman"},"school":{"title":"De oude school van Mesch","body":"De oorspronkelijke 3D-onderlegger laat aan de Grijzegraaf het schoolgebouw zien: wit gepleisterd, twee bouwlagen, een steil zadeldak en één rond venster hoog in de kopgevel. Dit is de herkenningsinformatie uit het reconstructiedossier. Een exacte raam- en deurindeling op andere gevels is hiermee niet bewezen. De school is belangrijk in het verhaal van schoolhoofd Jef Warnier.","status":"reconstructiedossier · geveldetails gedeeltelijk bekend","source":"Gebruikersdossier oude school, foto 7097 (nog afzonderlijk te verifiëren)"},"road":{"title":"De Grijzegraaf als wandelroute","body":"De ligging en het perspectief van de straat komen uit de 3D-onderlegger. De precieze historische wegverharding is nog onzeker. Daarom mag het schilderij de weg sfeervol maar onopvallend tonen. Er is geen gemeten route van deze camera naar GG3-W beschikbaar.","status":"maquette als bron · route nog niet geijkt","source":"GG1-O onderlegger en cameraplan"},"cafe_facade":{"title":"Café Van Hoven: waar zaten de ramen?","body":"Café Van Hoven stond aan de Grijzegraaf en werd tijdens de gevechten gebruikt als tijdelijk lazaret. De ramen, de voordeur en het uithangbord op deze artistieke versie van de kopgevel zijn niet bevestigd voor 1944. Je kunt ernaar kijken, maar dit is nog geen historisch geverifieerde deur om echt doorheen te lopen.","status":"historische functie bevestigd · architectonische aankleding artistiek","source":"Stichting Eijsdens Verleden en BR1-ZW reconstructiedossier"},"classroom":{"title":"Het oude klaslokaal","body":"Onderwijzen en leren gingen tijdens de bezetting niet vanzelfsprekend door. De oude school van Mesch is een herkenbare plek in de verhalen over schoolhoofd Jef Warnier. De precieze schoolbanken, kaarten, ramen en inrichting op dit schilderij zijn artistiek ingevuld.","status":"Artistiek interieur met historische context","source":"Projectdossier oude school en herinneringen aan Jef Warnier"},"family":{"title":"Leven in een schoolwoning","body":"Gezinnen probeerden tijdens de bezetting zo gewoon mogelijk te leven. Op de dag van de bevrijding zochten bewoners beschutting. Deze schildering toont een mogelijke woonkamer en geen fotografisch bewezen interieur.","status":"Plausibele reconstructie","source":"Historische publicatie over de bevrijding van Eijsden-Margraten"},"cafe_room":{"title":"Het café als ontmoetingsplaats","body":"Café Van Hoven was vóór de bevrijding een vertrouwde plek voor bewoners. Tijdens de gevechten moest het ook dienen als tijdelijk lazaret. De meubels, deuren en aankleding van dit vertrek zijn artistiek gereconstrueerd.","status":"Historische functie; onzekere inrichting","source":"Stichting Eijsdens Verleden"},"supplies":{"title":"De voorraadkelder","body":"Een kelder was in het dagelijks leven een plek om levensmiddelen en andere voorraad te bewaren. De afbeelding is een artistieke voorstelling en bewijst niet welke voorraad de familie Van Hoven werkelijk had.","status":"Artistieke verdieping","source":"Historische context, niet specifiek gedocumenteerd voor deze kelder"},"liberation":{"title":"De betekenis van de bevrijding","body":"Amerikaanse militairen trokken op 12 september 1944 Mesch binnen. De opluchting groeide toen duidelijker werd dat de Duitsers weg waren. Dat eerste contact betekende nog niet dat heel Nederland bevrijd was.","status":"Historische kern met artistiek onthaal","source":"NIMH en Stichting Eijsdens Verleden"},"paintings":{"title":"Historische schilderijen en de echte gebeurtenissen","status":"artistiek beeld, historisch verhaal","body":"De beelden zijn gemaakt om het verhaal van de bevrijding te beleven. De ligging van de school, het café en de Grijzegraaf is gebaseerd op beschikbare reconstructies; veel ramen, kleding, voorwerpen en gezichtsuitdrukkingen zijn verzonnen. Sommige kijkplaten tonen herinneringen uit de ochtend of de latere middag. Je verandert daarmee niet letterlijk van tijd.","source":"Mesch 1944 · ontwerp- en historisch dossier"}},"NAV_NODES":[["u01","De nadering","Ochtend"],["u14","De Amerikanen komen dichterbij","Ochtend"],["gg3-w","De eerste ontmoeting","Eerste contact"],["gg2-w","De Duitse overgave","Eerste contact"],["german-detail","De Duitse soldaat","Eerste contact"],["u15","Het onthaal","Later op de dag"],["u02","Grijzegraaf, schoolzijde","Overdag"],["u03","Bij de oude school","Overdag"],["u04","Het oude klaslokaal","Overdag"],["v8-schoolhome-exterior","Schoolwoning buiten","Overdag"],["u05","Schoolwoning, woonkamer","Overdag"],["u06","De schuilkelder","Tijdens gevechten"],["u13","Grijzegraaf, terugweg","Overdag"],["u07","Café Van Hoven, buiten","Overdag"],["u08","Café Van Hoven, gelagkamer","Overdag"],["u09","Café Van Hoven, achterkamer","Overdag"],["u10","Café als Duits lazaret","Tijdens gevechten"],["u11","Café, kelder","Tijdens gevechten"],["u12","Schuilkelder bij het café","Tijdens gevechten"],["gg1-o","Oude school, maquette","Overdag"],["br1-zw","Café vanaf De Breul","Overdag"]]};
 const {SCENES,PEOPLE,TOPICS,NAV_NODES}=DATA;
+Object.assign(SCENES['german-detail'],{
+ title:'De Duitse soldaat van dichtbij',
+ image:'assets/portrait-german-front.webp'
+});
 Object.assign(SCENES,{
  'cafe-cleanup':{
   title:'Café Van Hoven — de opruiming',image:'assets/sc-cafe-cleanup.webp',
@@ -129,7 +152,7 @@ NAV_NODES.push(
  ['warnier-night','Schoolwoning, een Amerikaanse logé','Na het onthaal'],
  ['mescherbrug','Mescherbrug, Bovenstraat','Tijdstip niet vastgelegd']
 );
-SCENES['german-detail'].hotspots.push({type:'talk',content:'german',label:'Praat met de Duitse soldaat',marker_x:52,marker_y:69});
+SCENES['german-detail'].hotspots.push({type:'talk',content:'german',label:'Praat met de Duitse soldaat',marker_x:57,marker_y:62,x:38,y:20,w:27,h:53});
 SCENES.u04.hotspots.push({type:'talk',content:'warnier',label:'Praat met schoolhoofd Jef Warnier',marker_x:60,marker_y:52});
 const witnessBook='https://bel-memorial.org/documents/De_bevrijding_van_Eijsden-Margraten_in_september_1944.pdf';
 const lizaInterview='https://www.digibron.nl/viewer/collectie/Digibron/id/tag%3ARD.nl%2C19950425%3Anewsml_7fa40b4b19fec09ae91f4d9976e578de';
@@ -253,29 +276,54 @@ smallViewport.addEventListener('change',()=>{
  showPainting();
  preloadNext(routesFor(current).primary);
 });
-function openPanel(html){lastFocus=document.activeElement;$('content').innerHTML=html;$('panel').classList.add('open');$('close').focus()}
-function closePanel(){$('panel').classList.remove('open');$('content').innerHTML='';lastFocus?.focus?.()}
-$('close').onclick=closePanel;$('panel').addEventListener('click',e=>{if(e.target===$('panel'))closePanel()});
+let panelPages=[],panelPage=0;
+function showPanelPage(){
+ const page=panelPages[panelPage];
+ if(typeof page==='function')page();
+ else $('content').innerHTML=page;
+ $('panelPager').hidden=panelPages.length<2;
+ $('panelCount').textContent=(panelPage+1)+' / '+panelPages.length;
+ $('panelPrev').disabled=panelPage===0;
+ $('panelNext').disabled=panelPage===panelPages.length-1;
+}
+function openPanel(pages){
+ lastFocus=document.activeElement;
+ panelPages=Array.isArray(pages)?pages:[pages];panelPage=0;
+ $('panel').classList.add('open');showPanelPage();$('close').focus();
+}
+function closePanel(){
+ $('panel').classList.remove('open');$('content').replaceChildren();lastFocus?.focus?.();
+}
+$('panelPrev').onclick=()=>{if(panelPage>0){panelPage--;showPanelPage()}};
+$('panelNext').onclick=()=>{if(panelPage+1<panelPages.length){panelPage++;showPanelPage()}};
+$('close').onclick=closePanel;
+$('panel').addEventListener('click',e=>{if(e.target===$('panel'))closePanel()});
 document.addEventListener('keydown',e=>{
  if(e.key!=='Escape')return;
- if(!$('conversation').hidden){
-  if(!$('personChat').hidden){showChat(false);$('toggleChat').focus()}
-  else returnToWalk();
-  return;
- }
  if($('panel').classList.contains('open'))closePanel();
+ else if(!$('conversation').hidden)returnToWalk();
 });
 function go(dest){
  if(!SCENES[dest])return;
+ if(!$('conversation').hidden)returnToWalk();
  previous=current;
  current=dest;
  paint();
  $('sceneName').focus();
 }
-const glyph={move:'➜',enter:'⌂',talk:'◉',inspect:'ⓘ'};
+const glyph={move:'➜',talk:'◉',inspect:'ⓘ'};
+// Richtingen volgen het zichtbare pad, de deur of de trap op deze plaat.
+const routeMarker={
+ u01:[76,78,-105],u14:[73,73,-118],'gg3-w':[71,65,-40],'gg2-w':[41,83,-115],
+ 'german-detail':[22,85,145],u15:[72,83,-97],u02:[64,80,-83],u03:[88,86,-80],
+ u04:[89,78,-38],'v8-schoolhome-exterior':[65,69,-65],u05:[27,76,155],u06:[84,65,-72],
+ u13:[56,88,-97],u07:[80,64,-75],u08:[77,59,-38],u09:[76,79,-45],
+ u10:[66,82,-76],u11:[65,72,-72],u12:[78,70,-68],'gg1-o':[82,85,-120],
+ 'br1-zw':[68,83,-112],'cafe-cleanup':[21,83,-145],'warnier-night':[25,79,-99],mescherbrug:[77,82,-79]
+};
 function buttonAt(h,click){
  const bt=document.createElement('button');bt.className='hot '+h.type;bt.style.left=h.x+'%';bt.style.top=h.y+'%';bt.type='button';bt.setAttribute('aria-label',h.label);
- if(h.secondary)bt.classList.add('side-route');
+ if(Number.isFinite(h.heading))bt.style.setProperty('--heading',h.heading+'deg');
  const b=document.createElement('b');b.textContent=glyph[h.type]||'➜';bt.appendChild(b);
  const t=document.createElement('span');t.className='tip';t.textContent=h.label;bt.appendChild(t);
  bt.onclick=click;$('points').appendChild(bt);
@@ -298,14 +346,16 @@ function paint(){
  $('routes').hidden=alternatives.length===0;
  const acts=(s.hotspots||[]).filter(h=>(h.type==='talk'||h.type==='inspect')&&h.content).filter(h=>!(h.type==='talk'&&h.content==='resident'&&['u08','u09','u10','u11'].includes(current)));
  const moves=(s.hotspots||[]).filter(h=>h.target&&SCENES[h.target]&&['move','enter'].includes(h.type));
- for(const path of [primary,...alternatives].filter(Boolean)){
-  const areas=moves.filter(h=>h.target===path.to);
-  buttonAt({type:areas[0]?.type||'move',label:path.label,x:path.x,y:path.y,secondary:path!==primary},()=>go(path.to));
-  for(const h of areas)imageArea(h,()=>go(path.to));
+ if(primary){
+  const [x,y,heading]=routeMarker[current]||[primary.x,primary.y,-90];
+  const goPrimary=()=>go(primary.to);
+  buttonAt({type:'move',label:primary.label,x,y,heading},goPrimary);
+  for(const h of moves.filter(h=>h.target===primary.to))imageArea(h,goPrimary);
  }
  for(const h of acts)buttonAt({...h,left:h.x,top:h.y,x:h.marker_x??h.x+h.w/2,y:h.marker_y??h.y+h.h/2},()=>h.type==='talk'?talk(h.content):information(h.content));
- if(relatedPlates[current])buttonAt({type:'inspect',label:'Bekijk de oorspronkelijke historische zoekplaat (geen archieffoto)',x:91,y:14},()=>{previous=current;current=relatedPlates[current];paint()});
- if(!mainIDs.has(current)&&!(links[current]||[]).length&&previous&&SCENES[previous])buttonAt({type:'move',label:'Terug naar de bezochte scène',x:15,y:87},()=>{const dest=previous;previous=current;current=dest;paint()});
+ if(current==='gg2-w')buttonAt({type:'inspect',label:'Bekijk het portret van de Duitse soldaat',x:72,y:43},()=>go('german-detail'));
+ if(relatedPlates[current])buttonAt({type:'inspect',label:'Bekijk de oorspronkelijke historische zoekplaat (geen archieffoto)',x:91,y:14},()=>go(relatedPlates[current]));
+ if(!mainIDs.has(current)&&!(links[current]||[]).length&&previous&&SCENES[previous])buttonAt({type:'move',label:'Terug naar de bezochte scène',x:15,y:87,heading:145},()=>go(previous));
  document.title=s.title+' | Mesch 1944';
  preloadNext(primary);
 }
@@ -315,7 +365,7 @@ const PERSON_PORTRAITS={
  guest:{src:'assets/portrait-guest-closeup.webp',caption:'Uitsnede van de geschilderde reconstructie. Warnier beschreef het verblijf van de soldaat.'},
  resident:{src:'assets/portrait-resident-closeup.webp',caption:'Geschilderd portret van een samengesteld personage uit Mesch.'},
  american:{src:'assets/portrait-american-front.webp',caption:'Geschilderd detail van een Amerikaanse militair, geen verifieerbaar portret.'},
- german:{src:'assets/portrait-german-closeup.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
+ german:{src:'assets/portrait-german-front.webp',small:'assets/mobile/portrait-german-front.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
  medic:{src:'assets/portrait-medic-closeup.webp',caption:'Geschilderd detail van een samengestelde hulpverlener in het tijdelijke lazaret.'},
  warnier:{src:'assets/portrait-warnier-closeup.webp',caption:'Artistieke voorstelling van Jef Warnier in 1944, geïnspireerd op een latere archieffoto (EV 2197). Zijn uiterlijk in 1944 is onzeker.',sourceUrl:'https://www.eijsdensverleden.nl/online/wp-content/uploads/2019/08/UEV102-De-Burgemeester-in-oorlogstijd-deel-2-OCR_Optimized.pdf#page=5'}
 };
@@ -418,124 +468,189 @@ function matchQuestion(id,input){
  scored.sort((a,b)=>b.score-a.score);
  return scored.length&&scored[0].score>=2&&(!scored[1]||scored[0].score>scored[1].score)?p.qa[scored[0].i]:null;
 }
+let stopChatLayout=null;
 function returnToWalk(){
+ stopChatLayout?.disconnect();stopChatLayout=null;
  $('conversation').hidden=true;
  $('personContent').replaceChildren();
- $('conversationTools').hidden=true;
- $('walk').hidden=false;
- $('walkTools').hidden=false;
- document.title=SCENES[current].title+' | Mesch 1944';
+ $('frame').removeAttribute('data-chat-open');
+ $('points').inert=false;
  (conversationTrigger||$('sceneName')).focus();
  conversationTrigger=null;
 }
-$('returnToWalk').onclick=returnToWalk;
-function showChat(open){
- $('personChat').hidden=!open;
- $('toggleChat').setAttribute('aria-expanded',String(open));
- $('toggleChat').textContent=open?'Sluit chat':'Open chat';
-}
-$('toggleChat').onclick=()=>{
- const open=$('personChat').hidden;
- showChat(open);
- if(open)$('chatHeading').focus();
-};
 const conversations=new Map();
+const reactions={
+ american:{
+  prompt:'Kijk naar de ontmoeting. Waaraan zou jij merken dat iemand contact zoekt?',
+  choices:[['Aan een open hand of een begroeting.',/hand|groet|zwaai|knik|gebaar/,'Een open hand of een knik kan iets zeggen als je elkaars taal nog niet spreekt. Kijk welke gebaren je op de plaat kunt aanwijzen.'],['Aan het uniform.',/uniform|helm|kleding/,'Aan een uniform kun je soms zien bij welke groep iemand hoort. Een hand of een begroeting vertelt je meer over hoe diegene contact zoekt.']]
+ },
+ german:{
+  prompt:'Wat vertellen mijn opgeheven handen op de overgaveplaat jou?',
+  choices:[['Dat je stopt met vechten.',/stop|overga|vecht|geef/,'Ja, zo kan iemand laten zien dat hij zich overgeeft. Warnier beschreef dat gebaar in zijn verslag.'],['Ik zou ook naar de afstand kijken.',/afstand|ver|omstand/,'De afstand helpt je de spanning op de plaat te zien. Welke andere aanwijzing zie je aan mijn handen?']]
+ },
+ warnier:{
+  prompt:'Welke aanwijzing zou jij zoeken om mijn verhaal over de ruil te controleren?',
+  choices:[['Het briefje dat u schreef.',/brief|notitie|schreef|papier/,'Mijn briefje vertelt wat ik voor de inkt kreeg. In het boek staat het naast het bewaarde omhulsel.'],['Het omhulsel van het pakje.',/pak|wikkel|omhul|sigaret/,'Het omhulsel laat zien wat voor pakje het was. Mijn briefje vertelt wat ik ervoor ruilde.']]
+ },
+ resident:{
+  prompt:'Wat zou jij doen als je buiten schoten hoorde?',
+  choices:[['Een veilige plek binnen zoeken.',/binnen|kelder|schuil|veilig|verstop/,'Beschutting zoeken is begrijpelijk. Meester Warnier schreef dat zijn gezin naar de kelder ging.'],['Eerst luisteren waar het geluid vandaan komt.',/luister|hoor|geluid|kijk/,'Als je binnen bent, hoor je soms meer dan je kunt zien. Dat maakt het lastig te weten wat er buiten gebeurt.']]
+ },
+ medic:{
+  prompt:'Welk voorwerp op de plaat vertelt jou dat hier gewonden zijn verzorgd?',
+  choices:[['Het verband.',/verband|doek|schar|wond/,'Verband past bij verzorging. Het verslag noemt dat de bewoners verband en scharen aantroffen.'],['Een tafel of stoel.',/tafel|stoel|meubel/,'Een tafel of stoel kun je ook in een gewoon café zien. Kijk of je daarnaast iets vindt dat speciaal bij verzorging past.']]
+ },
+ liza:{
+  prompt:'Wat zou jij op de plaat aanwijzen als aanwijzing dat het café een noodhospitaal was?',
+  choices:[['Het achtergebleven verband.',/verband|schar|doek|wond/,'Dat past bij wat de bewoners na het vertrek aantroffen. Het verslag noemt verband en scharen.'],['De emmer waarmee wordt schoongemaakt.',/emmer|schoon|opruim/,'De emmer laat zien dat de schilder de opruiming wilde tonen. Verband vertelt je meer over het eerdere gebruik van de kamer.']]
+ },
+ guest:{
+  prompt:'Welk detail over mijn verblijf kun je in het verslag van Warnier terugvinden?',
+  choices:[['Dat er bij kaarslicht werd gepraat.',/kaars|praat|gesprek|licht/,'Ja. Warnier schreef dat hij en zijn gast bij kaarslicht met elkaar spraken.'],['Waar de helm stond.',/helm|stoel|raam/,'De plaats van de helm is een keuze van de schilder. Warnier schreef wel over het gesprek bij kaarslicht en het bed.']]
+ }
+};
 function talk(id){
  const person=PEOPLE[id];if(!person)return;
- const pic=PERSON_PORTRAITS[id]||{src:null,caption:'Geen betrouwbaar portret beschikbaar.'};
- const portrait=pic.src?`<picture><img src="${esc(pic.src)}" alt="Geschilderde close-up van ${esc(person.name.replace(/ — samengesteld personage$/,''))}"></picture>`:'<div class="missing-portrait">Portret niet beschikbaar</div>';
- const photoLink=pic.sourceUrl?` <a class="portrait-source" href="${esc(pic.sourceUrl)}" target="_blank" rel="noopener">Bekijk archieffoto</a>`:'';
+ const name=person.name.replace(/ — samengesteld personage$/,'');
+ const pic=PERSON_PORTRAITS[id];
+ const portrait=pic?.src?`<img src="${esc(smallViewport.matches&&pic.small?pic.small:pic.src)}" alt="Geschilderde close-up van ${esc(name)}">`:'';
+ const reaction=reactions[id];
  const key=current+':'+id;
  if(!conversations.has(key))conversations.set(key,[]);
  const turns=conversations.get(key);
- const source=esc(person.source||'Historische context');
- const sourceLink=person.sourceUrl?`<a href="${esc(person.sourceUrl)}" target="_blank" rel="noopener">${source}</a>`:source;
  conversationTrigger=document.activeElement;
  $('personContent').innerHTML=`
-  <figure class="person-figure"><div class="plate-frame">
-   <h1 id="personName" class="person-name" tabindex="-1">${esc(person.name.replace(/ — samengesteld personage$/,''))}</h1>
-   ${portrait}
-  </div><figcaption>${esc(pic.caption)}${photoLink}</figcaption></figure>
-  <aside id="personChat" class="person-main" aria-labelledby="chatHeading" hidden>
-   <h2 id="chatHeading" tabindex="-1">Stel je vraag</h2>
-   <p class="person-status">${esc(person.role||'Gereconstrueerd gesprek')}</p>
-   <p>${esc(person.intro||'')}</p>
-   <form id="questionForm">
-    <input id="freeQuestion" type="text" maxlength="180" autocomplete="off" placeholder="Typ je vraag" aria-label="Stel zelf een historische vraag">
-    <button type="submit" id="askButton">Vraag</button>
-   </form>
-   <div id="chatHistory" role="log" aria-live="polite" aria-label="Gesprek"></div>
-   <div id="followUp" aria-label="Vervolgvraag"></div>
-   <h2>Voorbeeldvragen</h2>
-   <div id="q"></div>
-   <details><summary>Bron van dit gesprek</summary><p>De antwoorden komen uit vooraf geschreven gespreksteksten. Bron: ${sourceLink}</p></details>
+  <div id="chatPortrait" class="chat-portrait">${portrait}</div>
+  <aside class="person-main" aria-labelledby="personName">
+   <div class="chat-head"><h2 id="personName" tabindex="-1">${esc(name)}</h2><button id="portraitToggle" type="button" aria-pressed="false">Toon plaat</button><button id="returnToWalk" type="button" aria-label="Sluit gesprek">×</button></div>
+   <div id="chatHistory" aria-live="polite" aria-label="Gesprek"></div>
+   <div class="chat-nav"><button id="chatPrev" type="button" aria-label="Vorige gesprekspagina">←</button><span id="chatPage"></span><button id="chatNext" type="button" aria-label="Volgende gesprekspagina">→</button><button id="chatMode" type="button">Voorbeeldvragen</button></div>
+   <form id="questionForm"><input id="freeQuestion" type="text" maxlength="180" autocomplete="off" placeholder="Typ je vraag of antwoord" aria-label="Typ je vraag of antwoord"><button type="submit" id="askButton">Stuur</button></form>
   </aside>`;
- $('walk').hidden=true;
- $('walkTools').hidden=true;
- $('conversationTools').hidden=false;
+ $('frame').setAttribute('data-chat-open','');
  $('conversation').hidden=false;
- showChat(true);
- document.title=$('personName').textContent+' | Mesch 1944';
+ $('points').inert=true;
+ $('returnToWalk').onclick=returnToWalk;
+ $('portraitToggle').onclick=()=>{
+  const image=$('chatPortrait'),showPlate=!image.hidden;
+  image.hidden=showPlate;
+  $('portraitToggle').textContent=showPlate?'Toon portret':'Toon plaat';
+  $('portraitToggle').setAttribute('aria-pressed',String(showPlate));
+ };
  $('personName').focus();
- const image=$('personContent').querySelector('.person-figure img');
- image?.addEventListener('error',()=>{
-  const notice=document.createElement('div');
-  notice.className='missing-portrait';
-  notice.textContent='Het portret kon niet worden geladen.';
-  image.closest('picture').replaceWith(notice);
- },{once:true});
  const history=$('chatHistory');
- function appendTurn(kind,txt,label){
-  const div=document.createElement('div');div.className='chat-turn '+kind;
-  const small=document.createElement('small');small.textContent=label;div.appendChild(small);
-  const span=document.createElement('span');span.textContent=txt;div.appendChild(span);
-  history.appendChild(div);history.scrollTop=history.scrollHeight;
+ const sourceHref=person.sourceUrl||pic?.sourceUrl;
+ let mode='talk',page=0;
+
+ function button(label,action){
+  const el=document.createElement('button');
+  el.type='button';el.className='answer';el.textContent=label;el.onclick=action;
+  history.appendChild(el);
  }
- const form=$('questionForm'),input=$('freeQuestion'),followUp=$('followUp');
- function showTurn({question,answer,source}){
-  appendTurn('question',question,'Jij');
-  appendTurn('answer',answer||'Die vraag herken ik nog niet. Probeer één korte vraag over wat je op de plaat ziet, of kies een voorbeeldvraag.',answer?person.name:'Probeer een andere vraag');
-  if(source){
-   const link=document.createElement('a');
-   link.className='portrait-source';link.href=source;link.target='_blank';link.rel='noopener';
-   link.textContent='Lees de bron';history.appendChild(link);
+ function line(label,message,kind='answer'){
+  const el=document.createElement('div');
+  el.className='chat-turn '+kind;
+  const heading=document.createElement('small');heading.textContent=label;
+  const copy=document.createElement('p');copy.textContent=message;
+  el.append(heading,copy);history.appendChild(el);
+ }
+ function link(label,href){
+  const el=document.createElement('a');
+  el.textContent=label;el.href=href;el.target='_blank';el.rel='noopener';
+  history.appendChild(el);
+ }
+ function turnCard(turn,layout='all'){
+  if(layout==='all')line('Jij',turn.question,'question');
+  if(layout!=='counter')line(name,turn.answer);
+  if(layout!=='answer'&&turn.counter){
+   line(name,turn.counter);
+   if(turn===turns.at(-1)){
+    button('Kies een antwoord',()=>{
+     mode='choices';page=0;render();history.querySelector('button')?.focus();
+    });
+   }
   }
-  history.scrollTop=history.scrollHeight;
+  if(layout==='all'&&turn.source)link('Lees de bron',turn.source);
  }
- function questionButton(question,action){
-  const button=document.createElement('button');
-  button.type='button';button.className='answer';button.textContent=question;
-  button.onclick=action;
-  return button;
+ function pages(){
+  if(mode==='questions')return person.qa.map(topic=>()=>button(topic[0],()=>answer(topic[0],topic)));
+  if(mode==='choices')return [()=>{
+   line(name,reaction.prompt);
+   for(const choice of reaction.choices)button(choice[0],()=>respond(choice[0],choice));
+  }];
+  if(mode==='source')return [()=>{
+   line('Bron',person.source||'Historische context');
+   if(sourceHref)link('Open de bron',sourceHref);
+   const answerSource=turns.at(-1)?.source;
+   if(answerSource&&answerSource!==sourceHref)link('Bron bij het laatste antwoord',answerSource);
+  },()=>line('Over het portret',pic?.caption||'Geschilderde reconstructie')];
+  return [()=>line(name,person.intro||'Wat wil je weten?'),...turns.map(turn=>()=>turnCard(turn))];
  }
- function updateFollowUp(){
-  followUp.replaceChildren();
-  if(!turns.length)return;
-  const answered=new Set(turns.map(turn=>turn.topic));
-  const latest=turns.at(-1);
-  const index=person.qa.findIndex(([question])=>question===latest.topic);
-  const next=[...person.qa.slice(index+1),...person.qa.slice(0,index+1)].find(([question])=>!answered.has(question));
-  if(!next)return;
-  const heading=document.createElement('h2');
-  heading.textContent='Vraag verder';
-  followUp.appendChild(heading);
-  followUp.appendChild(questionButton(next[0],()=>reply(next[0],next)));
+ const controls=$('chatMode');
+ let detail=0;
+ function render(last=false){
+  const cards=pages();
+  page=last?cards.length-1:Math.min(page,cards.length-1);
+  history.replaceChildren();cards[page]();
+  const turn=mode==='talk'?turns[page-1]:null;
+  let compact=false;
+  if(turn&&history.scrollHeight>history.clientHeight){
+   history.replaceChildren();turnCard(turn,'compact');
+   if(turn.counter&&history.scrollHeight>history.clientHeight){
+    compact=true;history.replaceChildren();turnCard(turn,detail?'counter':'answer');
+   }
+  }
+  $('chatPrev').disabled=page===0&&!detail;
+  $('chatNext').disabled=page===cards.length-1&&(!compact||detail===1);
+  $('chatPage').textContent=(page+1)+' / '+cards.length;
+  controls.textContent=mode==='talk'?'Voorbeeldvragen':mode==='questions'?'Bron':'Gesprek';
+  return compact;
  }
- function reply(question,topic){
-  const turn={question,topic:topic?.[0],answer:topic?.[1],source:topic?.[2]};
-  turns.push(turn);
-  showTurn(turn);
-  updateFollowUp();
+ function addTurn(turn){
+  turns.push(turn);mode='talk';detail=0;render(true);
  }
- turns.forEach(showTurn);
- updateFollowUp();
- form.addEventListener('submit',e=>{
-  e.preventDefault();const value=input.value.trim();
+ function answer(question,topic){
+  if(!topic){
+   addTurn({question,answer:'Die vraag herken ik nog niet. Probeer een voorbeeldvraag of vraag iets over wat je op de plaat ziet.'});
+   return;
+  }
+  const recent=turns.at(-1);
+  const previousTopic=turns.findLast(turn=>turn.topic)?.topic;
+  const counter=reaction&&topic[0]!==previousTopic&&!recent?.counter?reaction.prompt:undefined;
+  addTurn({question,topic:topic[0],answer:topic[1],source:topic[2],counter});
+ }
+ function respond(value,choice){
+  const reply=choice?.[2]||'Kijk nog eens naar de plaat. Welke van de twee aanwijzingen past bij wat jij ziet?';
+  addTurn({question:value,answer:reply,counter:!choice&&reaction.prompt});
+ }
+ $('chatPrev').onclick=()=>{
+  if(detail){detail=0;render();return}
+  if(page>0){page--;render()}
+ };
+ $('chatNext').onclick=()=>{
+  if(render()&&!detail){detail=1;render();return}
+  if(page+1<pages().length){page++;detail=0;render()}
+ };
+ controls.onclick=()=>{
+  mode=mode==='talk'?'questions':mode==='questions'?'source':'talk';
+  page=0;detail=0;render(mode==='talk');
+ };
+ $('questionForm').addEventListener('submit',event=>{
+  event.preventDefault();
+  const input=$('freeQuestion'),value=input.value.trim();
   if(!value)return;
-  input.value='';input.focus();
-  reply(value,matchQuestion(id,value));
+  input.value='';
+  const topic=matchQuestion(id,value);
+  const choice=turns.at(-1)?.counter&&reaction.choices.find(([,pattern])=>pattern.test(normalizeQuestion(value)));
+  if(topic&&(/\?$/.test(value)||/^(waar|wie|wat|welke?|hoe|waarom|wanneer|was|waren|heb|heeft|is|zijn|wist|weet|kan|kun)\b/i.test(value)))answer(value,topic);
+  else if(choice)respond(value,choice);
+  else if(topic)answer(value,topic);
+  else if(turns.at(-1)?.counter&&!/\?$/.test(value))respond(value);
+  else answer(value,null);
  });
- for(const topic of person.qa)$('q').appendChild(questionButton(topic[0],()=>reply(topic[0],topic)));
+ render(turns.length>0);
+ stopChatLayout=new ResizeObserver(()=>render());
+ stopChatLayout.observe(history);
 }
 
 TOPICS.surrender={
@@ -581,27 +696,39 @@ function information(id){
  const s=SCENES[current],v=TOPICS[id]||{title:'Over deze plek',body:s.description,status:s.status,source:'Bronnenregister Mesch 1944'};
  const source=esc(v.source||'Historische documentatie Mesch 1944');
  const sourceLink=v.url?'<a style="color:var(--gold)" href="'+esc(v.url)+'" target="_blank" rel="noopener">'+source+'</a>':source;
- openPanel('<span class="pill">Historisch onderzoeken</span><h2>'+esc(v.title||s.title)+'</h2><p>'+esc(v.body||s.description)+'</p><h3>Wat weten we zeker?</h3><p class="muted">'+esc(v.status||s.status||'Reconstructie; details niet volledig geverifieerd')+'</p><p class="muted"><strong>Bron / dossier:</strong> '+sourceLink+'</p><p class="muted">Deze schildering is geen archieffoto. Exacte gevels, interieurs en posities kunnen artistiek zijn ingevuld.</p>');
+ openPanel([
+  '<h2>'+esc(v.title||s.title)+'</h2><p>'+esc(v.body||s.description)+'</p>',
+  '<h2>Wat weten we zeker?</h2><p>'+esc(v.status||s.status||'Reconstructie')+'</p>',
+  '<h2>Bron</h2><p>'+sourceLink+'</p><p>De schildering is een reconstructie.</p>'
+ ]);
 }
 $('routes').onclick=()=>{
  const {alternatives}=routesFor(current);
  if(!alternatives.length)return;
- openPanel('<h2>Andere routes</h2><div class="route-list" id="routeList"></div>');
- for(const path of alternatives){
-  const button=document.createElement('button');
-  button.type='button';button.className='pick';button.textContent=path.label;
-  const notes=[];
-  if(path.uncertain)notes.push('Route artistiek verbonden');
-  if(notes.length){const note=document.createElement('small');note.textContent=notes.join(' · ');button.appendChild(note)}
-  button.onclick=()=>{closePanel();go(path.to)};
-  $('routeList').appendChild(button);
- }
+ const pages=[];
+ for(let i=0;i<alternatives.length;i+=3)pages.push(()=>{
+  $('content').innerHTML='<h2>Andere routes</h2><div class="route-list" id="routeList"></div>';
+  for(const path of alternatives.slice(i,i+3)){
+   const button=document.createElement('button');
+   button.type='button';button.className='pick';button.textContent=path.label;
+   button.onclick=()=>{closePanel();go(path.to)};
+   $('routeList').appendChild(button);
+  }
+ });
+ openPanel(pages);
 };
 $('hints').onclick=()=>{showTips=!showTips;$('points').classList.toggle('showtips',showTips);$('hints').textContent=showTips?'Verberg hints':'Toon klikplekken'};
-$('guide').onclick=()=>openPanel('<span class="pill">Zo werkt de historische wandeling</span><h2>Kijk. Ontmoet. Onderzoek.</h2><p>Volg een <strong>pijl</strong> in het schilderij, klik op een <strong>persoon</strong> om te praten of op een <strong>i</strong> voor historische uitleg. Onder <strong>Andere routes</strong> vind je zijpaden en terugwegen.</p><p>Op een telefoon kun je het beeld het best liggend bekijken. Niet alle getoonde straten en kamers zijn al historisch ingemeten; onzekere overgangen zijn gemarkeerd.</p><p>Gebruik <kbd>Tab</kbd> en <kbd>Enter</kbd> om klikplekken ook met een toetsenbord te bedienen.</p>');
+$('guide').onclick=()=>openPanel([
+ '<h2>Zo werkt de wandeling</h2><p>Volg de pijl in de plaat. Tik op een persoon om te praten of op een i om iets te onderzoeken.</p>',
+ '<h2>Op ontdekking</h2><p>Via Andere routes kies je een zijpad of terugweg. Blader met de pijltjes door een gesprek.</p>'
+]);
 $('overview').onclick=()=>{
- let list=NAV_NODES.map(([,name])=>'<div class="scenechoice">'+esc(name)+'</div>').join('');
- openPanel('<span class="pill">Plekkenoverzicht · geen exacte plattegrond</span><h2>Welke plekken kun je bezoeken?</h2><p>Volg een pijl in het schilderij of kies een zijpad onder <strong>Andere routes</strong>.</p><div id="atlasgrid">'+list+'</div><p class="muted">De overige beeldvarianten vind je in de platenatlas van de oorspronkelijke wandeling.</p>');
+ const pages=[];
+ for(let i=0;i<NAV_NODES.length;i+=4){
+  const list=NAV_NODES.slice(i,i+4).map(([,name])=>'<div class="scenechoice">'+esc(name)+'</div>').join('');
+  pages.push('<h2>Plekken in Mesch</h2><div id="atlasgrid">'+list+'</div>');
+ }
+ openPanel(pages);
 };
 $('art').onerror=()=>{$('art').alt='Schildering tijdelijk niet geladen. Probeer de pagina opnieuw.'};
 paint();
