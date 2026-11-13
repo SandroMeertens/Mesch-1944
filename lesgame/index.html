@@ -50,6 +50,13 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .route b{font-size:1em;line-height:1;font-weight:500;color:var(--muted)}
 #praat{position:absolute;right:3%;bottom:4%;font-size:clamp(12px,2.4cqh,16px)}
 #praat span{font-size:.9em;color:var(--muted)}
+#cafe-aanwijzing{position:absolute;inset:0;pointer-events:none}
+#cafe-aanwijzing button{pointer-events:auto}
+#doeken{position:absolute;left:var(--doeken-x);top:var(--doeken-y);transform:translate(-50%,-50%);display:grid;place-items:center;width:44px;height:44px;padding:0;background:none;border:0;border-radius:50%}
+#doeken::before{content:"";width:24px;height:24px;border:2px solid #ffebba;border-radius:50%;background:#2521194d;box-shadow:0 0 0 2px #221c14d9}
+#doeken:hover::before,#doeken:focus-visible::before{background:#252119bb}
+.kijkuitleg{position:absolute;inset:auto 4% max(4%,env(safe-area-inset-bottom)) 4%;display:flex;align-items:center;justify-content:space-between;gap:8px;width:min(92%,480px);margin-inline:auto;padding:6px 8px 6px 12px;background:#28271df2;border:1px solid var(--edge);border-radius:10px;font-size:clamp(13px,2.5cqh,17px)}
+.kijkuitleg .knop{flex:none;font-size:13px}
 #gesprek{position:absolute;inset:0;background:#211f17}
 #portretkader{position:absolute;inset:0;overflow:hidden}
 #portret{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
@@ -112,6 +119,13 @@ main{padding:0}
 </header>
 <nav id="routes" aria-label="Loop door Mesch"></nav>
 <button class="knop" id="praat" type="button" hidden><span aria-hidden="true">◇</span><strong></strong></button>
+<div id="cafe-aanwijzing" hidden>
+<button id="doeken" type="button" aria-label="Bekijk de doeken op tafel"></button>
+<div class="kijkuitleg">
+<p id="kijktekst" tabindex="-1">Zie je de doeken op tafel? Tik op de cirkel.</p>
+<button id="stop-kijken" class="knop" type="button">Terug</button>
+</div>
+</div>
 <section id="gesprek" role="dialog" aria-modal="true" aria-labelledby="rol" hidden>
 <div id="portretkader"><img id="portret" alt=""></div>
 <div class="schaduw"></div>
@@ -187,7 +201,7 @@ const plekken = [
     terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
   {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bewoners en soldaten staan voor het café, waar enkele Nederlandse vlaggen hangen.",focus:27,verhouding:1.5,stem:"cafe",portret:"portret-13",
     terug:[87,61,"→","Volg de straat terug"],heen:[28,35,"←","Ga het café in"]},
-  {beeld:"02",naam:"In Café Van Hoven",alt:"In het café maakt iemand de tafels schoon en verzamelt gebruikte doeken.",focus:53,stem:"cafe",portret:"portret-02",
+  {beeld:"02",naam:"In Café Van Hoven",alt:"In het café maakt iemand de tafels schoon en verzamelt gebruikte doeken.",focus:53,stem:"cafeBinnen",portret:"portret-02",doeken:[72,53],
     terug:[19,83,"↙","Weer naar buiten"]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
     terug:[18,65,"↖"]}
@@ -290,6 +304,39 @@ const gesprekken = {
         "Je kunt ook zoeken naar een beschrijving uit die tijd. Vergelijk daarna welke details uit de bron komen en welke de schilder zelf moest invullen."
       ]]
     ]
+  },
+  cafeBinnen:{
+    naam:"Een medewerker van het café",knop:"de cafémedewerker",
+    verhaal:[
+      "Heb je de doeken op tafel gezien? We hebben hier heel wat opgeruimd. Tussen de spullen die waren achtergebleven, vonden we verband en scharen."
+    ],
+    vraag:"Wat wil je me vragen?",
+    keuzes:[
+      ["Waarvoor gebruikten Duitse soldaten het café?",[
+        "De Duitse soldaten gebruikten ons café als noodhospitaal. Dat is een tijdelijke plek om gewonden te verzorgen.",
+        "Bij het opruimen vonden we verband en scharen. Met verband kon je een wond bedekken. Met een schaar kon je het verband op maat knippen."
+      ]],
+      ["Wanneer kwam de familie uit de kelder?",[
+        "De familie Van Hoven kreeg van de Duitse militairen te horen dat ze naar de kelder moest. Terwijl er in de buurt werd geschoten, bleef de familie beneden.",
+        "Toen de Duitse militairen weg waren, kwam de familie uit de kelder. Boven begon het opruimen."
+      ]]
+    ],
+    vervolg:[
+      {
+        vraag:"Kun je alleen aan de doeken op de schildering zien dat hier gewonden zijn verzorgd?",
+        opties:[
+          ["Nee. Ik heb ook het verhaal over het café nodig.","Precies. De schildering laat zien hoe het opruimen eruit kan hebben gezien. Uit het verslag weten we dat het café als noodhospitaal diende."],
+          ["Ja. De doeken vertellen genoeg.","Doeken kunnen ook bij gewoon schoonmaakwerk horen. Het verslag vertelt waarvoor het café diende en welke spullen de familie vond."]
+        ]
+      },
+      {
+        vraag:"Wat deed de familie als eerste?",
+        opties:[
+          ["De familie schuilde in de kelder.","Precies. Eerst schuilde de familie. Na het vertrek van de Duitse soldaten kwam de familie boven en kon het opruimen beginnen."],
+          ["De familie ruimde het café op.","Het opruimen kwam later. Eerst bleef de familie beneden terwijl er werd geschoten. Na het vertrek van de Duitse soldaten kwam de familie boven."]
+        ]
+      }
+    ]
   }
 };
 const spel = document.querySelector("#spel");
@@ -297,6 +344,10 @@ const plaat = document.querySelector("#plaat");
 const plek = document.querySelector("#plek");
 const routes = document.querySelector("#routes");
 const praat = document.querySelector("#praat");
+const cafeAanwijzing = document.querySelector("#cafe-aanwijzing");
+const doeken = document.querySelector("#doeken");
+const kijktekst = document.querySelector("#kijktekst");
+const stopKijken = document.querySelector("#stop-kijken");
 const info = document.querySelector("#info");
 const herstart = document.querySelector("#herstart");
 const bevestigRonde = document.querySelector("#bevestig-ronde");
@@ -325,17 +376,23 @@ function uitgangen(index){
   if (heen) lijst.push({doel:index + 1,positie:heen});
   return lijst;
 }
-function plaatsPijlen(){
+function plaatsBediening(){
   const breedte = spel.clientWidth;
   const hoogte = spel.clientHeight;
   if (!breedte || !hoogte) return;
-  const {focus,verhouding = 16/9} = plekken[plaats];
+  const {focus,verhouding = 16/9,doeken:positieDoeken} = plekken[plaats];
+  const zoektDoeken = !cafeAanwijzing.hidden && positieDoeken;
+  const uitsnede = zoektDoeken ? positieDoeken[0] : focus;
   const beeldHoogte = staand.matches
     ? Math.max(hoogte,breedte/verhouding)
     : Math.min(hoogte,breedte/verhouding);
   const beeldBreedte = beeldHoogte * verhouding;
-  const links = (breedte - beeldBreedte) * (staand.matches ? focus/100 : .5);
+  const links = (breedte - beeldBreedte) * (staand.matches ? uitsnede/100 : .5);
   const boven = (hoogte - beeldHoogte) / 2;
+  if (zoektDoeken){
+    doeken.style.setProperty("--doeken-x",links + beeldBreedte*positieDoeken[0]/100 + "px");
+    doeken.style.setProperty("--doeken-y",boven + beeldHoogte*positieDoeken[1]/100 + "px");
+  }
   const uit = uitgangen(plaats);
   const voet = hoogte * (staand.matches ? .97 : .96) - 72;
   const hoogtes = uit.map(({positie:[,y]}) => Math.min(voet,boven + beeldHoogte*y/100));
@@ -349,6 +406,14 @@ function plaatsPijlen(){
     knop.style.setProperty("--route-links",links + beeldBreedte*x/100 + "px");
     knop.style.setProperty("--route-hoogte",hoogtes[i] + "px");
   }
+}
+function toonCafeAanwijzing(open){
+  const scene = plekken[plaats];
+  cafeAanwijzing.hidden = !open;
+  praat.hidden = open || !scene.stem;
+  routes.hidden = open;
+  plaat.style.setProperty("--uitsnede",(open ? scene.doeken[0] : scene.focus) + "%");
+  plaatsBediening();
 }
 function laadBeeld(id){
   if (!cache.has(id)){
@@ -381,7 +446,6 @@ async function toonPlek(index,focusRoute = false){
   plaats = index;
   plaat.src = beeld.src;
   plaat.alt = nieuw.alt;
-  plaat.style.setProperty("--uitsnede",nieuw.focus + "%");
   const [helderheid,contrast,kleur] = nieuw.beeldcorrectie ?? [1,1,1];
   plaat.style.setProperty("--helderheid",helderheid);
   plaat.style.setProperty("--contrast",contrast);
@@ -392,8 +456,7 @@ async function toonPlek(index,focusRoute = false){
     maakRoute(uitgang);
     laadBeeld(plekken[uitgang.doel].beeld);
   }
-  plaatsPijlen();
-  praat.hidden = !nieuw.stem;
+  toonCafeAanwijzing(false);
   praat.disabled = false;
   if (nieuw.stem){
     praat.querySelector("strong").textContent = "Praat met " + gesprekken[nieuw.stem].knop;
@@ -481,10 +544,15 @@ function zetGesprek(open){
   praat.inert = open;
   if (!open) praat.focus({preventScroll:true});
 }
-function openGesprek(){
-  if (praat.disabled) return;
+function openGesprek(aanwijzingGevonden = false){
+  if (praat.disabled || !gesprek.hidden) return;
   const scene = plekken[plaats];
   if (!scene.stem) return;
+  if (scene.doeken && !aanwijzingGevonden && !gekozenAntwoorden.has(scene.stem)){
+    toonCafeAanwijzing(true);
+    kijktekst.focus({preventScroll:true});
+    return;
+  }
   const persoon = gesprekken[scene.stem];
   const terug = () => zetGesprek(false);
   const naarWoning = () => {
@@ -500,13 +568,26 @@ function openGesprek(){
     ];
     toonAntwoord(opdracht[deel],deel === 0 ? [["Lees verder",() => vergelijk(1)],...einde] : einde);
   };
+  const stelTegenvraag = keuze => {
+    const vervolg = persoon.vervolg[keuze];
+    wachtOpAntwoord = true;
+    sluit.hidden = true;
+    toonAntwoord(vervolg.vraag,vervolg.opties.map(([label,feedback]) => [label,() => {
+      wachtOpAntwoord = false;
+      sluit.hidden = false;
+      toonAntwoord(feedback,einde,{stem:scene.stem,typen:true});
+    }]));
+  };
   const toonGekozenInfo = (keuze,deel = 0,typen = true) => {
     const delen = persoon.keuzes[keuze][1];
-    const laatste = deel === delen.length - 1;
-    const acties = [...einde];
-    if (scene.school && keuze === 1) acties.unshift(["Kijk in de schoolwoning",naarWoning]);
-    if (scene.stem === "inwoner") acties.unshift(["Vergelijk met een klasgenoot",() => vergelijk()]);
-    const volgende = laatste ? acties : [["Lees verder",() => toonGekozenInfo(keuze,deel + 1)]];
+    const volgende = [];
+    if (deel < delen.length - 1) volgende.push(["Lees verder",() => toonGekozenInfo(keuze,deel + 1)]);
+    else if (persoon.vervolg) volgende.push(["Naar de tegenvraag",() => stelTegenvraag(keuze)]);
+    else {
+      if (scene.school && keuze === 1) volgende.push(["Kijk in de schoolwoning",naarWoning]);
+      if (scene.stem === "inwoner") volgende.push(["Vergelijk met een klasgenoot",() => vergelijk()]);
+      volgende.push(...einde);
+    }
     toonAntwoord(delen[deel],volgende,{stem:scene.stem,typen});
   };
   const stelVraag = () => {
@@ -540,7 +621,17 @@ function openGesprek(){
   if (keuze === undefined) vertel();
   else toonGekozenInfo(keuze,0,false);
 }
-praat.addEventListener("click",openGesprek);
+function stopCafeAanwijzing(){
+  toonCafeAanwijzing(false);
+  praat.focus({preventScroll:true});
+}
+praat.addEventListener("click",() => openGesprek());
+doeken.addEventListener("click",() => {
+  if (cafeAanwijzing.hidden || praat.disabled) return;
+  toonCafeAanwijzing(false);
+  openGesprek(true);
+});
+stopKijken.addEventListener("click",stopCafeAanwijzing);
 sluit.addEventListener("click",() => zetGesprek(false));
 function toonLesbediening(){
   nieuweRonde.hidden = window.location.hash !== "#leerkracht";
@@ -586,13 +677,17 @@ document.addEventListener("keydown",event => {
     return;
   }
   if (over.open || bevestigRonde.open || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (!cafeAanwijzing.hidden){
+    if (event.key === "Escape") stopCafeAanwijzing();
+    return;
+  }
   const passendeUitgangen = uitgangen(plaats).filter(({positie}) => richtingen[positie[2]].includes(event.key));
   if (passendeUitgangen.length === 1){
     event.preventDefault();
     toonPlek(passendeUitgangen[0].doel,true);
   }
 });
-new ResizeObserver(plaatsPijlen).observe(spel);
+new ResizeObserver(plaatsBediening).observe(spel);
 toonPlek(0);
 </script>
 </body>
