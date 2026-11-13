@@ -16,7 +16,6 @@ button:focus-visible{outline:3px solid #fbe4a0;outline-offset:4px}
 main{display:grid;place-items:center;height:100dvh;padding:12px}
 #spel{position:relative;isolation:isolate;width:min(100%,calc((100dvh - 24px)*1.77778));aspect-ratio:16/9;overflow:hidden;border:1px solid #85765562;border-radius:12px;background:#22241b;container-type:size}
 .beeld{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#1a1c15}
-#plaat{filter:brightness(var(--helderheid,1)) contrast(var(--contrast,1)) saturate(var(--kleur,1))}
 .schaduw{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#11130fe8 0%,transparent 23%,transparent 75%,#11130fe0 100%)}
 header{position:absolute;inset:clamp(10px,2.8cqh,30px) clamp(12px,3cqw,40px) auto;display:flex;justify-content:space-between;align-items:flex-start;gap:10px;pointer-events:none}
 header button{pointer-events:auto}
@@ -101,7 +100,7 @@ main{padding:0}
 }
 
 </style>
-<link rel="preload" as="image" href="beelden/22-99e25aa361.webp" fetchpriority="high">
+<link rel="preload" as="image" href="beelden/22-2cac07747b.webp" fetchpriority="high">
 </head>
 <body>
 <main>
@@ -156,7 +155,7 @@ main{padding:0}
 <script>
 const beelden = {
   "14": "beelden/14-5548580760.webp",
-  "22": "beelden/22-99e25aa361.webp",
+  "22": "beelden/22-2cac07747b.webp",
   "10": "beelden/10-7da81f88ee.webp",
   "12": "beelden/12-7759df69ef.webp",
   "11": "beelden/11-a81b18d1c7.webp",
@@ -182,7 +181,7 @@ const beelden = {
   "portret-09": "beelden/portret-09-a1b05e2100.webp"
 };
 const plekken = [
-  {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,beeldcorrectie:[1.065,1.03,.96],stem:"soldaat",portret:"portret-22",
+  {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,stem:"soldaat",portret:"portret-22",
     heen:[55,65,"↗","Volg de weg"]},
   {beeld:"20",naam:"Bij de heg",alt:"Bewoners kijken over de heg naar de soldaten die over de dorpsweg naderen.",focus:45,stem:"inwoner",portret:"portret-20",
     terug:[44,88,"↙","Dorpsrand"],heen:[85,62,"↗","Verder langs de heg"]},
@@ -473,10 +472,6 @@ async function toonPlek(index,focusRoute = false){
   plaats = index;
   plaat.src = beeld.src;
   plaat.alt = nieuw.alt;
-  const [helderheid,contrast,kleur] = nieuw.beeldcorrectie ?? [1,1,1];
-  plaat.style.setProperty("--helderheid",helderheid);
-  plaat.style.setProperty("--contrast",contrast);
-  plaat.style.setProperty("--kleur",kleur);
   plek.textContent = nieuw.naam;
   routes.replaceChildren();
   for (const uitgang of uitgangen(index)){
