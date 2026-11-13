@@ -15,6 +15,8 @@ main{min-height:calc(100dvh - 56px);position:relative;display:flex;flex-directio
 .plate-frame{position:relative;width:min(100vw,calc((100dvh - 57px)*1.5));aspect-ratio:3/2;max-height:calc(100dvh - 60px);box-shadow:0 16px 80px #0008;background:#0e1c18;overflow:hidden}
 #art{width:100%;height:100%;object-fit:contain;display:block;user-select:none}
 #points{position:absolute;inset:0;pointer-events:none}
+.hot-area{position:absolute;pointer-events:auto;border:0;background:transparent;padding:0;z-index:1}
+.hot.side-route{background:#182a23df;border-style:dashed}.hot.side-route b{font-size:18px}
 .hot{position:absolute;z-index:3;pointer-events:auto;transform:translate(-50%,-50%);border:1px solid #fff7d39c;background:#17362bdc;color:#fff0d2;border-radius:24px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 9px;box-shadow:0 4px 14px #0009}
 .hot b{font-size:23px;line-height:1}.hot .tip{display:none;position:absolute;left:50%;top:calc(100% + 5px);transform:translateX(-50%);width:max-content;max-width:min(240px,75vw);text-align:center;font-size:12px;line-height:1.3;padding:7px 10px;background:#0b1d17f5;border-radius:7px;border:1px solid #ecd29b91;z-index:5}
 .hot:hover .tip,.hot:focus-visible .tip,.showtips .hot .tip{display:block}
@@ -77,8 +79,13 @@ kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 .chat-turn.answer{background:#102922;border-left:3px solid #eac88f;margin-right:4%}
 .chat-turn small{display:block;opacity:.75;margin-bottom:3px}
 .person-main .answer{min-height:44px;font-size:13px;padding:9px 11px;margin:6px 0}
-@media(min-width:calc(150dvh + 220px)){
- .person-layout:has(.person-main:not([hidden])){padding-right:290px}
+@media(min-width:701px){
+ .person-layout:has(.person-main:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(270px,320px);align-items:stretch}
+ .person-layout .plate-frame{width:min(100%,calc((100dvh - 57px)*1.5))}
+ .person-main{position:sticky;top:0;width:auto;max-height:calc(100dvh - 56px)}
+}
+@media(max-width:700px){
+ .person-main{position:static;width:100%;border-left:0;border-top:1px solid var(--line)}
 }
 @media(max-width:700px){
  #conversation{min-height:calc(100dvh - 51px)}
@@ -88,7 +95,7 @@ kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 </style></head><body>
 <header><div class="brand">MESCH <span>1944</span></div><div class="topbuttons" id="walkTools"><button id="guide" title="Bediening">?</button><button id="overview">Plekken</button></div><div class="topbuttons" id="conversationTools" hidden><button id="returnToWalk" type="button" aria-label="Terug naar de wandeling">← Wandeling</button><button id="toggleChat" type="button" aria-controls="personChat" aria-expanded="false">Open chat</button></div></header>
 <main>
- <section id="walk"><section id="scene"><img id="backdrop" alt="" aria-hidden="true" fetchpriority="low" decoding="async"><div id="frame" class="plate-frame"><img id="art" alt="Historische, geschilderde reconstructie van Mesch" draggable="false" fetchpriority="high"><div id="points"></div></div><div id="status" aria-live="polite"><span id="phase"></span><strong id="sceneName" tabindex="-1"></strong></div><div id="footer"><small>Historisch geïnformeerde reconstructie · geen archieffoto</small><div class="footer-actions"><button id="routes" aria-haspopup="dialog" hidden>Andere routes</button><button id="hints">Toon klikplekken</button></div></div></section></section>
+ <section id="walk"><section id="scene"><img id="backdrop" alt="" aria-hidden="true" fetchpriority="low" decoding="async"><div id="frame" class="plate-frame"><img id="art" alt="Historische, geschilderde reconstructie van Mesch" draggable="false" fetchpriority="high"><div id="points"></div></div><div id="status" aria-live="polite"><strong id="sceneName" tabindex="-1"></strong></div><div id="footer"><small>Historisch geïnformeerde reconstructie · geen archieffoto</small><div class="footer-actions"><button id="routes" aria-haspopup="dialog" hidden>Andere routes</button><button id="hints">Toon klikplekken</button></div></div></section></section>
  <section id="conversation" aria-labelledby="personName" hidden>
   <div id="personContent" class="person-layout"></div>
  </section>
@@ -124,13 +131,6 @@ PEOPLE.warnier.qa.push(
 );
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const relatedPlates={u01:'original-1',u10:'original-2','gg2-w':'original-3',u15:'original-4',u08:'original-5'};
-const phaseOf={u01:'Ochtend · 12 september 1944',u14:'Ochtend · 12 september 1944',u06:'Tijdens de gevechten',u10:'Tijdens de gevechten',u11:'Tijdens de gevechten',u12:'Tijdens de gevechten','gg3-w':'Eerste contact · tijdstip in onderzoek','gg2-w':'Eerste contact · tijdstip in onderzoek','german-detail':'Eerste contact · tijdstip in onderzoek',u15:'Later op 12 september 1944'};
-Object.assign(phaseOf,{'cafe-cleanup':'Na de gevechten','warnier-night':'Nacht van 12 op 13 september 1944'});
-const phaseGroup=id=>({
- u01:'ochtend',u14:'ochtend',u06:'ochtend',u10:'ochtend',u11:'ochtend',u12:'ochtend',
- 'gg3-w':'contact','gg2-w':'contact','german-detail':'contact',u15:'onthaal',
- 'cafe-cleanup':'na de gevechten','warnier-night':'nacht'
-}[id]||'ongedateerd');
 const links={};
 function pair(a,b,ax,ay,bx,by,labelAB,labelBA,uncertain=false){
  (links[a]??=[]).push({to:b,x:ax,y:ay,label:labelAB,uncertain});
@@ -194,6 +194,16 @@ function preloadNext(path){
  nextPainting.src=source;
  nextPainting.decode().catch(()=>{});
 }
+function alignPoints(){
+ const art=$('art'),points=$('points');
+ const width=art.clientWidth,height=art.clientHeight;
+ if(!width||!height||!art.naturalWidth||!art.naturalHeight)return;
+ const scale=Math.min(width/art.naturalWidth,height/art.naturalHeight);
+ const imageWidth=art.naturalWidth*scale,imageHeight=art.naturalHeight*scale;
+ Object.assign(points.style,{inset:'auto',left:(width-imageWidth)/2+'px',top:(height-imageHeight)/2+'px',width:imageWidth+'px',height:imageHeight+'px'});
+}
+$('art').addEventListener('load',alignPoints);
+new ResizeObserver(alignPoints).observe($('art'));
 function showPainting(){
  const source=paintingSource(current);
  $('art').src=source;
@@ -225,19 +235,35 @@ function go(dest){
 const glyph={move:'➜',enter:'⌂',talk:'◉',inspect:'ⓘ'};
 function buttonAt(h,click){
  const bt=document.createElement('button');bt.className='hot '+h.type;bt.style.left=h.x+'%';bt.style.top=h.y+'%';bt.type='button';bt.setAttribute('aria-label',h.label);
+ if(h.secondary)bt.classList.add('side-route');
  const b=document.createElement('b');b.textContent=glyph[h.type]||'➜';bt.appendChild(b);
  const t=document.createElement('span');t.className='tip';t.textContent=h.label;bt.appendChild(t);
  bt.onclick=click;$('points').appendChild(bt);
+ if([h.left,h.top,h.w,h.h].every(Number.isFinite))imageArea({...h,x:h.left,y:h.top},click);
+}
+function imageArea(h,click){
+ if(![h.x,h.y,h.w,h.h].every(Number.isFinite))return;
+ const area=document.createElement('button');
+ area.type='button';area.className='hot-area';area.tabIndex=-1;area.setAttribute('aria-hidden','true');
+ Object.assign(area.style,{left:h.x+'%',top:h.y+'%',width:h.w+'%',height:h.h+'%'});
+ if(h.clip_polygon)area.style.clipPath=h.clip_polygon;
+ area.onclick=click;$('points').prepend(area);
 }
 function paint(){
  const s=SCENES[current];showPainting();$('art').alt=s.title+' — artistieke historische reconstructie';
- $('sceneName').textContent=s.title;$('phase').textContent=(phaseOf[current]||'Mesch · 12 september 1944 · tijdstip niet vastgelegd')+(/HOLD|MAQUETTE|nog te controleren/i.test(s.status||'')?' · VOORLOPIG':'');
+ $('sceneName').textContent=s.title;
+ alignPoints();
  $('points').replaceChildren();$('points').classList.toggle('showtips',showTips);
  const {primary,alternatives}=routesFor(current);
  $('routes').hidden=alternatives.length===0;
  const acts=(s.hotspots||[]).filter(h=>(h.type==='talk'||h.type==='inspect')&&h.content).filter(h=>!(h.type==='talk'&&h.content==='resident'&&['u08','u09','u10','u11'].includes(current)));
- for(const h of acts)buttonAt({type:h.type,label:h.label,x:(h.marker_x||h.x+h.w/2),y:(h.marker_y||h.y+h.h/2)},()=>h.type==='talk'?talk(h.content):information(h.content));
- if(primary)buttonAt({type:'move',label:primary.label+(primary.uncertain?' · route artistiek verbonden':''),x:primary.x,y:primary.y},()=>go(primary.to));
+ const moves=(s.hotspots||[]).filter(h=>h.target&&SCENES[h.target]&&['move','enter'].includes(h.type));
+ for(const path of [primary,...alternatives].filter(Boolean)){
+  const areas=moves.filter(h=>h.target===path.to);
+  buttonAt({type:areas[0]?.type||'move',label:path.label,x:path.x,y:path.y,secondary:path!==primary},()=>go(path.to));
+  for(const h of areas)imageArea(h,()=>go(path.to));
+ }
+ for(const h of acts)buttonAt({...h,left:h.x,top:h.y,x:h.marker_x??h.x+h.w/2,y:h.marker_y??h.y+h.h/2},()=>h.type==='talk'?talk(h.content):information(h.content));
  if(relatedPlates[current])buttonAt({type:'inspect',label:'Bekijk de oorspronkelijke historische zoekplaat (geen archieffoto)',x:91,y:14},()=>{previous=current;current=relatedPlates[current];paint()});
  if(!mainIDs.has(current)&&!(links[current]||[]).length&&previous&&SCENES[previous])buttonAt({type:'move',label:'Terug naar de bezochte scène',x:15,y:87},()=>{const dest=previous;previous=current;current=dest;paint()});
  document.title=s.title+' | Mesch 1944';
@@ -314,7 +340,7 @@ function talk(id){
   </div><figcaption>${esc(pic.caption)}${photoLink}</figcaption></figure>
   <aside id="personChat" class="person-main" aria-labelledby="chatHeading" hidden>
    <h2 id="chatHeading" tabindex="-1">Stel je vraag</h2>
-   <p class="person-status">Gereconstrueerd gesprek</p>
+   <p class="person-status">${esc(person.intro||'Gereconstrueerd gesprek')}</p>
    <form id="questionForm">
     <input id="freeQuestion" type="text" maxlength="180" autocomplete="off" placeholder="Typ je vraag" aria-label="Stel zelf een historische vraag">
     <button type="submit" id="askButton">Vraag</button>
@@ -322,13 +348,13 @@ function talk(id){
    <div id="chatHistory" role="log" aria-live="polite" aria-label="Gesprek"></div>
    <h2>Voorbeeldvragen</h2>
    <div id="q"></div>
-   <details><summary>Over dit gesprek</summary><p>${esc(person.intro||'')}</p><p>De antwoorden komen uit vooraf geschreven gespreksteksten. Bron: ${esc(person.source||'Historische context')}.</p></details>
+   <details><summary>Bron van dit gesprek</summary><p>De antwoorden komen uit vooraf geschreven gespreksteksten. Bron: ${esc(person.source||'Historische context')}.</p></details>
   </aside>`;
  $('walk').hidden=true;
  $('walkTools').hidden=true;
  $('conversationTools').hidden=false;
  $('conversation').hidden=false;
- showChat(matchMedia('(min-width: calc(150dvh + 220px))').matches);
+ showChat(true);
  document.title=$('personName').textContent+' | Mesch 1944';
  $('personName').focus();
  const image=$('personContent').querySelector('.person-figure img');
@@ -348,7 +374,7 @@ function talk(id){
  function reply(question,answer){
   appendTurn('question',question,'Vraag van de leerling');
   if(answer){appendTurn('answer',answer,'Historische uitleg · bestaande gesprekstekst')}
-  else{appendTurn('answer','Dat kan ik op basis van de beschikbare gespreksteksten nog niet betrouwbaar beantwoorden. Kies hieronder een onderzoeksvraag, of probeer een vraag over wat deze persoon heeft meegemaakt. In een latere versie kan een beveiligde AI-historische gids dit via gecontroleerde bronnen verder onderzoeken.','Geen betrouwbaar antwoord beschikbaar')}
+  else{appendTurn('answer','Dat kan ik op basis van de beschikbare gespreksteksten nog niet betrouwbaar beantwoorden. Kies hieronder een onderzoeksvraag, of probeer een vraag over wat deze persoon heeft meegemaakt. Vraag bijvoorbeeld naar een persoon, een plek of een voorwerp op de plaat.','Geen betrouwbaar antwoord beschikbaar')}
  }
  $('questionForm').addEventListener('submit',e=>{
   e.preventDefault();const inp=$('freeQuestion'),v=inp.value.trim();
@@ -411,7 +437,6 @@ $('routes').onclick=()=>{
   const button=document.createElement('button');
   button.type='button';button.className='pick';button.textContent=path.label;
   const notes=[];
-  if(phaseGroup(current)!==phaseGroup(path.to))notes.push('Tijdsprong');
   if(path.uncertain)notes.push('Route artistiek verbonden');
   if(notes.length){const note=document.createElement('small');note.textContent=notes.join(' · ');button.appendChild(note)}
   button.onclick=()=>{closePanel();go(path.to)};
@@ -419,10 +444,10 @@ $('routes').onclick=()=>{
  }
 };
 $('hints').onclick=()=>{showTips=!showTips;$('points').classList.toggle('showtips',showTips);$('hints').textContent=showTips?'Verberg hints':'Toon klikplekken'};
-$('guide').onclick=()=>openPanel('<span class="pill">Zo werkt de historische wandeling</span><h2>Kijk. Ontmoet. Onderzoek.</h2><p>Volg de <strong>pijl</strong> in het schilderij, klik op een <strong>persoon</strong> om te praten of op een <strong>i</strong> voor historische uitleg. Onder <strong>Andere routes</strong> vind je zijpaden en terugwegen.</p><p>Op een telefoon kun je het beeld het best liggend bekijken. Niet alle getoonde straten en kamers zijn al historisch ingemeten; onzekere overgangen zijn gemarkeerd.</p><p>Gebruik <kbd>Tab</kbd> en <kbd>Enter</kbd> om klikplekken ook met een toetsenbord te bedienen.</p>');
+$('guide').onclick=()=>openPanel('<span class="pill">Zo werkt de historische wandeling</span><h2>Kijk. Ontmoet. Onderzoek.</h2><p>Volg een <strong>pijl</strong> in het schilderij, klik op een <strong>persoon</strong> om te praten of op een <strong>i</strong> voor historische uitleg. Onder <strong>Andere routes</strong> vind je zijpaden en terugwegen.</p><p>Op een telefoon kun je het beeld het best liggend bekijken. Niet alle getoonde straten en kamers zijn al historisch ingemeten; onzekere overgangen zijn gemarkeerd.</p><p>Gebruik <kbd>Tab</kbd> en <kbd>Enter</kbd> om klikplekken ook met een toetsenbord te bedienen.</p>');
 $('overview').onclick=()=>{
- let list=NAV_NODES.map(([id,n,t])=>'<div class="scenechoice">'+esc(n)+'<small>'+esc(t)+'</small></div>').join('');
- openPanel('<span class="pill">Plekkenoverzicht · geen exacte plattegrond</span><h2>Welke plekken kun je bezoeken?</h2><p>Volg de pijl in het schilderij of kies een zijpad onder <strong>Andere routes</strong>.</p><div id="atlasgrid">'+list+'</div><p class="muted">De overige beeldvarianten vind je in de platenatlas van de oorspronkelijke wandeling.</p>');
+ let list=NAV_NODES.map(([,name])=>'<div class="scenechoice">'+esc(name)+'</div>').join('');
+ openPanel('<span class="pill">Plekkenoverzicht · geen exacte plattegrond</span><h2>Welke plekken kun je bezoeken?</h2><p>Volg een pijl in het schilderij of kies een zijpad onder <strong>Andere routes</strong>.</p><div id="atlasgrid">'+list+'</div><p class="muted">De overige beeldvarianten vind je in de platenatlas van de oorspronkelijke wandeling.</p>');
 };
 $('art').onerror=()=>{$('art').alt='Schildering tijdelijk niet geladen. Probeer de pagina opnieuw.'};
 paint();
