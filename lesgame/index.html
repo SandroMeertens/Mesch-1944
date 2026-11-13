@@ -52,9 +52,9 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 #praat span{font-size:.9em;color:var(--muted)}
 #cafe-aanwijzing{position:absolute;inset:0;pointer-events:none}
 #cafe-aanwijzing button{pointer-events:auto}
-#doeken{position:absolute;left:var(--doeken-x);top:var(--doeken-y);transform:translate(-50%,-50%);display:grid;place-items:center;width:44px;height:44px;padding:0;background:none;border:0;border-radius:50%}
-#doeken::before{content:"";width:24px;height:24px;border:2px solid #ffebba;border-radius:50%;background:#2521194d;box-shadow:0 0 0 2px #221c14d9}
-#doeken:hover::before,#doeken:focus-visible::before{background:#252119bb}
+#doeken{position:absolute;left:var(--doeken-x);top:var(--doeken-y);transform:translate(-50%,-50%);display:grid;place-items:center;width:clamp(60px,12cqw,120px);height:clamp(44px,8cqh,70px);padding:0;background:none;border:0;border-radius:50%}
+#doeken[data-hint]::before,#doeken:focus-visible::before{content:"";width:24px;height:24px;border:2px solid #ffebba;border-radius:50%;background:#2521194d;box-shadow:0 0 0 2px #221c14d9}
+.kijkknoppen{display:flex;gap:4px}
 .kijkuitleg{position:absolute;inset:auto 4% max(4%,env(safe-area-inset-bottom)) 4%;display:flex;align-items:center;justify-content:space-between;gap:8px;width:min(92%,480px);margin-inline:auto;padding:6px 8px 6px 12px;background:#28271df2;border:1px solid var(--edge);border-radius:10px;font-size:clamp(13px,2.5cqh,17px)}
 .kijkuitleg .knop{flex:none;font-size:13px}
 #gesprek{position:absolute;inset:0;background:#211f17}
@@ -84,7 +84,7 @@ main{padding:0}
 #routes{--route-onder:calc(97% - 72px - env(safe-area-inset-bottom))}
 .route{max-width:44%;font-size:12px;padding:6px 9px;white-space:normal;text-align:left;line-height:1.15}
 #praat{bottom:calc(3% + env(safe-area-inset-bottom));font-size:13px}
-#portret{object-fit:cover;object-position:21% 38%}
+#portret{object-fit:cover;object-position:var(--portretfocus,21%) 38%}
 #gesprek .schaduw{background:linear-gradient(180deg,transparent 31%,#211f17 57%)}
 #chat{top:auto;bottom:calc(3% + env(safe-area-inset-bottom));left:5%;right:5%;width:auto;gap:6px}
 #rol{font-size:clamp(20px,4.4cqh,30px)}
@@ -122,8 +122,11 @@ main{padding:0}
 <div id="cafe-aanwijzing" hidden>
 <button id="doeken" type="button" aria-label="Bekijk de doeken op tafel"></button>
 <div class="kijkuitleg">
-<p id="kijktekst" tabindex="-1">Zie je de doeken op tafel? Tik op de cirkel.</p>
+<p id="kijktekst" tabindex="-1" aria-live="polite"></p>
+<div class="kijkknoppen">
+<button id="cafe-hint" class="kopknop" type="button" aria-label="Toon een hint" title="Toon een hint">?</button>
 <button id="stop-kijken" class="knop" type="button">Terug</button>
+</div>
 </div>
 </div>
 <section id="gesprek" role="dialog" aria-modal="true" aria-labelledby="rol" hidden>
@@ -176,7 +179,7 @@ const beelden = {
   "portret-01": "beelden/portret-01-4fe2865e39.webp",
   "portret-06": "beelden/portret-06-7878970c8d.webp",
   "portret-21": "beelden/portret-21-682eab0f07.webp",
-  "portret-09": "beelden/portret-09-e62d6ccabe.webp"
+  "portret-09": "beelden/portret-09-a1b05e2100.webp"
 };
 const plekken = [
   {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,beeldcorrectie:[1.065,1.03,.96],stem:"soldaat",portret:"portret-22",
@@ -185,7 +188,7 @@ const plekken = [
     terug:[44,88,"↙","Dorpsrand"],heen:[85,62,"↗","Verder langs de heg"]},
   {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,stem:"soldaat",portret:"portret-01",
     terug:[54,88,"↘","Terug langs de heg"],heen:[32,60,"↖","Volg de dorpsweg"]},
-  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,stem:"meester",portret:"portret-09",school:true,
+  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,stem:"meester",portret:"portret-09",portretfocus:33,school:true,
     terug:[41,87,"↙","Terug naar de weg"],heen:[80,63,"↗","Naar de Grijzegraaf"]},
   {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,stem:"inwoner",portret:"portret-21",
     terug:[42,88,"↙","Bij de school"],heen:[91,66,"↗","Volg de Grijzegraaf"]},
@@ -262,24 +265,39 @@ const gesprekken = {
   meester:{
     naam:"De schoolmeester",knop:"de schoolmeester",
     verhaal:[
-      "Ik ben Jef Warnier, de schoolmeester van Mesch. Mijn gezin woonde bij de school. In de laatste nachten van de bezetting zochten we beschutting in onze kelder.",
-      "We hoorden buiten schieten. Later klonk er een harde knal. Duitse militairen hadden hun voorraad munitie opgeblazen. Toen het rustiger werd, ging ik boven kijken.",
-      "Ik zag een Duitse soldaat met zijn handen omhoog. Er stond een Amerikaan tegenover hem. Ik ging naar buiten om de Amerikaan welkom te heten.",
-      "Er verschenen jeeps bij de school. Ik vond ze er maar klein uitzien. Toen een Amerikaanse officier mij vroeg de weg te wijzen, reed ik zelf mee in zo’n jeep.",
-      "Ik heb mijn belevenissen met potlood opgeschreven. Twee ontmoetingen zijn me bijgebleven: een soldaat die iets wilde ruilen en een soldaat die bij ons bleef slapen."
+      "Ik ben Jef Warnier, de schoolmeester. Mijn gezin woonde bij de school. Toen we buiten schoten hoorden, gingen we naar de kelder.",
+      "Beneden hoorden we een harde knal. Pas toen het stiller werd, ging ik naar boven. Ik zag een Duitse soldaat met zijn handen omhoog. Er stond een Amerikaan tegenover hem.",
+      "Ik ging naar buiten om hem welkom te heten. Ik zag ook Amerikanen door de heg uit de wei komen. Aan de overkant woonde de familie Van Hoven, bij het café.",
+      "Toen een Amerikaanse officier mij vroeg de weg te wijzen, reed ik mee in zijn jeep. Later heb ik mijn belevenissen met potlood opgeschreven."
     ],
     vraag:"Over welke ontmoeting wil jij meer weten?",
     keuzes:[
       ["Ik wil weten wat u ruilde.",[
         "Een Amerikaanse soldaat wilde een flesje inkt. Ik gaf hem inkt van de school. Hij gaf mij een pakje sigaretten van het merk Raleigh.",
         "Ik bewaarde de verpakking en schreef op een briefje hoe ik eraan kwam. Op de verpakking kun je het merk lezen. Het briefje vertelt met wie ik ruilde en wat ik ervoor gaf.",
-        "Stel je voor dat alleen de verpakking was bewaard. Dan kon je zien welk merk het was, maar de ruil voor inkt stond er niet op. Het voorwerp en het briefje vullen elkaar aan."
+        "De verpakking en het briefje zijn allebei bewaard gebleven."
       ]],
       ["Ik wil weten wie er bleef slapen.",[
         "De meeste Amerikanen trokken door de wei naast de school in de richting van de Mescherhei. Eén soldaat bleef achter. We brachten de avond bij kaarslicht door.",
         "We probeerden met elkaar te praten, zo goed als het lukte. Hij sliep in een bed van ons. Mijn gezin ging weer naar de kelder.",
         "De volgende ochtend vertrok hij achter zijn kameraden aan. Bij het afscheid maakte hij op mij een terneergeslagen indruk. Dat schreef ik later op als mijn indruk van hem."
       ]]
+    ],
+    vervolg:[
+      {
+        vraag:"Stel dat je mijn lege pakje vindt. Hoe kom je erachter wat ik ervoor teruggaf?",
+        opties:[
+          ["Ik lees het merk op het pakje.","Aan het merk herken je de sigaretten. In mijn briefje staat hoe ik het pakje kreeg en wat ik teruggaf."],
+          ["Ik lees het briefje over de ruil.","Juist. Daarin schreef ik dat ik inkt van de school gaf. Op het pakje kun je het merk van de sigaretten lezen."]
+        ]
+      },
+      {
+        vraag:"Ik schreef dat hij terneergeslagen leek. Weet je daarmee hoe hij zich voelde?",
+        opties:[
+          ["Ik weet welke indruk de meester had.","Precies. Ik kon vertellen hoe hij op mij overkwam. Zijn eigen verhaal zou je meer kunnen leren over hoe hij zich voelde."],
+          ["Ik weet precies hoe de soldaat zich voelde.","In mijn verslag lees je mijn indruk van de soldaat. Als je wilt weten hoe hij zich voelde, helpt het om zijn eigen verhaal te horen."]
+        ]
+      }
     ]
   },
   cafe:{
@@ -308,7 +326,7 @@ const gesprekken = {
   cafeBinnen:{
     naam:"Een medewerker van het café",knop:"de cafémedewerker",
     verhaal:[
-      "Heb je de doeken op tafel gezien? We hebben hier heel wat opgeruimd. Tussen de spullen die waren achtergebleven, vonden we verband en scharen."
+      "Heb je de doeken op tafel gezien? Toen er buiten werd geschoten, bleef de familie hier beneden. Later vonden ze bij het opruimen verband en scharen."
     ],
     vraag:"Wat wil je me vragen?",
     keuzes:[
@@ -339,6 +357,13 @@ const gesprekken = {
     ]
   }
 };
+const perspectieven = {
+  vraag:"Wie kon de overgave bij de school zelf zien? Waardoor?",
+  opties:[
+    ["De familie Van Hoven. Ze waren vlakbij.","Het café lag aan de overkant. De familie was beneden. Warnier was naar boven gegaan. Vanaf zijn plek kon hij de soldaten zien."],
+    ["De schoolmeester. Hij was naar boven gegaan.","Juist. Boven zag Warnier de overgave. De familie in de kelder hoorde schoten. Hun verhalen vertellen wat je vanaf twee verschillende plekken kon meemaken."]
+  ]
+};
 const spel = document.querySelector("#spel");
 const plaat = document.querySelector("#plaat");
 const plek = document.querySelector("#plek");
@@ -347,6 +372,7 @@ const praat = document.querySelector("#praat");
 const cafeAanwijzing = document.querySelector("#cafe-aanwijzing");
 const doeken = document.querySelector("#doeken");
 const kijktekst = document.querySelector("#kijktekst");
+const cafeHint = document.querySelector("#cafe-hint");
 const stopKijken = document.querySelector("#stop-kijken");
 const info = document.querySelector("#info");
 const herstart = document.querySelector("#herstart");
@@ -409,6 +435,9 @@ function plaatsBediening(){
 }
 function toonCafeAanwijzing(open){
   const scene = plekken[plaats];
+  doeken.removeAttribute("data-hint");
+  cafeHint.hidden = false;
+  if (open) kijktekst.textContent = "Zoek de opgerolde doeken op de grote tafel en tik erop.";
   cafeAanwijzing.hidden = !open;
   praat.hidden = open || !scene.stem;
   routes.hidden = open;
@@ -476,7 +505,10 @@ const typendeTekst = document.querySelector("#typende-tekst");
 const minderBeweging = window.matchMedia("(prefers-reduced-motion: reduce)");
 const gekozenAntwoorden = new Map();
 const directeTekst = new Set();
+const afgerondeGesprekken = new Set();
 const antwoordSleutel = "mesch-verhaalkeuze-v1";
+const afgerondSleutel = "mesch-school-cafe-v1";
+const vergelijkbareGesprekken = ["meester","cafeBinnen"];
 let typTimer;
 let wachtOpAntwoord = false;
 
@@ -485,6 +517,12 @@ try{
   for (const [id,persoon] of Object.entries(gesprekken)){
     const keuze = bewaard?.[id];
     if (Number.isInteger(keuze) && persoon.keuzes[keuze]) gekozenAntwoorden.set(id,keuze);
+  }
+  const afgerond = JSON.parse(window.sessionStorage.getItem(afgerondSleutel));
+  if (Array.isArray(afgerond)){
+    for (const id of vergelijkbareGesprekken){
+      if (afgerond.includes(id) && gekozenAntwoorden.has(id)) afgerondeGesprekken.add(id);
+    }
   }
 } catch {
   // Playing from a local file can limit access to browser storage.
@@ -568,23 +606,57 @@ function openGesprek(aanwijzingGevonden = false){
     ];
     toonAntwoord(opdracht[deel],deel === 0 ? [["Lees verder",() => vergelijk(1)],...einde] : einde);
   };
-  const stelTegenvraag = keuze => {
-    const vervolg = persoon.vervolg[keuze];
+  const actiesNaAntwoord = keuze => {
+    const acties = [];
+    if (vergelijkbareGesprekken.every(id => afgerondeGesprekken.has(id))){
+      acties.push(["Leg de verhalen naast elkaar",legVerhalenNaastElkaar]);
+    } else {
+      acties.push(["Waar vind ik het andere verhaal?",() => toonAntwoord(
+        scene.stem === "meester"
+          ? "Ga de school uit en volg de weg naar Café Van Hoven. Binnen kun je horen wat de familie aan de overkant meemaakte."
+          : "Volg de weg terug naar de school. Vraag de schoolmeester wat hij boven zag toen het stiller werd.",
+        einde
+      )]);
+    }
+    if (scene.school && keuze === 1) acties.push(["Kijk in de schoolwoning",naarWoning]);
+    return acties;
+  };
+  const legVerhalenNaastElkaar = () => {
+    toonAntwoord(
+      "De schoolmeester ging kijken toen het stiller werd. Aan de overkant hoorde de familie Van Hoven schoten en bleef beneden.",
+      [["Vergelijk wat ze konden weten",() => stelRedeneervraag(perspectieven,() => einde)]],
+      {stem:scene.stem,typen:true}
+    );
+  };
+  const stelRedeneervraag = ({vraag,opties:antwoorden},naAntwoord) => {
     wachtOpAntwoord = true;
     sluit.hidden = true;
-    toonAntwoord(vervolg.vraag,vervolg.opties.map(([label,feedback]) => [label,() => {
+    toonAntwoord(vraag,antwoorden.map(([label,feedback]) => [label,() => {
       wachtOpAntwoord = false;
       sluit.hidden = false;
-      toonAntwoord(feedback,einde,{stem:scene.stem,typen:true});
+      toonAntwoord(feedback,naAntwoord(),{stem:scene.stem,typen:true});
     }]));
+  };
+  const stelTegenvraag = keuze => {
+    stelRedeneervraag(persoon.vervolg[keuze],() => {
+      afgerondeGesprekken.add(scene.stem);
+      try{
+        window.sessionStorage.setItem(afgerondSleutel,JSON.stringify([...afgerondeGesprekken]));
+      } catch {
+        // The completed conversation still counts in this open game.
+      }
+      return [...actiesNaAntwoord(keuze),...einde];
+    });
   };
   const toonGekozenInfo = (keuze,deel = 0,typen = true) => {
     const delen = persoon.keuzes[keuze][1];
     const volgende = [];
     if (deel < delen.length - 1) volgende.push(["Lees verder",() => toonGekozenInfo(keuze,deel + 1)]);
-    else if (persoon.vervolg) volgende.push(["Naar de tegenvraag",() => stelTegenvraag(keuze)]);
+    else if (persoon.vervolg){
+      volgende.push(["Naar de tegenvraag",() => stelTegenvraag(keuze)]);
+      if (afgerondeGesprekken.has(scene.stem)) volgende.push(...actiesNaAntwoord(keuze));
+    }
     else {
-      if (scene.school && keuze === 1) volgende.push(["Kijk in de schoolwoning",naarWoning]);
       if (scene.stem === "inwoner") volgende.push(["Vergelijk met een klasgenoot",() => vergelijk()]);
       volgende.push(...einde);
     }
@@ -614,6 +686,7 @@ function openGesprek(aanwijzingGevonden = false){
   };
   rol.textContent = persoon.naam;
   portret.src = laadBeeld(scene.portret).src;
+  portret.style.setProperty("--portretfocus",(scene.portretfocus ?? 21) + "%");
   portret.alt = "Geschilderd portret van " + persoon.knop;
   sluit.hidden = false;
   zetGesprek(true);
@@ -626,6 +699,12 @@ function stopCafeAanwijzing(){
   praat.focus({preventScroll:true});
 }
 praat.addEventListener("click",() => openGesprek());
+cafeHint.addEventListener("click",() => {
+  doeken.setAttribute("data-hint","");
+  cafeHint.hidden = true;
+  kijktekst.textContent = "Tik op de cirkel bij de doeken.";
+  doeken.focus({preventScroll:true});
+});
 doeken.addEventListener("click",() => {
   if (cafeAanwijzing.hidden || praat.disabled) return;
   toonCafeAanwijzing(false);
@@ -649,9 +728,11 @@ startRonde.addEventListener("click",async () => {
   if (!bevestigRonde.open || !gesprek.hidden) return;
   bevestigRonde.close();
   gekozenAntwoorden.clear();
+  afgerondeGesprekken.clear();
   directeTekst.clear();
   try{
     window.sessionStorage.removeItem(antwoordSleutel);
+    window.sessionStorage.removeItem(afgerondSleutel);
   } catch {
     // The new round still works when browser storage is unavailable.
   }
