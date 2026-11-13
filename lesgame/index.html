@@ -51,9 +51,9 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 #praat{position:absolute;right:3%;bottom:4%;font-size:clamp(12px,2.4cqh,16px)}
 #praat span{font-size:.9em;color:var(--muted)}
 #gesprek{position:absolute;inset:0;background:#211f17}
-#portretkader{position:absolute;inset:0 auto 0 0;width:57%;overflow:hidden}
-#portret{position:absolute;left:47%;top:37%;width:auto;height:calc(100% * var(--portret-zoom,3));max-width:none;transform:translate(calc(-1 * var(--portret-x,50%)),calc(-1 * var(--portret-y,40%)))}
-#gesprek .schaduw{background:linear-gradient(90deg,transparent 27%,#211f17c2 49%,#211f17 57%)}
+#portretkader{position:absolute;inset:0;overflow:hidden}
+#portret{display:block;width:100%;height:100%;object-fit:contain;object-position:center}
+#gesprek .schaduw{background:linear-gradient(90deg,transparent 27%,#211f1770 53%,#211f17e0 100%)}
 #sluit{position:absolute;z-index:1;top:3%;right:3%;min-height:42px;font-size:clamp(12px,2.4cqh,16px)}
 #chat{position:absolute;top:14%;bottom:5%;right:4%;width:47%;display:flex;flex-direction:column;justify-content:center;gap:clamp(5px,1.35cqh,14px)}
 #rol{font:700 clamp(19px,4.2cqh,39px)/1.04 Georgia,serif}
@@ -77,8 +77,7 @@ main{padding:0}
 #routes{--route-onder:calc(97% - 72px - env(safe-area-inset-bottom))}
 .route{max-width:44%;font-size:12px;padding:6px 9px;white-space:normal;text-align:left;line-height:1.15}
 #praat{bottom:calc(3% + env(safe-area-inset-bottom));font-size:13px}
-#portretkader{inset:0 0 auto;width:100%;height:57%}
-#portret{left:46%;top:37%}
+#portret{object-fit:cover;object-position:21% 38%}
 #gesprek .schaduw{background:linear-gradient(180deg,transparent 31%,#211f17 57%)}
 #chat{top:auto;bottom:calc(3% + env(safe-area-inset-bottom));left:5%;right:5%;width:auto;gap:6px}
 #rol{font-size:clamp(20px,4.4cqh,30px)}
@@ -151,32 +150,44 @@ const beelden = {
   "21": "beelden/21-c2f03c2244.webp",
   "02": "beelden/02-839239e720.webp",
   "04": "beelden/04-14bc4a1e45.webp",
-  "06": "beelden/06-cc0e3fd621.webp"
+  "06": "beelden/06-cc0e3fd621.webp",
+  "portret-10": "beelden/portret-10-83fff77c20.webp",
+  "portret-13": "beelden/portret-13-4832cfb177.webp",
+  "portret-20": "beelden/portret-20-8c52997495.webp",
+  "portret-11": "beelden/portret-11-436060b766.webp",
+  "portret-12": "beelden/portret-12-358b4e0d28.webp",
+  "portret-02": "beelden/portret-02-f25269efc2.webp",
+  "portret-14": "beelden/portret-14-fad6da9f02.webp",
+  "portret-22": "beelden/portret-22-2786c7c581.webp",
+  "portret-01": "beelden/portret-01-4fe2865e39.webp",
+  "portret-06": "beelden/portret-06-7878970c8d.webp",
+  "portret-21": "beelden/portret-21-682eab0f07.webp",
+  "portret-09": "beelden/portret-09-e62d6ccabe.webp"
 };
 const plekken = [
-  {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,beeldcorrectie:[1.065,1.03,.96],stem:"soldaat",portret:[12,33,2.35],
+  {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,beeldcorrectie:[1.065,1.03,.96],stem:"soldaat",portret:"portret-22",
     heen:[55,65,"↗","Volg de weg"]},
-  {beeld:"20",naam:"Bij de heg",alt:"Bewoners kijken over de heg naar de soldaten die over de dorpsweg naderen.",focus:45,stem:"inwoner",portret:[21,41,3.3],
+  {beeld:"20",naam:"Bij de heg",alt:"Bewoners kijken over de heg naar de soldaten die over de dorpsweg naderen.",focus:45,stem:"inwoner",portret:"portret-20",
     terug:[44,88,"↙","Dorpsrand"],heen:[85,62,"↗","Verder langs de heg"]},
-  {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,stem:"soldaat",portret:[44,24,2.8],
+  {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,stem:"soldaat",portret:"portret-01",
     terug:[54,88,"↘","Terug langs de heg"],heen:[32,60,"↖","Volg de dorpsweg"]},
-  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,stem:"meester",portret:[28,49,4.5],school:true,
+  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,stem:"meester",portret:"portret-09",school:true,
     terug:[41,87,"↙","Terug naar de weg"],heen:[80,63,"↗","Naar de Grijzegraaf"]},
-  {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,stem:"meester",portret:[84,40,3.1],school:true,
+  {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,stem:"inwoner",portret:"portret-21",
     terug:[42,88,"↙","Bij de school"],heen:[91,66,"↗","Volg de Grijzegraaf"]},
-  {beeld:"11",naam:"Tussen de dorpshuizen",alt:"Amerikaanse militairen passeren huizen waar bewoners in de deuropening staan.",focus:57,stem:"soldaat",portret:[14,35,2.35],
+  {beeld:"11",naam:"Tussen de dorpshuizen",alt:"Amerikaanse militairen passeren huizen waar bewoners in de deuropening staan.",focus:57,stem:"soldaat",portret:"portret-11",
     terug:[43,86,"↙","Grijzegraaf"],heen:[60,58,"↗","Verder door de straat"]},
-  {beeld:"14",naam:"De dorpsstraat",alt:"Kinderen en volwassenen zien Amerikaanse soldaten verderop in de straat.",focus:47,stem:"inwoner",portret:[92,38,4.7],
+  {beeld:"14",naam:"De dorpsstraat",alt:"Kinderen en volwassenen zien Amerikaanse soldaten verderop in de straat.",focus:47,stem:"inwoner",portret:"portret-14",
     terug:[43,89,"↙","Terug tussen de huizen"],heen:[61,61,"↗","Verder de straat in"]},
-  {beeld:"12",naam:"Bij de buren",alt:"Bewoners komen naar buiten en kijken naar de militairen in de straat.",focus:45,stem:"inwoner",portret:[34,45,3.6],
+  {beeld:"12",naam:"Bij de buren",alt:"Bewoners komen naar buiten en kijken naar de militairen in de straat.",focus:45,stem:"inwoner",portret:"portret-12",
     terug:[56,88,"↙","Terug door de straat"],heen:[74,62,"↗","Naar het dorpshart"]},
-  {beeld:"10",naam:"Het dorpshart",alt:"Een Amerikaanse soldaat en een dorpsbewoner geven elkaar een hand tussen de omstanders.",focus:58,stem:"inwoner",portret:[63,43,3.2],
+  {beeld:"10",naam:"Het dorpshart",alt:"Een Amerikaanse soldaat en een dorpsbewoner geven elkaar een hand tussen de omstanders.",focus:58,stem:"inwoner",portret:"portret-10",
     terug:[42,88,"↙","Terug naar de buren"],heen:[76,61,"↗","Langs de velden"]},
-  {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,stem:"inwoner",portret:[79,34,3.2],
+  {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,stem:"inwoner",portret:"portret-06",
     terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
-  {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bewoners en soldaten staan voor het café, waar enkele Nederlandse vlaggen hangen.",focus:27,verhouding:1.5,stem:"cafe",portret:[20,43,4.2],
+  {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bewoners en soldaten staan voor het café, waar enkele Nederlandse vlaggen hangen.",focus:27,verhouding:1.5,stem:"cafe",portret:"portret-13",
     terug:[87,61,"→","Volg de straat terug"],heen:[28,35,"←","Ga het café in"]},
-  {beeld:"02",naam:"In Café Van Hoven",alt:"In het café maakt iemand de tafels schoon en verzamelt gebruikte doeken.",focus:53,stem:"cafe",portret:[62,28,3.2],
+  {beeld:"02",naam:"In Café Van Hoven",alt:"In het café maakt iemand de tafels schoon en verzamelt gebruikte doeken.",focus:53,stem:"cafe",portret:"portret-02",
     terug:[19,83,"↙","Weer naar buiten"]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
     terug:[18,65,"↖"]}
@@ -386,6 +397,7 @@ async function toonPlek(index,focusRoute = false){
   praat.disabled = false;
   if (nieuw.stem){
     praat.querySelector("strong").textContent = "Praat met " + gesprekken[nieuw.stem].knop;
+    laadBeeld(nieuw.portret);
   }
   if (nieuw.school) laadBeeld(plekken[schoolwoning].beeld);
   if (index === schoolwoning && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
@@ -520,11 +532,7 @@ function openGesprek(){
     ],{stem:scene.stem,typen:true});
   };
   rol.textContent = persoon.naam;
-  const [x,y,zoom] = scene.portret;
-  portret.style.setProperty("--portret-x",x + "%");
-  portret.style.setProperty("--portret-y",y + "%");
-  portret.style.setProperty("--portret-zoom",zoom);
-  portret.src = laadBeeld(scene.beeld).src;
+  portret.src = laadBeeld(scene.portret).src;
   portret.alt = "Geschilderd portret van " + persoon.knop;
   sluit.hidden = false;
   zetGesprek(true);
