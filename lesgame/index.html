@@ -194,7 +194,8 @@ const beelden = {
   "portret-06": "beelden/portret-06-7878970c8d.webp",
   "portret-21": "beelden/portret-21-682eab0f07.webp",
   "portret-09": "beelden/portret-09-a1b05e2100.webp",
-  "kelder": "beelden/kelder-4ce8f6b5da.webp"
+  "kelder": "beelden/kelder-4ce8f6b5da.webp",
+  "veldkeuken": "beelden/veldkeuken-9ad792959d.webp"
 };
 const plekken = [
   {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,stem:"soldaat",portret:"portret-22",
@@ -222,11 +223,14 @@ const plekken = [
   {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[78,56],
     terug:[19,83,"←","Weer naar buiten"],heen:[74,42,"↘","Naar de kelder"]},
   {beeld:"kelder",naam:"In de schuilkelder",alt:"Een familie schuilt in een gemetselde kelder. Rechts leidt een trap naar de deur.",focus:52,stem:"kelder",portret:"kelder",portretfocus:45,
-    terug:[83,36,"↗","Terug naar het café"]},
+    terug:[83,72,"↗","Terug naar het café"],heen:[46,33,"↙","Naar de veldkeuken"]},
+  {beeld:"veldkeuken",naam:"Bij de veldkeuken",alt:"Een Amerikaanse kok geeft een kind een stuk brood bij een veldkeuken aan de rand van het dorp.",focus:48,stem:"veldkeuken",portret:"veldkeuken",portretfocus:43,
+    terug:[30,83,"↖","Terug naar de schuilkelder"]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
     terug:[18,65,"↖"]}
 ];
 const schoolwoning = plekken.length - 1;
+const veldkeuken = plekken.findIndex(scene => scene.beeld === "veldkeuken");
 const richtingen = {
   "↖":["ArrowLeft","ArrowUp"],"↗":["ArrowRight","ArrowUp"],
   "↙":["ArrowLeft","ArrowDown"],"↘":["ArrowRight","ArrowDown"],
@@ -455,13 +459,42 @@ const gesprekken = {
         ]
       }
     ]
+  },
+  veldkeuken:{
+    naam:"Het verhaal van Jean",knop:"het verhaal van Jean Spons",label:"Lees het verhaal van Jean Spons",
+    verhaal:[
+      "De eerste soldaten trokken verder. De volgende dag sloeg een andere groep Amerikaanse soldaten haar kamp op bij Mesch. Ze hadden een veldkeuken waar ze buiten konden koken.",
+      "Jean Spons was vijf jaar toen hij de bevrijding meemaakte. Jaren later herinnerde hij zich het witbrood, de chocolade en de koekjes bij de veldkeuken. Kort daarvoor had hij nog met zijn gezin geschuild."
+    ],
+    vraag:"Welk deel van Jeans verhaal wil je verder onderzoeken?",
+    keuzes:[
+      ["Waarom onthield Jean juist het eten?",[
+        "Jean vertelde ook over de koks. Bij de veldkeuken zag hij voor het eerst mensen met een donkere huidskleur. Dat was voor hem als kind iets nieuws.",
+        "Kort daarvoor had hij vanuit de kelder nieuws over de soldaten gehoord. Buiten zag hij ze eerst in het weiland. Bij de veldkeuken kwam hij dichtbij genoeg om eten te krijgen."
+      ]],
+      ["Was de oorlog nu overal voorbij?",[
+        "Mesch was al bevrijd. In het westen van Nederland hield de Duitse bezetting aan. Daar ontstond die winter een ernstig tekort aan eten en brandstof.",
+        "Een kind in Mesch kon bij de veldkeuken witbrood krijgen. Een kind in een bezette stad kon die winter in de rij staan bij een gaarkeuken voor een kleine portie eten. De plek en het moment maakten een groot verschil."
+      ]]
+    ],
+    vervolg:[
+      {
+        vraag:"Welke vraag zou je aan een ander kind uit Mesch stellen om te ontdekken of Jeans ervaring voor meer kinderen gold?",
+        opties:[
+          ["Kon jij ook bij de veldkeuken komen? Wat kreeg je daar?","Zo ontdek je of een ander kind er zelf kwam en wat het daar meemaakte. Vergelijk daarna welke details overeenkomen met Jeans herinnering."],
+          ["Weet je nog wat Jean bij de keuken kreeg?","Dat kan iets vertellen over Jean. Vraag ook of het andere kind zelf bij de veldkeuken kwam. Dan leer je meer over hoe kinderen in Mesch die dagen beleefden."]
+        ]
+      },
+      {
+        vraag:"Je hoort over witbrood in Mesch en honger in het westen. Hoe leg je uit dat beide verhalen bij dezelfde oorlog horen?",
+        opties:[
+          ["Kijk waar en wanneer de verhalen zich afspelen.","In september was Mesch bevrijd. Tijdens de winter was het westen nog bezet. Wat kinderen meemaakten, hing af van waar ze woonden en wanneer de bevrijders daar kwamen."],
+          ["Kijk welk kind zich het eten het best herinnert.","Beide kinderen kunnen hun eten goed onthouden. Om het verschil te verklaren, zoek je uit wanneer hun woonplaatsen bevrijd werden en wat er tot die tijd gebeurde."]
+        ]
+      }
+    ]
   }
 };
-const naDeBevrijding = [
-  "Na de eerste begroetingen trokken de soldaten verder. De volgende dag sloeg een andere groep soldaten haar kamp op bij Mesch.",
-  "Jean Spons herinnerde zich het eten bij de Amerikaanse veldkeuken. Hij noemde chocolade, witbrood en koekjes. Een dag eerder zat hij nog met zijn gezin in de kelder.",
-  "Terwijl Mesch al bevrijd was, bleef het westen van Nederland bezet. Daar kregen veel mensen die winter te maken met honger en kou. Welke verandering maakte Jean mee? Wat bleef er op andere plekken anders?"
-];
 const perspectieven = {
   onderzoeksvraag:"Wat merken de bewoners van Mesch van de bevrijding?",
   school:[
@@ -601,7 +634,7 @@ async function toonPlek(index,focusRoute = false){
   praat.disabled = false;
   verken.disabled = false;
   if (nieuw.stem){
-    const label = "Praat met " + gesprekken[nieuw.stem].knop;
+    const {knop,label = "Praat met " + knop} = gesprekken[nieuw.stem];
     praat.setAttribute("aria-label",label);
     praat.title = label;
     laadBeeld(nieuw.portret);
@@ -612,7 +645,7 @@ async function toonPlek(index,focusRoute = false){
   }
   if (focusRoute && !over.open){
     const route = index > vorig ? routes.lastElementChild : routes.firstElementChild;
-    (nieuw.doeken || vorig === schoolwoning ? praat : route)?.focus({preventScroll:true});
+    (nieuw.doeken || index === veldkeuken || vorig === schoolwoning ? praat : route)?.focus({preventScroll:true});
   }
 }
 const leesbareTekst = document.querySelector("#leesbare-tekst");
@@ -725,10 +758,6 @@ function openGesprek(aanwijzingGevonden = false){
     toonPlek(schoolwoning,true);
   };
   const einde = [["Terug naar de plaat",terug]];
-  const vertelVerder = (deel = 0) => {
-    const acties = deel < naDeBevrijding.length - 1 ? [["Lees verder",() => vertelVerder(deel + 1)],...einde] : einde;
-    toonAntwoord(naDeBevrijding[deel],acties,{stem:scene.stem,typen:true});
-  };
   const vergelijk = (deel = 0) => {
     const opdracht = [
       "Zoek een klasgenoot die bij de inwoner het andere verhaal koos. Vertel elkaar wie iets opschreef, waar die persoon was en wat die zag.",
@@ -739,7 +768,10 @@ function openGesprek(aanwijzingGevonden = false){
   const actiesNaAntwoord = keuze => {
     const acties = [];
     if (scene.stem === "inwoner") acties.push(["Vergelijk met een klasgenoot",() => vergelijk()]);
-    if (scene.stem === "kelder") acties.push(["Hoe ging het verder?",() => vertelVerder()]);
+    if (scene.stem === "kelder") acties.push(["Hoe ging het verder?",() => {
+      terug();
+      return toonPlek(veldkeuken,true);
+    }]);
     if (!vergelijkbareGesprekken.includes(scene.stem)) return acties;
     if (vergelijkbareGesprekken.every(id => afgerondeGesprekken.has(id))){
       acties.push(["Leg de verhalen naast elkaar",legVerhalenNaastElkaar]);
