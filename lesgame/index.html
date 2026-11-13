@@ -547,6 +547,23 @@ const perspectieven = {
   opdracht:"Gebruik beide details. Leg je maatje uit wat de plek of het moment te maken had met wat ieder meemaakte.",
   uitleg:"Hun plek en het moment bepaalden wat ze konden zien, horen of vinden."
 };
+const jeansVerhaal = {
+  vraag:{
+    vraag:"Jean vertelde over de kelder, het weiland en de veldkeuken. In welke volgorde maakte hij dit mee?",
+    opties:[
+      ["Kelder → weiland → veldkeuken","In de kelder hoorde Jean het nieuws van zijn oom. Buiten zag hij de helmen boven het weiland. Na de bevrijding kreeg hij eten bij de veldkeuken."],
+      ["Weiland → kelder → veldkeuken","Toen Jean nog in de kelder was, vertelde zijn oom dat de bevrijders eraan kwamen. Pas buiten zag Jean de helmen boven het weiland. De veldkeuken kwam later."]
+    ]
+  },
+  opdracht:[
+    "Wat veranderde er voor Jean door de bevrijding? Gebruik één detail uit de kelder en één van de veldkeuken.",
+    "Leg het hardop uit. Begin met ‘Eerst moest Jean …’. Vertel daarna wat hij kon doen doordat Mesch bevrijd was."
+  ],
+  voorbeeld:[
+    "Eerst schuilde Jean met zijn gezin voor het geweld. Nadat Mesch bevrijd was, kon hij bij de Amerikaanse veldkeuken komen. Daar kreeg hij onder meer witbrood.",
+    "Dit weten we uit Jeans herinnering. Wat zou je aan een ander kind uit Mesch vragen om te ontdekken of dat kind iets vergelijkbaars meemaakte?"
+  ]
+};
 const spel = document.querySelector("#spel");
 document.querySelector("#onderzoeksvraag").textContent = perspectieven.onderzoeksvraag;
 const plaat = document.querySelector("#plaat");
@@ -815,6 +832,7 @@ function openGesprek(aanwijzingGevonden = false){
       terug();
       return toonPlek(veldkeuken,true);
     }]);
+    if (scene.stem === "veldkeuken") acties.push(["Leg Jeans verhaal uit",beginJeansOpdracht]);
     if (!vergelijkbareGesprekken.includes(scene.stem)) return acties;
     if (vergelijkbareGesprekken.every(id => afgerondeGesprekken.has(id))){
       acties.push(["Leg de verhalen naast elkaar",legVerhalenNaastElkaar]);
@@ -853,6 +871,19 @@ function openGesprek(aanwijzingGevonden = false){
       sluit.hidden = false;
       toonAntwoord(feedback,naAntwoord(),{stem:scene.stem,typen:true});
     }]));
+  };
+  const beginJeansOpdracht = () => {
+    const geefVoorbeeld = () => toonAntwoord(jeansVerhaal.voorbeeld[0],[
+      ["Lees verder",() => toonAntwoord(jeansVerhaal.voorbeeld[1],einde)],
+      ...einde
+    ]);
+    const legUit = () => toonAntwoord(jeansVerhaal.opdracht[0],[
+      ["Lees verder",() => toonAntwoord(jeansVerhaal.opdracht[1],[
+        ["Bekijk een voorbeelduitleg",geefVoorbeeld],...einde
+      ])],
+      ...einde
+    ]);
+    stelRedeneervraag(jeansVerhaal.vraag,() => [["Leg uit wat veranderde",legUit],...einde]);
   };
   const stelTegenvraag = keuze => {
     stelRedeneervraag(persoon.vervolg[keuze],() => {
