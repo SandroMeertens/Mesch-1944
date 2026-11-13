@@ -66,7 +66,7 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 #rol{font:700 clamp(19px,4.2cqh,39px)/1.04 Georgia,serif}
 .tekst{padding:clamp(8px,1.9cqh,19px);border:1px solid #ae9c7063;background:#28271de8;border-radius:10px;font-size:clamp(13px,2.9cqh,21px);line-height:1.33;overflow-wrap:anywhere}
 #antwoord{display:grid}
-#antwoord span{grid-area:1/1}
+#antwoord span{grid-area:1/1;white-space:pre-line}
 #antwoord[data-typt] #leesbare-tekst{opacity:0}
 #opties{display:grid;gap:clamp(4px,1cqh,9px)}
 .keuze{width:100%;padding:clamp(6px,1.35cqh,13px) 10px;text-align:left;line-height:1.2;font-size:clamp(12px,2.55cqh,18px);border:1px solid #b7a37388;border-radius:8px;background:#28271eea}
@@ -358,11 +358,9 @@ const gesprekken = {
   }
 };
 const perspectieven = {
-  vraag:"Wie kon de overgave bij de school zelf zien? Waardoor?",
-  opties:[
-    ["De familie Van Hoven. Ze waren vlakbij.","Het café lag aan de overkant. De familie was beneden. Warnier was naar boven gegaan. Vanaf zijn plek kon hij de soldaten zien."],
-    ["De schoolmeester. Hij was naar boven gegaan.","Juist. Boven zag Warnier de overgave. De familie in de kelder hoorde schoten. Hun verhalen vertellen wat je vanaf twee verschillende plekken kon meemaken."]
-  ]
+  getuigenissen:"Schoolmeester: ‘Toen het stiller werd, ging ik naar boven.’\nCafémedewerker: ‘Toen er buiten werd geschoten, bleef de familie hier beneden.’",
+  vraag:"Wie kon de overgave bij de school zien? Leg het uit aan je maatje. Gebruik één detail uit elk gesprek.",
+  voorbeeld:"Warnier ging naar boven en zag de overgave. De familie Van Hoven bleef in de kelder en hoorde schoten. Waar iemand was, bepaalt wat diegene kon zien of horen."
 };
 const spel = document.querySelector("#spel");
 const plaat = document.querySelector("#plaat");
@@ -623,8 +621,14 @@ function openGesprek(aanwijzingGevonden = false){
   };
   const legVerhalenNaastElkaar = () => {
     toonAntwoord(
-      "De schoolmeester ging kijken toen het stiller werd. Aan de overkant hoorde de familie Van Hoven schoten en bleef beneden.",
-      [["Vergelijk wat ze konden weten",() => stelRedeneervraag(perspectieven,() => einde)]],
+      perspectieven.getuigenissen,
+      [["Naar de opdracht",() => toonAntwoord(
+        perspectieven.vraag,
+        [
+          ["Ik heb mijn uitleg gegeven",() => toonAntwoord(perspectieven.voorbeeld,einde,{stem:scene.stem,typen:true})],
+          ["Lees beide uitspraken opnieuw",legVerhalenNaastElkaar]
+        ]
+      )]],
       {stem:scene.stem,typen:true}
     );
   };
