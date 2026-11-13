@@ -57,9 +57,9 @@ kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 #conversation{flex:1;position:relative;display:grid;align-items:stretch;background:#10231d}
 .person-layout{position:relative;display:grid;place-items:center;min-height:350px}
 .person-figure{display:grid;place-items:center;align-content:center;width:100%;margin:0}
+.person-figure .plate-frame{width:100%;max-height:none}
 .person-figure picture{display:block;width:100%;height:100%}
-.person-figure img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 16%;background:#0e1c18}
-.person-figure .portrait-detail img{transform:scale(1.85);transform-origin:var(--portrait-focus)}
+.person-figure img{display:block;width:100%;height:100%;object-fit:cover;object-position:center;background:#0e1c18}
 .person-figure .missing-portrait{width:100%;height:100%;display:grid;place-items:center;padding:8px;text-align:center;color:var(--gold)}
 .person-figure figcaption{padding:8px 12px;max-width:68ch;font-size:12px;line-height:1.35;color:#dfd1b3;text-align:center}
 .person-name{position:absolute;z-index:1;top:10px;left:10px;max-width:calc(100% - 20px);margin:0;padding:8px 10px;background:#071b16ee;border:1px solid var(--line);border-radius:8px;font:600 clamp(16px,2.5vw,27px)/1.15 Georgia,serif}
@@ -82,7 +82,6 @@ kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 .person-main .answer{min-height:44px;font-size:13px;padding:9px 11px;margin:6px 0}
 @media(min-width:701px){
  .person-layout:has(.person-main:not([hidden])){grid-template-columns:minmax(0,1fr) minmax(270px,320px);align-items:stretch}
- .person-layout .plate-frame{width:min(100%,calc((100dvh - 57px)*1.5))}
  .person-main{position:sticky;top:0;width:auto;max-height:calc(100dvh - 56px)}
 }
 @media(max-width:700px){
@@ -312,13 +311,13 @@ function paint(){
 }
 // Elk portret is een afzonderlijke kunstweergave, niet de afgebeelde leerling-wereld.
 const PERSON_PORTRAITS={
- liza:{src:SCENES['cafe-cleanup'].image,focus:'60% 36%',caption:'Uitsnede van de geschilderde reconstructie. Het gezicht is artistiek ingevuld.'},
- guest:{src:SCENES['warnier-night'].image,focus:'60% 48%',caption:'Uitsnede van de geschilderde reconstructie. Warnier beschreef het verblijf van de soldaat.'},
- resident:{src:'assets/portrait-resident.webp',small:'assets/mobile/portrait-resident.webp',caption:'Geschilderd portret van een samengesteld personage uit Mesch.'},
- american:{src:'assets/sc-american-detail.webp',caption:'Geschilderd detail van een Amerikaanse militair, geen verifieerbaar portret.'},
- german:{src:'assets/sc-german-detail.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
- medic:{src:'assets/sc-medic-detail.webp',caption:'Geschilderd detail van een samengestelde hulpverlener in het tijdelijke lazaret.'},
- warnier:{src:'assets/portrait-warnier.webp',caption:'Artistieke voorstelling van Jef Warnier in 1944, geïnspireerd op een latere archieffoto (EV 2197). Zijn uiterlijk in 1944 is onzeker.',sourceUrl:'https://www.eijsdensverleden.nl/online/wp-content/uploads/2019/08/UEV102-De-Burgemeester-in-oorlogstijd-deel-2-OCR_Optimized.pdf#page=5'}
+ liza:{src:'assets/portrait-liza-closeup.webp',caption:'Uitsnede van de geschilderde reconstructie. Het gezicht is artistiek ingevuld.'},
+ guest:{src:'assets/portrait-guest-closeup.webp',caption:'Uitsnede van de geschilderde reconstructie. Warnier beschreef het verblijf van de soldaat.'},
+ resident:{src:'assets/portrait-resident-closeup.webp',caption:'Geschilderd portret van een samengesteld personage uit Mesch.'},
+ american:{src:'assets/portrait-american-closeup.webp',caption:'Geschilderd detail van een Amerikaanse militair, geen verifieerbaar portret.'},
+ german:{src:'assets/portrait-german-closeup.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
+ medic:{src:'assets/portrait-medic-closeup.webp',caption:'Geschilderd detail van een samengestelde hulpverlener in het tijdelijke lazaret.'},
+ warnier:{src:'assets/portrait-warnier-closeup.webp',caption:'Artistieke voorstelling van Jef Warnier in 1944, geïnspireerd op een latere archieffoto (EV 2197). Zijn uiterlijk in 1944 is onzeker.',sourceUrl:'https://www.eijsdensverleden.nl/online/wp-content/uploads/2019/08/UEV102-De-Burgemeester-in-oorlogstijd-deel-2-OCR_Optimized.pdf#page=5'}
 };
 const QUESTION_PATTERNS={
  liza:[/kelder|schuil|schieten|schoten/,/verband|scharen|noodhospitaal|lazaret|gewonden|opruim/,/waarschuw/,/kamer|meubel|schilder|foto|eruitzag/],
@@ -376,7 +375,7 @@ const conversations=new Map();
 function talk(id){
  const person=PEOPLE[id];if(!person)return;
  const pic=PERSON_PORTRAITS[id]||{src:null,caption:'Geen betrouwbaar portret beschikbaar.'};
- const portrait=pic.src?`<picture${pic.focus?` class="portrait-detail" style="--portrait-focus:${esc(pic.focus)}"`:''}>${pic.small?`<source media="(max-width: 680px)" srcset="${esc(pic.small)}">`:''}<img src="${esc(pic.src)}" alt="Geschilderd persoonsbeeld"></picture>`:'<div class="missing-portrait">Portret niet beschikbaar</div>';
+ const portrait=pic.src?`<picture><img src="${esc(pic.src)}" alt="Geschilderde close-up van ${esc(person.name.replace(/ — samengesteld personage$/,''))}"></picture>`:'<div class="missing-portrait">Portret niet beschikbaar</div>';
  const photoLink=pic.sourceUrl?` <a class="portrait-source" href="${esc(pic.sourceUrl)}" target="_blank" rel="noopener">Bekijk archieffoto</a>`:'';
  const key=current+':'+id;
  if(!conversations.has(key))conversations.set(key,[]);
