@@ -251,6 +251,22 @@ const gesprekken = {
         "Ook Noorbeek wordt genoemd als eerste bevrijde dorp. De grensoversteek, de aankomst bij een boerderij en de bevrijding van een dorp zijn verschillende gebeurtenissen.",
         "Als twee bronnen allebei zeggen dat hun plek de eerste was, zoek dan uit wat ze precies bedoelen. Kijk wie het opschreef, waar die persoon was en welke gebeurtenis werd bedoeld."
       ]]
+    ],
+    vervolg:[
+      {
+        vraag:"Een bewoner ziet ons bij de school. Hoe ontdek je welke weg onze groep daarvoor nam?",
+        opties:[
+          ["Ik vergelijk zijn verhaal met een kaart en andere verslagen.","Zijn verhaal geeft je een plek waar hij ons zag. Andere verslagen kunnen eerdere plekken noemen. Op de kaart kun je zien hoe die plekken met elkaar verbonden zijn."],
+          ["Ik kies de kortste weg van de grens naar de school.","De kortste weg is een mogelijkheid. Om te weten welke weg wij namen, zoek je naar iemand die ons onderweg zag of naar een verslag van onze groep."]
+        ]
+      },
+      {
+        vraag:"De één zegt ‘hier staken ze de grens over’. De ander zegt ‘ons dorp was als eerste bevrijd’. Wat vergelijk je eerst?",
+        opties:[
+          ["Welke gebeurtenis ieder bedoelt.","Een grens oversteken en een dorp bevrijden zijn twee gebeurtenissen. Zet eerst per verhaal op een rij wat er gebeurde, waar en wanneer."],
+          ["Welk verhaal het vroegste tijdstip noemt.","Een vroeg tijdstip vertelt pas iets als je weet waar het bij hoort. Een soldaat kan de grens al over zijn terwijl er in een dorp nog wordt gevochten."]
+        ]
+      }
     ]
   },
   inwoner:{
@@ -274,6 +290,22 @@ const gesprekken = {
         "Hij schreef dat Amerikaanse troepen via dat pad Mesch binnenkwamen. In zijn aantekening zette hij een later tijdstip dan het plaatselijke geschiedboek noemt voor de aankomst van troepen langs andere wegen.",
         "De plaats helpt je het verschil onderzoeken. Een bericht over de troepen bij de pastorie gaat over een andere plek dan een bericht over de eerste aankomst bij de dorpsrand."
       ]]
+    ],
+    vervolg:[
+      {
+        vraag:"Warnier hoorde eerst schoten en zag later een overgave. Welk deel vertelt wie er tegenover elkaar stonden?",
+        opties:[
+          ["Wat hij vanuit de kelder hoorde.","De schoten vertelden hem dat er werd gevochten. Boven kon hij zien dat er een Amerikaanse soldaat tegenover de Duitser stond."],
+          ["Wat hij zag nadat hij naar boven ging.","Toen zag hij de Duitse soldaat met zijn handen omhoog en de Amerikaan tegenover hem. Zijn plek bepaalde wat hij kon waarnemen."]
+        ]
+      },
+      {
+        vraag:"De pastoor schrijft over soldaten bij de pastorie. Iemand noemt een ander tijdstip bij de school. Hoe kan dat?",
+        opties:[
+          ["Ze kunnen verschillende groepen of momenten beschrijven.","De pastorie en de school liggen op verschillende plekken. Kijk bij elk verhaal waar de soldaten waren en welke gebeurtenis beschreven wordt."],
+          ["Een van de twee moet zich vergist hebben.","Dat kun je pas onderzoeken als je weet of ze dezelfde groep soldaten op hetzelfde moment bedoelden. Begin met de twee plekken."]
+        ]
+      }
     ]
   },
   meester:{
@@ -335,6 +367,22 @@ const gesprekken = {
         "Een foto van de kamer zou kunnen helpen. Kijk dan wanneer die is gemaakt. Als de foto van veel later is, kan de inrichting intussen zijn veranderd.",
         "Je kunt ook zoeken naar een beschrijving uit die tijd. Vergelijk daarna welke details uit de bron komen en welke de schilder zelf moest invullen."
       ]]
+    ],
+    vervolg:[
+      {
+        vraag:"We vonden verband en scharen. Wat zou je zoeken om te weten wie hier verzorgd werd?",
+        opties:[
+          ["Een verslag waarin gewonden bij naam worden genoemd.","Verband en scharen vertellen iets over het verzorgen van wonden. Een lijst of een getuigenverhaal met namen kan je vertellen wie hier was."],
+          ["Een scherpere afbeelding van de spullen.","Een scherpere afbeelding helpt je de spullen te herkennen. Voor de namen heb je informatie nodig over de mensen die hier waren."]
+        ]
+      },
+      {
+        vraag:"Je vindt een foto van deze kamer van jaren later. Wat moet je nagaan vóór je de kamer in de oorlog tekent?",
+        opties:[
+          ["Of de kamer sindsdien is veranderd.","De foto toont hoe de kamer eruitzag toen die werd gemaakt. Een oudere foto of een beschrijving uit de oorlog kan helpen om veranderingen te herkennen."],
+          ["Of de foto scherp genoeg is.","Scherpte helpt je details te zien. Ook op een scherpe foto kunnen meubels of ramen staan die pas later zijn geplaatst. Zoek daarom eerst uit wanneer de foto is gemaakt."]
+        ]
+      }
     ]
   },
   cafeBinnen:{
@@ -647,6 +695,8 @@ function openGesprek(aanwijzingGevonden = false){
   };
   const actiesNaAntwoord = keuze => {
     const acties = [];
+    if (scene.stem === "inwoner") acties.push(["Vergelijk met een klasgenoot",() => vergelijk()]);
+    if (!vergelijkbareGesprekken.includes(scene.stem)) return acties;
     if (vergelijkbareGesprekken.every(id => afgerondeGesprekken.has(id))){
       acties.push(["Leg de verhalen naast elkaar",legVerhalenNaastElkaar]);
     } else {
@@ -687,11 +737,13 @@ function openGesprek(aanwijzingGevonden = false){
   };
   const stelTegenvraag = keuze => {
     stelRedeneervraag(persoon.vervolg[keuze],() => {
-      afgerondeGesprekken.add(scene.stem);
-      try{
-        window.sessionStorage.setItem(afgerondSleutel,JSON.stringify([...afgerondeGesprekken]));
-      } catch {
-        // The completed conversation still counts in this open game.
+      if (vergelijkbareGesprekken.includes(scene.stem)){
+        afgerondeGesprekken.add(scene.stem);
+        try{
+          window.sessionStorage.setItem(afgerondSleutel,JSON.stringify([...afgerondeGesprekken]));
+        } catch {
+          // The completed conversation still counts in this open game.
+        }
       }
       return [...actiesNaAntwoord(keuze),...einde];
     });
@@ -700,13 +752,9 @@ function openGesprek(aanwijzingGevonden = false){
     const delen = persoon.keuzes[keuze][1];
     const volgende = [];
     if (deel < delen.length - 1) volgende.push(["Lees verder",() => toonGekozenInfo(keuze,deel + 1)]);
-    else if (persoon.vervolg){
+    else {
       volgende.push(["Naar de tegenvraag",() => stelTegenvraag(keuze)]);
       if (afgerondeGesprekken.has(scene.stem)) volgende.push(...actiesNaAntwoord(keuze));
-    }
-    else {
-      if (scene.stem === "inwoner") volgende.push(["Vergelijk met een klasgenoot",() => vergelijk()]);
-      volgende.push(...einde);
     }
     toonAntwoord(delen[deel],volgende,{stem:scene.stem,typen});
   };
