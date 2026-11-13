@@ -22,33 +22,36 @@ header button{pointer-events:auto}
 .kopknoppen{display:flex;gap:2px}
 .kopknop{display:grid;place-items:center;width:44px;height:44px;padding:0;border:1px solid transparent;border-radius:50%;background:transparent;color:#e4dac5;text-shadow:0 1px 3px #111;font-size:13px}
 .kopknop:hover,.kopknop:focus-visible{background:#22221ab3;border-color:#e4d8b447;color:var(--ink)}
-.kopknop svg{width:14px;height:14px;filter:drop-shadow(0 1px 2px #111)}
+.kopknop svg{width:12px;height:12px;filter:drop-shadow(0 1px 2px #111)}
 h1,h2,p{margin:0}
 h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #111}
 #plek{font-size:clamp(13px,2.5cqh,19px);color:var(--muted);text-shadow:0 2px 5px #000;margin-top:3px}
 .knop{background:#202118dc;border:1px solid var(--edge);border-radius:999px;min-width:44px;min-height:44px;padding:6px 13px;display:inline-flex;align-items:center;justify-content:center;gap:7px;box-shadow:0 2px 14px #18160e44}
 .knop:hover{background:#49442e;border-color:var(--accent)}
 #routes{--route-onder:calc(96% - 72px)}
-.route{position:absolute;left:clamp(23%,var(--route-links),77%);top:clamp(66px,var(--route-hoogte),var(--route-onder));transform:translate(-50%,-50%);min-height:42px;white-space:nowrap;font-size:clamp(12px,2.4cqh,16px)}
-.route,.knop#praat,.knop#sluit{
+.route{position:absolute;left:clamp(14%,var(--route-links),86%);top:clamp(66px,var(--route-hoogte),var(--route-onder));transform:translate(-50%,-50%)}
+.plaatknop{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent}
+.plaatknop-icoon{display:grid;place-items:center;width:29px;height:29px;border:1px solid #f8efd95c;border-radius:50%;background:#272821b8;color:#fff5dd;font-size:16px;line-height:1;font-weight:600;text-shadow:0 1px 2px #14140f}
+.route[data-heen] .plaatknop-icoon{background:#4c5534e8;border-color:#dce5ad8c;color:#f9ffdf}
+.plaatknop:focus-visible .plaatknop-icoon,.plaatknop:hover .plaatknop-icoon{border-color:#fff5dd}
+.plaatknop-icoon svg{width:14px;height:14px}
+.knop#sluit{
   background:#1c1d16a6;
   border-color:#e4d8b447;
   box-shadow:none;
   text-shadow:0 1px 3px #14140f;
 }
-.route:focus-visible,.knop#praat:focus-visible,.knop#sluit:focus-visible{
+.knop#sluit:focus-visible{
   background:#26261ded;
   border-color:var(--accent);
 }
 @media(hover:hover){
-  .route:hover,.knop#praat:hover,.knop#sluit:hover{
+  .knop#sluit:hover{
     background:#26261ded;
     border-color:#e4d8b493;
   }
 }
-.route b{font-size:1em;line-height:1;font-weight:500;color:var(--muted)}
-#praat{position:absolute;right:3%;bottom:4%;font-size:clamp(12px,2.4cqh,16px)}
-#praat span{font-size:.9em;color:var(--muted)}
+#praat{position:absolute;right:3%;bottom:4%}
 #spel:has(#intro:not([hidden])) header>div:first-child{visibility:hidden}
 #intro{position:absolute;inset:auto 0 0;padding:clamp(20px,5cqh,52px) clamp(16px,5cqw,70px) max(clamp(16px,5cqh,52px),env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#151711e8 42%,#151711)}
 #intro h2{font:700 clamp(26px,6.5cqh,54px)/1.06 Georgia,serif;text-shadow:0 2px 10px #111}
@@ -87,8 +90,7 @@ main{padding:0}
 .beeld{object-fit:cover}
 #plaat{object-position:var(--uitsnede,50%) center}
 #routes{--route-onder:calc(97% - 72px - env(safe-area-inset-bottom))}
-.route{max-width:44%;font-size:12px;padding:6px 9px;white-space:normal;text-align:left;line-height:1.15}
-#praat{bottom:calc(3% + env(safe-area-inset-bottom));font-size:13px}
+#praat{bottom:calc(3% + env(safe-area-inset-bottom))}
 #portret{object-fit:cover;object-position:var(--portretfocus,21%) 38%}
 #gesprek .schaduw{background:linear-gradient(180deg,transparent 31%,#211f17 57%)}
 #chat{top:auto;bottom:calc(3% + env(safe-area-inset-bottom));left:5%;right:5%;width:auto;gap:6px}
@@ -123,7 +125,9 @@ main{padding:0}
 </div>
 </header>
 <nav id="routes" aria-label="Loop door Mesch"></nav>
-<button class="knop" id="praat" type="button" hidden><span aria-hidden="true">◇</span><strong></strong></button>
+<button class="plaatknop" id="praat" type="button" hidden>
+<span class="plaatknop-icoon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h16v12H9l-5 4z"/></svg></span>
+</button>
 <section id="intro" aria-labelledby="intro-titel" hidden>
 <h2 id="intro-titel">Mesch – De bevrijding</h2>
 <p>De eerste soldaten komen het dorp binnen. De bewoners kijken toe. <span id="onderzoeksvraag"></span></p>
@@ -153,7 +157,7 @@ main{padding:0}
 </main>
 <dialog id="over" aria-labelledby="over-titel">
 <h2 id="over-titel">Over deze game</h2>
-<p>Loop met de pijlen door Mesch. Tik op ‘Praat met…’ en lees het verhaal. Daarna kies je één antwoord. Vertel elkaar wat je te weten bent gekomen.</p>
+<p>Volg de groene pijl om verder te lopen. Met de andere pijl ga je terug. Tik op het tekstballonnetje om met iemand te praten. Vertel elkaar wat je ontdekt.</p>
 <p>De game speelt rond de bevrijding van Mesch op 12 september 1944. De gesprekken zijn geschreven voor het spel. De schoolmeester is gebaseerd op het verslag van Jef Warnier. De andere rollen zijn samengesteld uit historische bronnen. De schilderingen vullen details van de omgeving en de mensen in.</p>
 <button class="knop" id="nieuwe-ronde" type="button" hidden>Start een nieuwe lesronde</button>
 <form method="dialog"><button class="knop" autofocus>Sluiten</button></form>
@@ -418,7 +422,7 @@ function uitgangen(index){
   }
   const lijst = [];
   if (terug) lijst.push({doel:index - 1,positie:terug});
-  if (heen) lijst.push({doel:index + 1,positie:heen});
+  if (heen) lijst.push({doel:index + 1,positie:heen,heen:true});
   return lijst;
 }
 function plaatsBediening(){
@@ -470,15 +474,18 @@ function laadBeeld(id){
   }
   return cache.get(id);
 }
-function maakRoute({doel,positie:[,,pijl,label]}){
+function maakRoute({doel,positie:[,,pijl,label],heen}){
   const knop = document.createElement("button");
   knop.type = "button";
-  knop.className = "knop route";
-  const icoon = document.createElement("b");
+  knop.className = "plaatknop route";
+  if (heen) knop.setAttribute("data-heen","");
+  const icoon = document.createElement("span");
+  icoon.className = "plaatknop-icoon";
   icoon.setAttribute("aria-hidden","true");
   icoon.textContent = pijl;
-  knop.append(icoon,document.createTextNode(label));
+  knop.append(icoon);
   knop.setAttribute("aria-label",label);
+  knop.title = label;
   knop.addEventListener("click",() => toonPlek(doel,true));
   routes.append(knop);
 }
@@ -503,7 +510,9 @@ async function toonPlek(index,focusRoute = false){
   praat.disabled = false;
   verken.disabled = false;
   if (nieuw.stem){
-    praat.querySelector("strong").textContent = "Praat met " + gesprekken[nieuw.stem].knop;
+    const label = "Praat met " + gesprekken[nieuw.stem].knop;
+    praat.setAttribute("aria-label",label);
+    praat.title = label;
     laadBeeld(nieuw.portret);
   }
   if (nieuw.school) laadBeeld(plekken[schoolwoning].beeld);
