@@ -51,7 +51,9 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
     border-color:#e4d8b493;
   }
 }
-#praat{position:absolute;right:3%;bottom:4%}
+#praat{position:absolute;left:var(--praat-x);top:var(--praat-y);transform:translate(-50%,-50%);width:clamp(54px,9cqw,110px);height:clamp(56px,12cqh,108px)}
+#praat .plaatknop-icoon{position:absolute;right:3px;top:3px;pointer-events:none}
+#praat:hover .plaatknop-icoon,#praat:focus-visible .plaatknop-icoon{background:#474933e8}
 #spel:has(#intro:not([hidden])) header>div:first-child{visibility:hidden}
 #intro{position:absolute;inset:auto 0 0;padding:clamp(20px,5cqh,52px) clamp(16px,5cqw,70px) max(clamp(16px,5cqh,52px),env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#151711e8 42%,#151711)}
 #intro h2{font:700 clamp(26px,6.5cqh,54px)/1.06 Georgia,serif;text-shadow:0 2px 10px #111}
@@ -90,7 +92,6 @@ main{padding:0}
 .beeld{object-fit:cover}
 #plaat{object-position:var(--uitsnede,50%) center}
 #routes{--route-onder:calc(97% - 72px - env(safe-area-inset-bottom))}
-#praat{bottom:calc(3% + env(safe-area-inset-bottom))}
 #portret{object-fit:cover;object-position:var(--portretfocus,21%) 38%}
 #gesprek .schaduw{background:linear-gradient(180deg,transparent 31%,#211f17 57%)}
 #chat{top:auto;bottom:calc(3% + env(safe-area-inset-bottom));left:5%;right:5%;width:auto;gap:6px}
@@ -157,7 +158,7 @@ main{padding:0}
 </main>
 <dialog id="over" aria-labelledby="over-titel">
 <h2 id="over-titel">Over deze game</h2>
-<p>Volg de groene pijl om verder te lopen. Met de andere pijl ga je terug. Tik op het tekstballonnetje om met iemand te praten. Vertel elkaar wat je ontdekt.</p>
+<p>Volg de groene pijl om verder te lopen. Met de andere pijl ga je terug. Tik op de persoon bij het tekstballonnetje om een gesprek te openen. Vertel elkaar wat je ontdekt.</p>
 <p>De game speelt rond de bevrijding van Mesch op 12 september 1944. De gesprekken zijn geschreven voor het spel. De schoolmeester is gebaseerd op het verslag van Jef Warnier. De andere rollen zijn samengesteld uit historische bronnen. De schilderingen vullen details van de omgeving en de mensen in.</p>
 <button class="knop" id="nieuwe-ronde" type="button" hidden>Start een nieuwe lesronde</button>
 <form method="dialog"><button class="knop" autofocus>Sluiten</button></form>
@@ -199,37 +200,37 @@ const beelden = {
   "schoollokaal": "beelden/schoollokaal-d3b897e804.webp"
 };
 const plekken = [
-  {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,stem:"soldaat",portret:"portret-22",
+  {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,persoon:[15,50],stem:"soldaat",portret:"portret-22",
     heen:[55,65,"↗","Volg de weg"]},
-  {beeld:"20",naam:"Bij de heg",alt:"Bewoners kijken over de heg naar de soldaten die over de dorpsweg naderen.",focus:45,stem:"inwoner",portret:"portret-20",
+  {beeld:"20",naam:"Bij de heg",alt:"Bewoners kijken over de heg naar de soldaten die over de dorpsweg naderen.",focus:45,persoon:[21,45],stem:"inwoner",portret:"portret-20",
     terug:[44,88,"↙","Dorpsrand"],heen:[85,62,"↗","Verder langs de heg"]},
-  {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,stem:"soldaat",portret:"portret-01",
+  {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,persoon:[43,48],stem:"soldaat",portret:"portret-01",
     terug:[54,88,"↘","Terug langs de heg"],heen:[32,60,"↖","Volg de dorpsweg"]},
-  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,stem:"meester",portret:"portret-09",portretfocus:33,school:true,
+  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,persoon:[28,55],stem:"meester",portret:"portret-09",portretfocus:33,school:true,
     terug:[41,87,"↙","Terug naar de weg"],heen:[86,63,"→","Naar de Grijzegraaf"],ingang:[70,48,"↑","Ga het schoollokaal in"]},
-  {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,stem:"inwoner",portret:"portret-21",
+  {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,persoon:[85,41],stem:"inwoner",portret:"portret-21",
     terug:[42,88,"↙","Bij de school"],heen:[91,66,"↗","Volg de Grijzegraaf"]},
-  {beeld:"11",naam:"Tussen de dorpshuizen",alt:"Amerikaanse militairen passeren huizen waar bewoners in de deuropening staan.",focus:57,stem:"soldaat",portret:"portret-11",
+  {beeld:"11",naam:"Tussen de dorpshuizen",alt:"Amerikaanse militairen passeren huizen waar bewoners in de deuropening staan.",focus:57,persoon:[15,50],stem:"soldaat",portret:"portret-11",
     terug:[43,86,"↙","Grijzegraaf"],heen:[60,58,"↗","Verder door de straat"]},
-  {beeld:"14",naam:"De dorpsstraat",alt:"Kinderen en volwassenen zien Amerikaanse soldaten verderop in de straat.",focus:47,stem:"inwoner",portret:"portret-14",
+  {beeld:"14",naam:"De dorpsstraat",alt:"Kinderen en volwassenen zien Amerikaanse soldaten verderop in de straat.",focus:47,persoon:[94,45],stem:"inwoner",portret:"portret-14",
     terug:[43,89,"↙","Terug tussen de huizen"],heen:[61,61,"↗","Verder de straat in"]},
-  {beeld:"12",naam:"Bij de buren",alt:"Bewoners komen naar buiten en kijken naar de militairen in de straat.",focus:45,stem:"inwoner",portret:"portret-12",
+  {beeld:"12",naam:"Bij de buren",alt:"Bewoners komen naar buiten en kijken naar de militairen in de straat.",focus:45,persoon:[33,53],stem:"inwoner",portret:"portret-12",
     terug:[56,88,"↙","Terug door de straat"],heen:[74,62,"↗","Naar het dorpshart"]},
-  {beeld:"10",naam:"Het dorpshart",alt:"Een Amerikaanse soldaat en een dorpsbewoner geven elkaar een hand tussen de omstanders.",focus:58,stem:"inwoner",portret:"portret-10",
+  {beeld:"10",naam:"Het dorpshart",alt:"Een Amerikaanse soldaat en een dorpsbewoner geven elkaar een hand tussen de omstanders.",focus:58,persoon:[64,49],stem:"inwoner",portret:"portret-10",
     terug:[42,88,"↙","Terug naar de buren"],heen:[76,61,"↗","Langs de velden"]},
-  {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,stem:"inwoner",portret:"portret-06",
+  {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,persoon:[83,46],stem:"inwoner",portret:"portret-06",
     terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
-  {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bij de open deur van het café schudt een vrouw de hand van een Amerikaanse soldaat. Een kind kijkt toe.",focus:34,verhouding:1.5,stem:"cafe",portret:"portret-13",portretfocus:35,
+  {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bij de open deur van het café schudt een vrouw de hand van een Amerikaanse soldaat. Een kind kijkt toe.",focus:34,verhouding:1.5,persoon:[33,48],stem:"cafe",portret:"portret-13",portretfocus:35,
     terug:[87,67,"→","Volg de straat terug"],heen:[28,24,"←","Ga het café in"]},
-  {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[78,56],
+  {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,persoon:[61,45],stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[78,56],
     terug:[19,83,"←","Weer naar buiten"],heen:[74,42,"↘","Naar de kelder"]},
-  {beeld:"kelder",naam:"In de schuilkelder",alt:"Een familie schuilt in een gemetselde kelder. Rechts leidt een trap naar de deur.",focus:52,stem:"kelder",portret:"kelder",portretfocus:45,
+  {beeld:"kelder",naam:"In de schuilkelder",alt:"Een familie schuilt in een gemetselde kelder. Rechts leidt een trap naar de deur.",focus:52,persoon:[44,50],stem:"kelder",portret:"kelder",portretfocus:45,
     terug:[83,72,"↗","Terug naar het café"],heen:[46,33,"↙","Naar de veldkeuken"]},
-  {beeld:"veldkeuken",naam:"Bij de veldkeuken",alt:"Een Amerikaanse kok geeft een kind een stuk brood bij een veldkeuken aan de rand van het dorp.",focus:48,stem:"veldkeuken",portret:"veldkeuken",portretfocus:43,
+  {beeld:"veldkeuken",naam:"Bij de veldkeuken",alt:"Een Amerikaanse kok geeft een kind een stuk brood bij een veldkeuken aan de rand van het dorp.",focus:48,persoon:[61,53],stem:"veldkeuken",portret:"veldkeuken",portretfocus:43,
     terug:[30,83,"↖","Terug naar de schuilkelder"]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
     terug:[18,65,"↖"]},
-  {beeld:"schoollokaal",naam:"In het schoollokaal",alt:"Meester Warnier staat bij de deur. Op het bureau voor de houten schoolbanken staat een inktflesje.",focus:45,stem:"schoollokaal",portret:"schoollokaal",portretfocus:12,
+  {beeld:"schoollokaal",naam:"In het schoollokaal",alt:"Meester Warnier staat bij de deur. Op het bureau voor de houten schoolbanken staat een inktflesje.",focus:45,persoon:[18,44],stem:"schoollokaal",portret:"schoollokaal",portretfocus:12,
     terug:[12,72,"↓","Terug naar buiten bij de school"]}
 ];
 const schoolBuiten = plekken.findIndex(scene => scene.school);
@@ -609,14 +610,26 @@ function plaatsBediening(){
   const breedte = spel.clientWidth;
   const hoogte = spel.clientHeight;
   if (!breedte || !hoogte) return;
-  const {focus,verhouding = 16/9,doeken:positieDoeken} = plekken[plaats];
+  const {focus,verhouding = 16/9,doeken:positieDoeken,persoon} = plekken[plaats];
   const zoektDoeken = !cafeAanwijzing.hidden && positieDoeken;
   const beeldHoogte = staand.matches
     ? Math.max(hoogte,breedte/verhouding)
     : Math.min(hoogte,breedte/verhouding);
   const beeldBreedte = beeldHoogte * verhouding;
-  const links = (breedte - beeldBreedte) * (staand.matches ? focus/100 : .5);
+  const ruimte = breedte - beeldBreedte;
+  const basisLinks = ruimte * (staand.matches ? focus/100 : .5);
+  let links = basisLinks;
+  if (staand.matches && persoon && !zoektDoeken && ruimte < 0){
+    const punt = beeldBreedte*persoon[0]/100;
+    const marge = breedte*.21;
+    links = Math.min(0,Math.max(ruimte,marge-punt,Math.min(basisLinks,breedte-marge-punt)));
+  }
+  plaat.style.setProperty("--uitsnede",(ruimte === 0 ? 50 : 100*links/ruimte) + "%");
   const boven = (hoogte - beeldHoogte) / 2;
+  if (persoon){
+    praat.style.setProperty("--praat-x",links + beeldBreedte*persoon[0]/100 + "px");
+    praat.style.setProperty("--praat-y",boven + beeldHoogte*persoon[1]/100 + "px");
+  }
   if (zoektDoeken){
     doeken.style.setProperty("--doeken-x",links + beeldBreedte*positieDoeken[0]/100 + "px");
     doeken.style.setProperty("--doeken-y",boven + beeldHoogte*positieDoeken[1]/100 + "px");
@@ -645,7 +658,6 @@ function toonCafeAanwijzing(open){
   cafeAanwijzing.hidden = !open;
   praat.hidden = open || !intro.hidden || !scene.stem;
   routes.hidden = open || !intro.hidden;
-  plaat.style.setProperty("--uitsnede",scene.focus + "%");
   plaatsBediening();
 }
 function laadBeeld(id){
@@ -804,14 +816,10 @@ function startCafeAanwijzing(){
   toonCafeAanwijzing(true);
   kijktekst.focus({preventScroll:true});
 }
-function openGesprek(aanwijzingGevonden = false){
+function openGesprek(){
   if (!intro.hidden || praat.disabled || !gesprek.hidden) return;
   const scene = plekken[plaats];
   if (!scene.stem) return;
-  if (scene.doeken && !aanwijzingGevonden && !gekozenAntwoorden.has(scene.stem)){
-    startCafeAanwijzing();
-    return;
-  }
   const persoon = gesprekken[scene.stem];
   const terug = () => zetGesprek(false);
   const naarWoning = () => {
@@ -934,9 +942,12 @@ function openGesprek(aanwijzingGevonden = false){
   };
   const vertel = (deel = 0) => {
     const laatste = deel === persoon.verhaal.length - 1;
-    toonAntwoord(persoon.verhaal[deel],[
-      laatste ? ["Naar de vraag",stelVraag] : ["Lees verder",() => vertel(deel + 1)]
-    ],{stem:scene.stem,typen:true});
+    const keuzes = [laatste ? ["Naar de vraag",stelVraag] : ["Lees verder",() => vertel(deel + 1)]];
+    if (scene.doeken && deel === 0) keuzes.push(["Bekijk de doeken op tafel",() => {
+      terug();
+      startCafeAanwijzing();
+    }]);
+    toonAntwoord(persoon.verhaal[deel],keuzes,{stem:scene.stem,typen:true});
   };
   rol.textContent = persoon.naam;
   portret.src = laadBeeld(scene.portret).src;
@@ -976,7 +987,7 @@ cafeHint.addEventListener("click",() => {
 doeken.addEventListener("click",() => {
   if (cafeAanwijzing.hidden || praat.disabled) return;
   toonCafeAanwijzing(false);
-  openGesprek(true);
+  openGesprek();
 });
 stopKijken.addEventListener("click",stopCafeAanwijzing);
 sluit.addEventListener("click",() => zetGesprek(false));
