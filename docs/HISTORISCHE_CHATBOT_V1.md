@@ -1,22 +1,8 @@
 # Gesprekken en historische AI – ontwerp v1
 
-## Status van de huidige website
-De pagina `beleving.html` bevat nu:
-- afzonderlijke portretten zodra een leerling een personage aanspreekt;
-- historische identiteits- en bronlabels;
-- drie bestaande, vooraf gecontroleerde vraag-antwoordparen per persoon;
-- een invoerveld voor **eigen vragen**;
-- een **lokale trefwoordgestuurde proef** die uitsluitend bekende antwoorden hergebruikt; bij ontbrekend bewijs wordt eerlijk 'geen betrouwbaar antwoord' getoond.
+## Huidige website
 
-**Dit is nog geen echte AI-chatbot.** GitHub Pages is een statische hostingdienst. Er is geen geheime API-sleutel, geen AI-service en geen opslag van leerlingvragen in deze uitvoering.
-
-## Afzonderlijke portretregels
-- De visuele scène blijft op de achtergrond, het gesprek verschijnt als een apart venster met een apart persoonsbeeld.
-- `resident`: `portrait-resident.webp`, artistiek en samengesteld.
-- `american`: `sc-american-detail.webp`, geschilderd detail, geen werkelijk geïdentificeerd portret.
-- `german`: `sc-german-detail.webp`, geschilderd detail, geen geïdentificeerde persoon.
-- `warnier`: **geen onbewezen portret tonen**; neutrale plaatsaanduiding totdat een geschikt en rechtmatig te gebruiken historisch portret bestaat.
-- `medic`: samengesteld persoon; voorlopig geen uniek portret.
+De wandeling toont zeven portretten met voorbeeldvragen, eigen vragen en vervolgvragen. De ingebouwde chat gebruikt vooraf geschreven antwoorden. De optionele AI-koppeling en de stappen voor activering staan onder [Actuele implementatie](#actuele-implementatie).
 
 ## Ontwerp voor een echte chatbot – pas na broncontrole
 
@@ -71,9 +57,17 @@ Waarden voor `certainty`: `historisch_onderbouwd`, `aannemelijke_reconstructie`,
 - Beoordeel toestemming, privacyverklaring en verwerking door derden vóór gebruik met kinderen; laat school/verantwoordelijke partij dit accorderen.
 - Voer tests uit met docenten en leerlingen en richt een correctieproces in bij historische fouten.
 
-## Eerstvolgende technische mijlpalen
-1. Curateer bronfragmenten per persona met exacte herkomst.
-2. Maak een testset van ten minste 30 echte kindervragen (feitelijk, dubbelzinnig, suggestief en buiten onderwerp).
-3. Bouw achter beveiligde backend een proef-API die aan de bovenstaande antwoordstructuur voldoet.
-4. Test historische juistheid en kinderveiligheid en voeg pas daarna live AI toe.
-5. Maak portretmateriaal alleen wanneer identiteit en historische status goed gelabeld zijn.
+## Actuele implementatie
+
+De wandeling heeft zeven personages. De portretchat bevat vooraf geschreven antwoorden, voorbeeldvragen en vervolgvragen. Eigen vragen kunnen via een aparte Cloudflare Worker naar OpenAI. GitHub Pages toont de vooraf geschreven antwoorden zolang de URL in `ai-chat/config.js` leeg is.
+
+### AI activeren
+
+1. Open de map `ai-chat` in een terminal met een Cloudflare-account. Voer `npx wrangler deploy` uit en kopieer de HTTPS-URL van de Worker.
+2. Stel de projectsleutel server-side in met `npx wrangler secret put OPENAI_API_KEY`. Gebruik een aparte API-projectsleutel en beheer budget en gebruik in dat project.
+3. Vul in `ai-chat/config.js` de Worker-URL in met `/api/historisch-gesprek` erachter. Publiceer deze wijziging op GitHub Pages en probeer een eigen vraag bij bijvoorbeeld de Amerikaanse infanterist.
+4. Controleer dat het antwoord de aanduiding **AI-gids** en passende bronlinks toont. Bij een storing blijft de lokale chat beschikbaar.
+
+De Worker ontvangt de gekozen rol, de huidige vraag en maximaal één vorige vraag. Hij gebruikt de bronpassages in `ai-chat/sources.mjs`, begrenst het aantal verzoeken en blokkeert herkenbare persoonsgegevens voordat het verzoek naar OpenAI gaat. Er is geen opslag van leerlingvragen in de app en de API-aanroep zet `store: false`. De verwerking door de API-provider valt onder diens instellingen en voorwaarden. De browser toont een melding om geen persoonlijke gegevens te typen wanneer de AI-koppeling actief is.
+
+De gids gebruikt vier bronverwijzingen. Een antwoord op een onderwerp buiten die bronnen kan als onbekend terugkomen. De koppeling is technisch voorbereid. Controleer na activering voorbeelden per rol met de echte API vóór gebruik in de klas.
