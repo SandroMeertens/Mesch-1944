@@ -559,10 +559,8 @@ const jeansVerhaal = {
     "Wat veranderde er voor Jean door de bevrijding? Gebruik één detail uit de kelder en één van de veldkeuken.",
     "Leg het hardop uit. Begin met ‘Eerst moest Jean …’. Vertel daarna wat hij kon doen doordat Mesch bevrijd was."
   ],
-  voorbeeld:[
-    "Eerst schuilde Jean met zijn gezin voor het geweld. Nadat Mesch bevrijd was, kon hij bij de Amerikaanse veldkeuken komen. Daar kreeg hij onder meer witbrood.",
-    "Dit weten we uit Jeans herinnering. Wat zou je aan een ander kind uit Mesch vragen om te ontdekken of dat kind iets vergelijkbaars meemaakte?"
-  ]
+  voorbeeld:"Eerst schuilde Jean met zijn gezin voor het geweld. Nadat Mesch bevrijd was, kon hij bij de Amerikaanse veldkeuken komen. Daar kreeg hij onder meer witbrood.",
+  slot:"Je bent aan het einde van je tocht door Mesch. Welk verhaal zou jij doorvertellen om te laten zien wat de bevrijding voor iemand in het dorp betekende?"
 };
 const spel = document.querySelector("#spel");
 document.querySelector("#onderzoeksvraag").textContent = perspectieven.onderzoeksvraag;
@@ -720,6 +718,7 @@ const introSleutel = "mesch-intro-gezien-v1";
 const vergelijkbareGesprekken = ["meester","cafeBinnen"];
 let typTimer;
 let wachtOpAntwoord = false;
+let slotOpen = false;
 
 intro.hidden = false;
 try{
@@ -790,7 +789,10 @@ function toonAntwoord(tekst,keuzes,{stem,typen = false} = {}){
 }
 function zetGesprek(open){
   if (!open && wachtOpAntwoord) return;
-  if (!open) stopTypen();
+  if (!open){
+    stopTypen();
+    slotOpen = false;
+  }
   gesprek.hidden = !open;
   routes.inert = open;
   info.inert = open;
@@ -873,13 +875,19 @@ function openGesprek(aanwijzingGevonden = false){
     }]));
   };
   const beginJeansOpdracht = () => {
-    const geefVoorbeeld = () => toonAntwoord(jeansVerhaal.voorbeeld[0],[
-      ["Lees verder",() => toonAntwoord(jeansVerhaal.voorbeeld[1],einde)],
-      ...einde
-    ]);
+    const toonSlot = () => {
+      slotOpen = true;
+      rol.textContent = "Einde van je tocht";
+      toonAntwoord(jeansVerhaal.slot,[
+        ["Nieuwe ronde",() => bevestigRonde.showModal()],
+        ["Terug naar de veldkeuken",terug]
+      ]);
+    };
+    const naarSlot = ["Naar het einde",toonSlot];
+    const geefVoorbeeld = () => toonAntwoord(jeansVerhaal.voorbeeld,[naarSlot,...einde]);
     const legUit = () => toonAntwoord(jeansVerhaal.opdracht[0],[
       ["Lees verder",() => toonAntwoord(jeansVerhaal.opdracht[1],[
-        ["Bekijk een voorbeelduitleg",geefVoorbeeld],...einde
+        ["Bekijk een voorbeelduitleg",geefVoorbeeld],naarSlot,...einde
       ])],
       ...einde
     ]);
@@ -985,8 +993,9 @@ nieuweRonde.addEventListener("click",() => {
   if (!nieuweRonde.hidden && over.open && gesprek.hidden && !bevestigRonde.open) bevestigRonde.showModal();
 });
 startRonde.addEventListener("click",async () => {
-  if (!bevestigRonde.open || !gesprek.hidden) return;
+  if (!bevestigRonde.open || (!gesprek.hidden && !slotOpen)) return;
   bevestigRonde.close();
+  if (slotOpen) zetGesprek(false);
   if (!intro.hidden) sluitIntro();
   gekozenAntwoorden.clear();
   afgerondeGesprekken.clear();
@@ -1003,6 +1012,7 @@ startRonde.addEventListener("click",async () => {
   plek.focus({preventScroll:true});
 });
 document.addEventListener("keydown",event => {
+  if (bevestigRonde.open) return;
   if (!gesprek.hidden){
     if (event.key === "Escape") zetGesprek(false);
     if (event.key === "Tab"){
