@@ -33,6 +33,9 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .plaatknop{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent}
 .plaatknop-icoon{display:grid;place-items:center;width:29px;height:29px;border:1px solid #f8efd95c;border-radius:50%;background:#272821b8;color:#fff5dd;font-size:16px;line-height:1;font-weight:600;text-shadow:0 1px 2px #14140f}
 .route[data-heen] .plaatknop-icoon{background:#4c5534e8;border-color:#dce5ad8c;color:#f9ffdf}
+.route[data-ingang]{width:max-content;min-width:44px;height:44px;display:inline-flex;gap:4px;padding:0 7px;border-radius:999px;background:#272d1df2;border:1px solid #dce5ad79;color:#f9ffdf}
+.route[data-ingang] .plaatknop-icoon{width:22px;height:22px;border:0;background:transparent;font-size:15px}
+.route-tekst{padding-right:3px;font-size:clamp(12px,2.3cqh,15px);white-space:nowrap}
 .plaatknop:focus-visible .plaatknop-icoon,.plaatknop:hover .plaatknop-icoon{border-color:#fff5dd}
 .plaatknop-icoon svg{width:14px;height:14px}
 .knop#sluit{
@@ -90,6 +93,7 @@ main{padding:0}
 .beeld{object-fit:cover}
 #plaat{object-position:var(--uitsnede,50%) center}
 #routes{--route-onder:calc(97% - 72px - env(safe-area-inset-bottom))}
+.route[data-ingang]{left:clamp(92px,var(--route-links),calc(100% - 92px))}
 #praat{bottom:calc(3% + env(safe-area-inset-bottom))}
 #portret{object-fit:cover;object-position:var(--portretfocus,21%) 38%}
 #gesprek .schaduw{background:linear-gradient(180deg,transparent 31%,#211f17 57%)}
@@ -193,7 +197,8 @@ const beelden = {
   "portret-01": "beelden/portret-01-4fe2865e39.webp",
   "portret-06": "beelden/portret-06-7878970c8d.webp",
   "portret-21": "beelden/portret-21-682eab0f07.webp",
-  "portret-09": "beelden/portret-09-a1b05e2100.webp"
+  "portret-09": "beelden/portret-09-a1b05e2100.webp",
+  "kelder": "beelden/kelder-4ce8f6b5da.webp"
 };
 const plekken = [
   {beeld:"22",naam:"Dorpsrand",alt:"Amerikaanse militairen lopen langs stenen huizen terwijl bewoners vanuit een opening kijken.",focus:46,stem:"soldaat",portret:"portret-22",
@@ -217,9 +222,11 @@ const plekken = [
   {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,stem:"inwoner",portret:"portret-06",
     terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
   {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bij de open deur van het café schudt een vrouw de hand van een Amerikaanse soldaat. Een kind kijkt toe.",focus:34,verhouding:1.5,stem:"cafe",portret:"portret-13",portretfocus:35,
-    terug:[87,67,"→","Volg de straat terug"],heen:[28,24,"←","Ga het café in"]},
+    terug:[87,67,"→","Volg de straat terug"],heen:[28,24,"←","Ga het café in",true]},
   {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[78,56],
-    terug:[19,83,"↙","Weer naar buiten"]},
+    terug:[19,83,"←","Weer naar buiten"],heen:[51,51,"↘","Naar de kelder",true]},
+  {beeld:"kelder",naam:"In de schuilkelder",alt:"Een familie schuilt in een gemetselde kelder. Rechts leidt een trap naar de deur.",focus:52,stem:"kelder",portret:"kelder",portretfocus:45,
+    terug:[83,36,"↗","Terug naar het café",true]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
     terug:[18,65,"↖"]}
 ];
@@ -418,8 +425,47 @@ const gesprekken = {
         ]
       }
     ]
+  },
+  kelder:{
+    naam:"Een medewerker van het café",knop:"de cafémedewerker",
+    verhaal:[
+      "Dit is de kelder waar de familie Van Hoven schuilde. Boven hadden Duitse soldaten van het café een noodhospitaal gemaakt. Buiten werd geschoten.",
+      "Aan de overkant woonde schoolmeester Jef Warnier. Hij schuilde met zijn gezin in een andere kelder. Bedenk wat jij vanaf de onderste trede zou kunnen horen of zien."
+    ],
+    vraag:"Welk deel van het verhaal wil je volgen?",
+    keuzes:[
+      ["Wat kon je beneden te weten komen?",[
+        "Warnier schreef over een harde knal en schoten. Toen het stiller werd, ging hij naar boven. Pas daar zag hij een Duitse soldaat met de handen omhoog en een Amerikaan tegenover hem.",
+        "De familie Van Hoven kwam later boven. In het café zag ze verband en scharen liggen. Die vondst vertelde iets over wat er boven was gebeurd terwijl de familie schuilde."
+      ]],
+      ["Hoe wist een kind dat de bevrijders eraan kwamen?",[
+        "De vijfjarige Jean Spons schuilde in de kelder van zijn eigen huis aan dezelfde straat. Zijn oom deed het luik open en vertelde dat de bevrijders eraan kwamen.",
+        "Pas buiten zag Jean op weg naar zijn oma Amerikaanse helmen boven het weiland. Het nieuws van zijn oom en wat hij daarna zelf zag, waren twee verschillende aanwijzingen."
+      ]]
+    ],
+    vervolg:[
+      {
+        vraag:"Je zit nog beneden en de schoten houden op. Wat kun je op dat moment zeggen?",
+        opties:[
+          ["Het klinkt rustiger buiten.","Dat kun je vanuit de kelder horen. Warnier kreeg pas meer te weten toen hij boven de overgave zag."],
+          ["De hele straat is nu veilig.","De stilte vertelt je dat het rustiger klinkt. Vanuit de kelder kun je de straat nog niet overzien."]
+        ]
+      },
+      {
+        vraag:"Welk detail vertelt wat Jean zelf zag toen hij weer buiten was?",
+        opties:[
+          ["De helmen boven het weiland.","Die zag hij zelf op weg naar zijn oma. Als hij had willen weten waar de soldaten vandaan kwamen, had hij een ander verhaal nodig gehad."],
+          ["Het nieuws dat de bevrijders eraan kwamen.","Dat nieuws kreeg Jean van zijn oom. Jean zag de helmen pas zelf toen hij buiten liep."]
+        ]
+      }
+    ]
   }
 };
+const naDeBevrijding = [
+  "Na de eerste begroetingen trokken de soldaten verder. De volgende dag sloeg een andere groep soldaten haar kamp op bij Mesch.",
+  "Jean Spons herinnerde zich het eten bij de Amerikaanse veldkeuken. Hij noemde chocolade, witbrood en koekjes. Een dag eerder zat hij nog met zijn gezin in de kelder.",
+  "Terwijl Mesch al bevrijd was, bleef het westen van Nederland bezet. Daar kregen veel mensen die winter te maken met honger en kou. Welke verandering maakte Jean mee? Wat bleef er op andere plekken anders?"
+];
 const perspectieven = {
   onderzoeksvraag:"Wat merken de bewoners van Mesch van de bevrijding?",
   school:[
@@ -523,7 +569,7 @@ function laadBeeld(id){
   }
   return cache.get(id);
 }
-function maakRoute({doel,positie:[,,pijl,label],heen}){
+function maakRoute({doel,positie:[,,pijl,label,zichtbaarLabel],heen}){
   const knop = document.createElement("button");
   knop.type = "button";
   knop.className = "plaatknop route";
@@ -533,6 +579,14 @@ function maakRoute({doel,positie:[,,pijl,label],heen}){
   icoon.setAttribute("aria-hidden","true");
   icoon.textContent = pijl;
   knop.append(icoon);
+  if (zichtbaarLabel){
+    knop.setAttribute("data-ingang","");
+    const tekst = document.createElement("span");
+    tekst.className = "route-tekst";
+    tekst.setAttribute("aria-hidden","true");
+    tekst.textContent = label;
+    knop.append(tekst);
+  }
   knop.setAttribute("aria-label",label);
   knop.title = label;
   knop.addEventListener("click",() => toonPlek(doel,true));
@@ -569,12 +623,8 @@ async function toonPlek(index,focusRoute = false){
     plaat.animate([{opacity:.14},{opacity:1}],{duration:360,easing:"ease-out"});
   }
   if (focusRoute && !over.open){
-    if (nieuw.doeken && !gekozenAntwoorden.has(nieuw.stem)){
-      startCafeAanwijzing();
-      return;
-    }
     const route = index > vorig ? routes.lastElementChild : routes.firstElementChild;
-    (vorig === schoolwoning ? praat : route)?.focus({preventScroll:true});
+    (nieuw.doeken || vorig === schoolwoning ? praat : route)?.focus({preventScroll:true});
   }
 }
 const leesbareTekst = document.querySelector("#leesbare-tekst");
@@ -687,6 +737,10 @@ function openGesprek(aanwijzingGevonden = false){
     toonPlek(schoolwoning,true);
   };
   const einde = [["Terug naar de plaat",terug]];
+  const vertelVerder = (deel = 0) => {
+    const acties = deel < naDeBevrijding.length - 1 ? [["Lees verder",() => vertelVerder(deel + 1)],...einde] : einde;
+    toonAntwoord(naDeBevrijding[deel],acties,{stem:scene.stem,typen:true});
+  };
   const vergelijk = (deel = 0) => {
     const opdracht = [
       "Zoek een klasgenoot die bij de inwoner het andere verhaal koos. Vertel elkaar wie iets opschreef, waar die persoon was en wat die zag.",
@@ -697,6 +751,7 @@ function openGesprek(aanwijzingGevonden = false){
   const actiesNaAntwoord = keuze => {
     const acties = [];
     if (scene.stem === "inwoner") acties.push(["Vergelijk met een klasgenoot",() => vergelijk()]);
+    if (scene.stem === "kelder") acties.push(["Hoe ging het verder?",() => vertelVerder()]);
     if (!vergelijkbareGesprekken.includes(scene.stem)) return acties;
     if (vergelijkbareGesprekken.every(id => afgerondeGesprekken.has(id))){
       acties.push(["Leg de verhalen naast elkaar",legVerhalenNaastElkaar]);
@@ -784,7 +839,7 @@ function openGesprek(aanwijzingGevonden = false){
   rol.textContent = persoon.naam;
   portret.src = laadBeeld(scene.portret).src;
   portret.style.setProperty("--portretfocus",(scene.portretfocus ?? 21) + "%");
-  portret.alt = "Geschilderd portret van " + persoon.knop;
+  portret.alt = scene.portret === scene.beeld ? scene.alt : "Geschilderd portret van " + persoon.knop;
   sluit.hidden = false;
   zetGesprek(true);
   const keuze = gekozenAntwoorden.get(scene.stem);
