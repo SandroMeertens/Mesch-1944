@@ -124,7 +124,7 @@ main{padding:0}
 <p id="kijktekst" tabindex="-1" aria-live="polite"></p>
 <div class="kijkknoppen">
 <button id="cafe-hint" class="kopknop" type="button" aria-label="Toon een hint" title="Toon een hint">?</button>
-<button id="stop-kijken" class="knop" type="button">Terug</button>
+<button id="stop-kijken" class="knop" type="button">Sluiten</button>
 </div>
 </div>
 </div>
@@ -164,15 +164,15 @@ const beelden = {
   "20": "beelden/20-33d05d31f5.webp",
   "13": "beelden/13-ff3c631992.webp",
   "21": "beelden/21-c2f03c2244.webp",
-  "02": "beelden/02-839239e720.webp",
+  "02": "beelden/02-50413d5d84.webp",
   "04": "beelden/04-14bc4a1e45.webp",
   "06": "beelden/06-cc0e3fd621.webp",
   "portret-10": "beelden/portret-10-83fff77c20.webp",
-  "portret-13": "beelden/portret-13-4832cfb177.webp",
+  "portret-13": "beelden/portret-13-12b96ec519.webp",
   "portret-20": "beelden/portret-20-8c52997495.webp",
   "portret-11": "beelden/portret-11-436060b766.webp",
   "portret-12": "beelden/portret-12-358b4e0d28.webp",
-  "portret-02": "beelden/portret-02-f25269efc2.webp",
+  "portret-02": "beelden/portret-02-b954f3a3d5.webp",
   "portret-14": "beelden/portret-14-fad6da9f02.webp",
   "portret-22": "beelden/portret-22-2786c7c581.webp",
   "portret-01": "beelden/portret-01-4fe2865e39.webp",
@@ -201,9 +201,9 @@ const plekken = [
     terug:[42,88,"↙","Terug naar de buren"],heen:[76,61,"↗","Langs de velden"]},
   {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,stem:"inwoner",portret:"portret-06",
     terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
-  {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bij de open deur van het café schudt een vrouw de hand van een Amerikaanse soldaat. Een kind kijkt toe.",focus:34,verhouding:1.5,stem:"cafe",portret:"portret-13",
+  {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bij de open deur van het café schudt een vrouw de hand van een Amerikaanse soldaat. Een kind kijkt toe.",focus:34,verhouding:1.5,stem:"cafe",portret:"portret-13",portretfocus:35,
     terug:[87,67,"→","Volg de straat terug"],heen:[28,24,"←","Ga het café in"]},
-  {beeld:"02",naam:"In Café Van Hoven",alt:"In het café maakt iemand de tafels schoon en verzamelt gebruikte doeken.",focus:53,stem:"cafeBinnen",portret:"portret-02",doeken:[72,53],
+  {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[78,56],
     terug:[19,83,"↙","Weer naar buiten"]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
     terug:[18,65,"↖"]}
@@ -325,9 +325,9 @@ const gesprekken = {
   cafeBinnen:{
     naam:"Een medewerker van het café",knop:"de cafémedewerker",
     verhaal:[
-      "Heb je de doeken op tafel gezien? Toen er buiten werd geschoten, bleef de familie hier beneden. Later vonden ze bij het opruimen verband en scharen."
+      "Je hebt de doeken op tafel gevonden. Toen er buiten werd geschoten, bleef de familie Van Hoven beneden. Bij het opruimen vonden we ook verband en scharen."
     ],
-    vraag:"Wat wil je me vragen?",
+    vraag:"Wat wil je weten over wat hier is gebeurd?",
     keuzes:[
       ["Waarvoor gebruikten Duitse soldaten het café?",[
         "De Duitse soldaten gebruikten ons café als noodhospitaal. Dat is een tijdelijke plek om gewonden te verzorgen.",
@@ -357,7 +357,7 @@ const gesprekken = {
   }
 };
 const perspectieven = {
-  getuigenissen:"Schoolmeester: ‘Toen het stiller werd, ging ik naar boven.’\nCafémedewerker: ‘Toen er buiten werd geschoten, bleef de familie hier beneden.’",
+  getuigenissen:"Schoolmeester: ‘Toen het stiller werd, ging ik naar boven.’\nCafémedewerker: ‘Toen er buiten werd geschoten, bleef de familie Van Hoven beneden.’",
   vraag:"Wie kon de overgave bij de school zien? Leg het uit aan je maatje. Gebruik één detail uit elk gesprek.",
   voorbeeld:"Warnier ging naar boven en zag de overgave. De familie Van Hoven bleef in de kelder en hoorde schoten. Waar iemand was, bepaalt wat diegene kon zien of horen."
 };
@@ -405,12 +405,11 @@ function plaatsBediening(){
   if (!breedte || !hoogte) return;
   const {focus,verhouding = 16/9,doeken:positieDoeken} = plekken[plaats];
   const zoektDoeken = !cafeAanwijzing.hidden && positieDoeken;
-  const uitsnede = zoektDoeken ? positieDoeken[0] : focus;
   const beeldHoogte = staand.matches
     ? Math.max(hoogte,breedte/verhouding)
     : Math.min(hoogte,breedte/verhouding);
   const beeldBreedte = beeldHoogte * verhouding;
-  const links = (breedte - beeldBreedte) * (staand.matches ? uitsnede/100 : .5);
+  const links = (breedte - beeldBreedte) * (staand.matches ? focus/100 : .5);
   const boven = (hoogte - beeldHoogte) / 2;
   if (zoektDoeken){
     doeken.style.setProperty("--doeken-x",links + beeldBreedte*positieDoeken[0]/100 + "px");
@@ -434,11 +433,11 @@ function toonCafeAanwijzing(open){
   const scene = plekken[plaats];
   doeken.removeAttribute("data-hint");
   cafeHint.hidden = false;
-  if (open) kijktekst.textContent = "Zoek de opgerolde doeken op de grote tafel en tik erop.";
+  if (open) kijktekst.textContent = "Kijk eens rond. Zie je de opgerolde doeken op de grote tafel? Tik erop.";
   cafeAanwijzing.hidden = !open;
   praat.hidden = open || !scene.stem;
   routes.hidden = open;
-  plaat.style.setProperty("--uitsnede",(open ? scene.doeken[0] : scene.focus) + "%");
+  plaat.style.setProperty("--uitsnede",scene.focus + "%");
   plaatsBediening();
 }
 function laadBeeld(id){
@@ -489,6 +488,10 @@ async function toonPlek(index,focusRoute = false){
     plaat.animate([{opacity:.14},{opacity:1}],{duration:360,easing:"ease-out"});
   }
   if (focusRoute && !over.open){
+    if (nieuw.doeken && !gekozenAntwoorden.has(nieuw.stem)){
+      startCafeAanwijzing();
+      return;
+    }
     const route = index > vorig ? routes.lastElementChild : routes.firstElementChild;
     (vorig === schoolwoning ? praat : route)?.focus({preventScroll:true});
   }
@@ -575,13 +578,16 @@ function zetGesprek(open){
   praat.inert = open;
   if (!open) praat.focus({preventScroll:true});
 }
+function startCafeAanwijzing(){
+  toonCafeAanwijzing(true);
+  kijktekst.focus({preventScroll:true});
+}
 function openGesprek(aanwijzingGevonden = false){
   if (praat.disabled || !gesprek.hidden) return;
   const scene = plekken[plaats];
   if (!scene.stem) return;
   if (scene.doeken && !aanwijzingGevonden && !gekozenAntwoorden.has(scene.stem)){
-    toonCafeAanwijzing(true);
-    kijktekst.focus({preventScroll:true});
+    startCafeAanwijzing();
     return;
   }
   const persoon = gesprekken[scene.stem];
