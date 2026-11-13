@@ -21,10 +21,13 @@ main{height:calc(100dvh - 56px);min-height:0;position:relative;display:flex;flex
 .hot b{font-size:23px;line-height:1}.hot .tip{display:none;position:absolute;left:50%;top:calc(100% + 5px);transform:translateX(-50%);width:max-content;max-width:min(240px,75vw);text-align:center;font-size:12px;line-height:1.3;padding:7px 10px;background:#0b1d17f5;border-radius:7px;border:1px solid #ecd29b91;z-index:5}
 .hot:hover .tip,.hot:focus-visible .tip,.showtips .hot .tip{display:block}
 .hot[type=button]:active{scale:.97}
-.hot.move{background:#1b392fb5}.hot.talk{background:#4b3524e6}.hot.inspect{background:#223e47dd}
+.hot.move{background:#142c2060;border-color:#fff7d34a;box-shadow:none}
+.hot.move b{font-size:20px;color:#f2e3c4;text-shadow:0 1px 4px #000,0 0 2px #000}
+.hot.talk{background:#4b3524e6}.hot.inspect{background:#223e47dd}
+.hot.move:hover,.hot.move:focus-visible,.showtips .hot.move{background:#1b392feb;border-color:#fff7d3b0}
 #status{position:absolute;top:14px;left:14px;background:#071b16dd;color:var(--gold);z-index:6;max-width:min(78%,400px);border:1px solid var(--line);padding:9px 12px;border-radius:10px;pointer-events:none}
 #status strong{display:block;color:#fff0d5;font:600 clamp(16px,2vw,22px) Georgia,serif}#status span{display:block;font-size:11px;letter-spacing:.05em;text-transform:uppercase}
-#footer{position:absolute;bottom:0;left:0;right:0;z-index:6;pointer-events:none;display:flex;justify-content:flex-end;align-items:flex-end;gap:8px;padding:18px;background:linear-gradient(transparent,#03130fea)}
+#footer{position:absolute;bottom:0;left:0;right:0;z-index:6;pointer-events:none;display:flex;justify-content:flex-end;align-items:flex-end;gap:8px;padding:18px;background:linear-gradient(transparent,#03130f60)}
 #footer small{font-size:12px;color:#efdfc1;text-shadow:0 1px 7px black}#footer button{pointer-events:auto;background:#22392fde;color:#ffe5ba;border:1px solid var(--line);border-radius:9px;padding:7px 10px;font-size:12px}
 .footer-actions{display:flex;flex-wrap:wrap;justify-content:flex-end;gap:6px}
 #footer .footer-actions button{min-height:38px}
@@ -66,7 +69,7 @@ html,body{height:100%;overflow:hidden}
 .chat-portrait[hidden]{display:none}
 .chat-portrait picture{display:block;width:100%;height:100%}
 .chat-portrait img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 40%}
-.chat-portrait img.wide-portrait{object-position:34% 42%}
+.chat-portrait img.wide-portrait{object-position:25% 42%}
 .person-main{grid-column:2;pointer-events:auto;min-width:0;height:100%;display:grid;grid-template-rows:auto minmax(0,1fr) auto auto;gap:9px;padding:clamp(10px,1.6vw,26px);text-shadow:0 1px 4px #000}
 .chat-head{display:flex;align-items:center;gap:10px;min-width:0}
 .chat-head h2{font:600 clamp(16px,2.2vw,23px)/1.12 Georgia,serif;margin:0}
@@ -91,7 +94,8 @@ html,body{height:100%;overflow:hidden}
 @media(max-width:700px) and (orientation:portrait){
  #personContent{grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,34%) minmax(0,1fr)}
  #personContent::before{background:linear-gradient(180deg,transparent 20%,#0b19169c 38%,#0b1916e8 100%)}
- .chat-portrait img,.chat-portrait img.wide-portrait{object-position:center 30%}
+ .chat-portrait img{object-position:center 30%}
+ .chat-portrait img.wide-portrait{object-position:25% 36%}
  .person-main{grid-column:1;grid-row:2;padding:8px;gap:5px}
  #status strong{font-size:14px}
 }
@@ -108,6 +112,12 @@ html,body{height:100%;overflow:hidden}
 @media(max-height:320px) and (orientation:portrait){
  #personContent{grid-template-rows:minmax(0,13%) minmax(0,1fr)}
 }
+.topbuttons button,#footer button,.chat-nav button{background:#13282055;border-color:#e1c99d30}
+.topbuttons button:hover,#footer button:hover,.chat-nav button:not(:disabled):hover,
+.topbuttons button:focus-visible,#footer button:focus-visible,.chat-nav button:focus-visible{
+ background:#29463bed;border-color:#e1c99d90
+}
+
 </style></head><body>
 <header><div class="brand">MESCH <span>1944</span></div><div class="topbuttons"><button id="guide" title="Bediening">?</button><button id="overview">Plekken</button></div></header>
 <main>
@@ -364,13 +374,13 @@ function paint(){
 }
 // Elk portret is een afzonderlijke kunstweergave, niet de afgebeelde leerling-wereld.
 const PERSON_PORTRAITS={
- liza:{src:'assets/portrait-liza-closeup.webp',caption:'Uitsnede van de geschilderde reconstructie. Het gezicht is artistiek ingevuld.'},
- guest:{src:'assets/portrait-guest-closeup.webp',caption:'Uitsnede van de geschilderde reconstructie. Warnier beschreef het verblijf van de soldaat.'},
- resident:{src:'assets/portrait-resident-closeup.webp',caption:'Geschilderd portret van een samengesteld personage uit Mesch.'},
+ liza:{src:'assets/portrait-liza-closeup.webp',wide:'assets/portrait-liza-wide.webp',caption:'Geschilderde voorstelling van Liza van Hoven. Haar gezicht is artistiek ingevuld.'},
+ guest:{src:'assets/portrait-guest-closeup.webp',wide:'assets/portrait-guest-wide.webp',caption:'Geschilderde voorstelling van de Amerikaanse logé. Warnier beschreef het verblijf van de soldaat.'},
+ resident:{src:'assets/portrait-resident-closeup.webp',wide:'assets/portrait-resident-wide.webp',caption:'Geschilderd portret van een samengesteld personage uit Mesch.'},
  american:{src:'assets/portrait-american-front.webp',wide:'assets/portrait-american-wide.webp',caption:'Geschilderd detail van een Amerikaanse militair, geen verifieerbaar portret.'},
- german:{src:'assets/portrait-german-front.webp',small:'assets/mobile/portrait-german-front.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
- medic:{src:'assets/portrait-medic-closeup.webp',caption:'Geschilderd detail van een samengestelde hulpverlener in het tijdelijke lazaret.'},
- warnier:{src:'assets/portrait-warnier-closeup.webp',caption:'Artistieke voorstelling van Jef Warnier in 1944, geïnspireerd op een latere archieffoto (EV 2197). Zijn uiterlijk in 1944 is onzeker.',sourceUrl:'https://www.eijsdensverleden.nl/online/wp-content/uploads/2019/08/UEV102-De-Burgemeester-in-oorlogstijd-deel-2-OCR_Optimized.pdf#page=5'}
+ german:{src:'assets/portrait-german-front.webp',small:'assets/mobile/portrait-german-front.webp',wide:'assets/portrait-german-wide.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
+ medic:{src:'assets/portrait-medic-closeup.webp',wide:'assets/portrait-medic-wide.webp',caption:'Geschilderd detail van een samengestelde hulpverlener in het tijdelijke lazaret.'},
+ warnier:{src:'assets/portrait-warnier-closeup.webp',wide:'assets/portrait-warnier-wide.webp',caption:'Artistieke voorstelling van Jef Warnier in 1944, geïnspireerd op een latere archieffoto (EV 2197). Zijn uiterlijk in 1944 is onzeker.',sourceUrl:'https://www.eijsdensverleden.nl/online/wp-content/uploads/2019/08/UEV102-De-Burgemeester-in-oorlogstijd-deel-2-OCR_Optimized.pdf#page=5'}
 };
 const chatTopics={
  american:[
@@ -517,8 +527,8 @@ function talk(id){
  const name=person.name.replace(/ — samengesteld personage$/,'');
  const pic=PERSON_PORTRAITS[id];
  const portrait=pic?.src?`<picture>
-  ${pic.wide?`<source media="(min-width: 701px), (orientation: landscape)" srcset="${esc(pic.wide)}">`:''}
-  ${pic.small?`<source media="(max-width: 680px)" srcset="${esc(pic.small)}">`:''}
+  ${pic.wide?`<source srcset="${esc(pic.wide)}">`:''}
+  ${!pic.wide&&pic.small?`<source media="(max-width: 680px)" srcset="${esc(pic.small)}">`:''}
   <img${pic.wide?' class="wide-portrait"':''} src="${esc(pic.src)}" alt="Geschilderde close-up van ${esc(name)}">
  </picture>`:'';
  const reaction=reactions[id];
