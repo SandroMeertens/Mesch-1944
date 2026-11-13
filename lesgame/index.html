@@ -369,9 +369,16 @@ const gesprekken = {
 };
 const perspectieven = {
   onderzoeksvraag:"Wat merken de bewoners van Mesch van de bevrijding?",
-  getuigenissen:"Schoolmeester: ‘Ik zag een Duitse soldaat met zijn handen omhoog.’\nCafémedewerker: ‘Toen er buiten werd geschoten, bleef de familie Van Hoven beneden.’",
-  opdracht:"Vertel je maatje wat de schoolmeester zag en wat de familie in het café meemaakte. Gebruik één detail uit elk gesprek. Leg uit waarom hun ervaringen verschilden.",
-  voorbeeld:"Warnier ging naar boven en zag de overgave. De familie Van Hoven hoorde schoten vanuit de kelder. Door hun plek in het dorp en in het gebouw maakten ze de bevrijding verschillend mee."
+  school:[
+    ["Een Duitse soldaat hield zijn handen omhoog.","Warnier zag de overgave toen hij naar boven ging."],
+    ["Amerikanen kwamen door de heg uit de wei.","Buiten zag Warnier Amerikanen vanuit de wei door de heg komen."]
+  ],
+  cafe:[
+    ["De familie bleef in de kelder terwijl er werd geschoten.","Vanuit de kelder hoorde de familie Van Hoven schoten."],
+    ["Bij het opruimen vonden ze verband en scharen.","Na het vertrek van de Duitse soldaten vond de familie bij het opruimen verband en scharen."]
+  ],
+  opdracht:"Gebruik beide details. Leg je maatje uit wat de plek of het moment te maken had met wat ieder meemaakte.",
+  uitleg:"Hun plek en het moment bepaalden wat ze konden zien, horen of vinden."
 };
 const spel = document.querySelector("#spel");
 document.querySelector("#onderzoeksvraag").textContent = perspectieven.onderzoeksvraag;
@@ -645,17 +652,20 @@ function openGesprek(aanwijzingGevonden = false){
     return acties;
   };
   const legVerhalenNaastElkaar = () => {
-    toonAntwoord(
-      perspectieven.getuigenissen,
-      [["Naar de opdracht",() => toonAntwoord(
-        perspectieven.onderzoeksvraag+"\n\n"+perspectieven.opdracht,
-        [
-          ["Ik heb mijn uitleg gegeven",() => toonAntwoord(perspectieven.voorbeeld,einde,{stem:scene.stem,typen:true})],
-          ["Lees beide uitspraken opnieuw",legVerhalenNaastElkaar]
-        ]
-      )]],
-      {stem:scene.stem,typen:true}
-    );
+    const vergelijkDetails = (school,cafe) => {
+      const vraag = [perspectieven.onderzoeksvraag,school[0],cafe[0],perspectieven.opdracht].join("\n");
+      const voorbeeld = [school[1],cafe[1],perspectieven.uitleg].join(" ");
+      toonAntwoord(vraag,[
+        ["Ik heb mijn uitleg gegeven",() => toonAntwoord(voorbeeld,einde,{stem:scene.stem,typen:true})],
+        ["Kies andere details",legVerhalenNaastElkaar]
+      ]);
+    };
+    const kiesCafedetail = school => {
+      toonAntwoord("Welk detail uit het caféverhaal helpt je bij je uitleg?",
+        perspectieven.cafe.map(cafe => [cafe[0],() => vergelijkDetails(school,cafe)]));
+    };
+    toonAntwoord("Wat zag de schoolmeester? Kies één detail voor je uitleg.",
+      perspectieven.school.map(school => [school[0],() => kiesCafedetail(school)]));
   };
   const stelRedeneervraag = ({vraag,opties:antwoorden},naAntwoord) => {
     wachtOpAntwoord = true;
