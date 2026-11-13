@@ -59,6 +59,7 @@ kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 .person-figure{display:grid;place-items:center;align-content:center;width:100%;margin:0}
 .person-figure picture{display:block;width:100%;height:100%}
 .person-figure img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 16%;background:#0e1c18}
+.person-figure .portrait-detail img{transform:scale(1.85);transform-origin:var(--portrait-focus)}
 .person-figure .missing-portrait{width:100%;height:100%;display:grid;place-items:center;padding:8px;text-align:center;color:var(--gold)}
 .person-figure figcaption{padding:8px 12px;max-width:68ch;font-size:12px;line-height:1.35;color:#dfd1b3;text-align:center}
 .person-name{position:absolute;z-index:1;top:10px;left:10px;max-width:calc(100% - 20px);margin:0;padding:8px 10px;background:#071b16ee;border:1px solid var(--line);border-radius:8px;font:600 clamp(16px,2.5vw,27px)/1.15 Georgia,serif}
@@ -107,11 +108,17 @@ const {SCENES,PEOPLE,TOPICS,NAV_NODES}=DATA;
 Object.assign(SCENES,{
  'cafe-cleanup':{
   title:'Café Van Hoven — de opruiming',image:'assets/sc-cafe-cleanup.webp',
-  hotspots:[{type:'inspect',content:'cafe_cleanup',label:'Bekijk het achtergebleven verband',marker_x:70,marker_y:62}]
+  hotspots:[
+   {type:'talk',content:'liza',label:'Praat met Liza van Hoven',x:49,y:20,w:19,h:56,marker_x:60,marker_y:35},
+   {type:'inspect',content:'cafe_cleanup',label:'Bekijk het achtergebleven verband',marker_x:70,marker_y:62}
+  ]
  },
  'warnier-night':{
   title:'Bij de familie Warnier — een Amerikaanse logé',image:'assets/sc-warnier-night.webp',
-  hotspots:[{type:'inspect',content:'warnier_night',label:'Ontdek wie hier bleef slapen',marker_x:65,marker_y:55}]
+  hotspots:[
+   {type:'talk',content:'guest',label:'Praat met de Amerikaanse logé',x:52,y:37,w:27,h:30,marker_x:60,marker_y:46},
+   {type:'inspect',content:'warnier_night',label:'Ontdek wie hier bleef slapen',marker_x:41,marker_y:39}
+  ]
  },
  'mescherbrug':{
   title:'De Mescherbrug — Bovenstraat',image:'assets/sc-mescherbrug.webp',
@@ -125,9 +132,43 @@ NAV_NODES.push(
 );
 SCENES['german-detail'].hotspots.push({type:'talk',content:'german',label:'Praat met de Duitse soldaat',marker_x:52,marker_y:69});
 SCENES.u04.hotspots.push({type:'talk',content:'warnier',label:'Praat met schoolhoofd Jef Warnier',marker_x:60,marker_y:52});
+const witnessBook='https://bel-memorial.org/documents/De_bevrijding_van_Eijsden-Margraten_in_september_1944.pdf';
+const lizaInterview='https://www.digibron.nl/viewer/collectie/Digibron/id/tag%3ARD.nl%2C19950425%3Anewsml_7fa40b4b19fec09ae91f4d9976e578de';
+Object.assign(PEOPLE,{
+ liza:{
+  name:'Liza van Hoven',
+  intro:'Ik ben Liza van Hoven. Mijn familie woonde bij het café. Kijk eens naar de tafel en de emmer.',
+  role:'Historische persoon · gespeeld gesprek',
+  source:'Interview met Liza van Hoven, Reformatorisch Dagblad (1995); De bevrijding van Eijsden-Margraten, p. 84.',
+  sourceUrl:lizaInterview,
+  qa:[
+   ['Waar waren jullie tijdens het schieten?','We zochten beschutting in de kelder. Toen de Duitse militairen weg waren, konden we weer naar boven.'],
+   ['Waarom lag er verband in het café?','Duitse militairen hadden het café als noodhospitaal gebruikt. Toen we boven kwamen, lag er verband dat we moesten opruimen. In het verslag worden ook scharen genoemd.'],
+   ['Wie waarschuwde jullie?','In mijn interview vertelde ik dat een Duitse militair ons had gewaarschuwd. Ik herinnerde me dat ik blij was met die waarschuwing.'],
+   ['Hoe weet je hoe de kamer eruitzag?','Ik heb verteld over het opruimen. De schilder koos zelf hoe de kamer, meubels en mensen eruitzien. Het achtergebleven verband kennen we uit de verhalen.']
+  ]
+ },
+ guest:{
+  name:'Amerikaanse logé',
+  intro:'Kijk naar het bed, de helm en het kaarslicht. Waarom denk je dat er een soldaat in dit huis ligt?',
+  role:'Gespeelde rol · gebaseerd op het verslag van Warnier',
+  source:'De bevrijding van Eijsden-Margraten, p. 85.',
+  sourceUrl:witnessBook,
+  qa:[
+   ['Waarom sliep je hier?','Meester Warnier vertelde dat er een Amerikaanse soldaat achterbleef en in een bed van zijn familie sliep. Ik speel die gast.'],
+   ['Waar sliep het gezin Warnier?','Volgens Warnier ging zijn gezin terug naar de kelder. De Amerikaanse gast kreeg een bed in huis.'],
+   ['Waarom zie ik een kaars en een helm?','Warnier vertelde dat ze bij kaarslicht praatten. De schilder koos waar de kaars en de helm op dit beeld staan.'],
+   ['Wat gebeurde er bij je vertrek?','Volgens Warnier vertrok de soldaat om zijn kameraden te volgen. Warnier herinnerde zich dat de gast bij het afscheid bedrukt leek.']
+  ]
+ }
+});
 PEOPLE.warnier.qa.push(
  ['Wie bleef er bij u slapen?','Volgens Warnier bleef een Amerikaanse soldaat bij het gezin slapen. De soldaat kreeg een bed. De familie ging zelf weer naar de kelder.'],
- ['Wat ruilde u met een Amerikaanse soldaat?','Warnier schreef dat hij een flesje inkt ruilde voor een pakje Amerikaanse sigaretten. Het pakje en zijn notitie zijn later afgebeeld in het boek over de bevrijding.']
+ ['Wat ruilde u met een Amerikaanse soldaat?','Warnier schreef dat hij een flesje inkt ruilde voor een pakje Amerikaanse sigaretten. Het pakje en zijn notitie zijn later afgebeeld in het boek over de bevrijding.'],
+ ['Hoe wees u de Amerikanen de weg?','Warnier vertelde dat een officier hem vroeg de weg door het dorp te wijzen. Hij ging mee in een jeep.']
+);
+PEOPLE.resident.qa.push(
+ ['Wat valt op bij het onthaal?','Kijk hoe dicht de inwoners bij de soldaten staan en hoe ze elkaar begroeten. Vergelijk dat met de afstand tussen de mensen op de overgaveplaat.']
 );
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const relatedPlates={u01:'original-1',u10:'original-2','gg2-w':'original-3',u15:'original-4',u08:'original-5'};
@@ -271,6 +312,8 @@ function paint(){
 }
 // Elk portret is een afzonderlijke kunstweergave, niet de afgebeelde leerling-wereld.
 const PERSON_PORTRAITS={
+ liza:{src:SCENES['cafe-cleanup'].image,focus:'60% 36%',caption:'Uitsnede van de geschilderde reconstructie. Het gezicht is artistiek ingevuld.'},
+ guest:{src:SCENES['warnier-night'].image,focus:'60% 48%',caption:'Uitsnede van de geschilderde reconstructie. Warnier beschreef het verblijf van de soldaat.'},
  resident:{src:'assets/portrait-resident.webp',small:'assets/mobile/portrait-resident.webp',caption:'Geschilderd portret van een samengesteld personage uit Mesch.'},
  american:{src:'assets/sc-american-detail.webp',caption:'Geschilderd detail van een Amerikaanse militair, geen verifieerbaar portret.'},
  german:{src:'assets/sc-german-detail.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
@@ -278,11 +321,13 @@ const PERSON_PORTRAITS={
  warnier:{src:'assets/portrait-warnier.webp',caption:'Artistieke voorstelling van Jef Warnier in 1944, geïnspireerd op een latere archieffoto (EV 2197). Zijn uiterlijk in 1944 is onzeker.',sourceUrl:'https://www.eijsdensverleden.nl/online/wp-content/uploads/2019/08/UEV102-De-Burgemeester-in-oorlogstijd-deel-2-OCR_Optimized.pdf#page=5'}
 };
 const QUESTION_PATTERNS={
- warnier:[/kelder|schuil|angst|bang|schiet|schoot|schot|gevecht|vuur/,/buiten|overgave|overgegeven|ontmoet|wat zag/,/nederland|hele land|andere stad|alle mensen|iedereen vrij/,/sliep|slapen|nacht|loge|overnacht/,/ruil|inkt|sigaret/],
+ liza:[/kelder|schuil|schieten|schoten/,/verband|scharen|noodhospitaal|lazaret|gewonden|opruim/,/waarschuw/,/kamer|meubel|schilder|foto|eruitzag/],
+ guest:[/waarom.*(?:hier|sliep|slapen|logeerde)|onderdak|een bed kreeg/,/gezin|familie.*(?:sliep|slapen)|kelder/,/kaars|helm|licht/,/vertrek|vertrok|afscheid|kameraden/],
+ warnier:[/kelder|schuil|angst|bang|schiet|schoot|schot|gevecht|vuur/,/buiten|overgave|overgegeven|ontmoet|wat zag/,/nederland|hele land|andere stad|alle mensen|iedereen vrij/,/sliep|slapen|nacht|loge|overnacht/,/ruil|inkt|sigaret/,/weg (?:te )?(?:wijs|wijz)|jeep|officier/],
  american:[/waarvandaan|waar vandaan|belgie|belgisch|grens|gekomen|vandaan/,/voorzichtig|gevaar|schiet|geschot|duits|waarom alert/,/hoffman|sneuvel|overled|gedood|dood|slachtoffer|gesneuveld/],
  german:[/handen|overgave|geef|overgeven|waarom omhoog/,/krijgsgevang|gevangen|gepakt|na overgave/,/dacht|voelde|bang|angst|gevoel|gedachten/],
  medic:[/verband|medisch|gewond|hulppost|lazaret|hospitaal|verzorgen/,/veilig|gevaar|schiet|gevecht|angst/,/alle|wie|welke|duits|amerik|gewonden/],
- resident:[/waarom|kelder|schuil|veilig|bang|angst|schiet|gevaar/,/amerikan|wisten|komen|hoorden|verwacht|bevrijder/,/later|daarna|buiten|afloop|na de bevrijding/]
+ resident:[/kelder|schuil|veilig|bang|angst|schiet|gevaar/,/wisten|verwacht|hoopte|bevrijder.*kwam/,/later|daarna|buiten|afloop|na de bevrijding/,/onthaal|begroet|handdruk|vlag/]
 };
 const normalizeQuestion=value=>String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 function findGroundedAnswer(id,input){
@@ -327,11 +372,17 @@ $('toggleChat').onclick=()=>{
  showChat(open);
  if(open)$('chatHeading').focus();
 };
+const conversations=new Map();
 function talk(id){
  const person=PEOPLE[id];if(!person)return;
  const pic=PERSON_PORTRAITS[id]||{src:null,caption:'Geen betrouwbaar portret beschikbaar.'};
- const portrait=pic.src?`<picture>${pic.small?`<source media="(max-width: 680px)" srcset="${esc(pic.small)}">`:''}<img src="${esc(pic.src)}" alt="Geschilderd persoonsbeeld"></picture>`:'<div class="missing-portrait">Portret niet beschikbaar</div>';
+ const portrait=pic.src?`<picture${pic.focus?` class="portrait-detail" style="--portrait-focus:${esc(pic.focus)}"`:''}>${pic.small?`<source media="(max-width: 680px)" srcset="${esc(pic.small)}">`:''}<img src="${esc(pic.src)}" alt="Geschilderd persoonsbeeld"></picture>`:'<div class="missing-portrait">Portret niet beschikbaar</div>';
  const photoLink=pic.sourceUrl?` <a class="portrait-source" href="${esc(pic.sourceUrl)}" target="_blank" rel="noopener">Bekijk archieffoto</a>`:'';
+ const key=current+':'+id;
+ if(!conversations.has(key))conversations.set(key,[]);
+ const turns=conversations.get(key);
+ const source=esc(person.source||'Historische context');
+ const sourceLink=person.sourceUrl?`<a href="${esc(person.sourceUrl)}" target="_blank" rel="noopener">${source}</a>`:source;
  conversationTrigger=document.activeElement;
  $('personContent').innerHTML=`
   <figure class="person-figure"><div class="plate-frame">
@@ -340,7 +391,8 @@ function talk(id){
   </div><figcaption>${esc(pic.caption)}${photoLink}</figcaption></figure>
   <aside id="personChat" class="person-main" aria-labelledby="chatHeading" hidden>
    <h2 id="chatHeading" tabindex="-1">Stel je vraag</h2>
-   <p class="person-status">${esc(person.intro||'Gereconstrueerd gesprek')}</p>
+   <p class="person-status">${esc(person.role||'Gereconstrueerd gesprek')}</p>
+   <p>${esc(person.intro||'')}</p>
    <form id="questionForm">
     <input id="freeQuestion" type="text" maxlength="180" autocomplete="off" placeholder="Typ je vraag" aria-label="Stel zelf een historische vraag">
     <button type="submit" id="askButton">Vraag</button>
@@ -348,7 +400,7 @@ function talk(id){
    <div id="chatHistory" role="log" aria-live="polite" aria-label="Gesprek"></div>
    <h2>Voorbeeldvragen</h2>
    <div id="q"></div>
-   <details><summary>Bron van dit gesprek</summary><p>De antwoorden komen uit vooraf geschreven gespreksteksten. Bron: ${esc(person.source||'Historische context')}.</p></details>
+   <details><summary>Bron van dit gesprek</summary><p>De antwoorden komen uit vooraf geschreven gespreksteksten. Bron: ${sourceLink}</p></details>
   </aside>`;
  $('walk').hidden=true;
  $('walkTools').hidden=true;
@@ -371,11 +423,16 @@ function talk(id){
   const span=document.createElement('span');span.textContent=txt;div.appendChild(span);
   history.appendChild(div);history.scrollTop=history.scrollHeight;
  }
- function reply(question,answer){
-  appendTurn('question',question,'Vraag van de leerling');
-  if(answer){appendTurn('answer',answer,'Historische uitleg · bestaande gesprekstekst')}
-  else{appendTurn('answer','Dat kan ik op basis van de beschikbare gespreksteksten nog niet betrouwbaar beantwoorden. Kies hieronder een onderzoeksvraag, of probeer een vraag over wat deze persoon heeft meegemaakt. Vraag bijvoorbeeld naar een persoon, een plek of een voorwerp op de plaat.','Geen betrouwbaar antwoord beschikbaar')}
+ function showTurn({question,answer}){
+  appendTurn('question',question,'Jij');
+  appendTurn('answer',answer||'Daar weet ik geen zeker antwoord op. Kies een voorbeeldvraag of vraag iets over wat je op de plaat ziet.',answer?person.name:'Geen antwoord beschikbaar');
  }
+ function reply(question,answer){
+  const turn={question,answer};
+  turns.push(turn);
+  showTurn(turn);
+ }
+ turns.forEach(showTurn);
  $('questionForm').addEventListener('submit',e=>{
   e.preventDefault();const inp=$('freeQuestion'),v=inp.value.trim();
   if(!v)return;
