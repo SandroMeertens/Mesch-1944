@@ -2,7 +2,8 @@
 
 ## Huidige website
 
-De wandeling toont zeven portretten met voorbeeldvragen, eigen vragen en vervolgvragen. De ingebouwde chat gebruikt vooraf geschreven antwoorden. De optionele AI-koppeling en de stappen voor activering staan onder [Actuele implementatie](#actuele-implementatie).
+De wandeling toont zeven portretten met voorbeeldvragen, eigen vragen en vervolgvragen. De chat draait in de browser, met vooraf geschreven antwoorden en herkenning van verschillende vraagformuleringen. Vragen worden niet doorgestuurd en er is geen betaalde AI-aanroep.
+
 
 ## Ontwerp voor een echte chatbot – pas na broncontrole
 
@@ -57,17 +58,6 @@ Waarden voor `certainty`: `historisch_onderbouwd`, `aannemelijke_reconstructie`,
 - Beoordeel toestemming, privacyverklaring en verwerking door derden vóór gebruik met kinderen; laat school/verantwoordelijke partij dit accorderen.
 - Voer tests uit met docenten en leerlingen en richt een correctieproces in bij historische fouten.
 
-## Actuele implementatie
+## Optionele AI-server
 
-De wandeling heeft zeven personages. De portretchat bevat vooraf geschreven antwoorden, voorbeeldvragen en vervolgvragen. Eigen vragen kunnen via een aparte Cloudflare Worker naar OpenAI. GitHub Pages toont de vooraf geschreven antwoorden zolang de URL in `ai-chat/config.js` leeg is.
-
-### AI activeren
-
-1. Open de map `ai-chat` in een terminal met een Cloudflare-account. Voer `npx wrangler deploy` uit en kopieer de HTTPS-URL van de Worker.
-2. Stel de projectsleutel server-side in met `npx wrangler secret put OPENAI_API_KEY`. Gebruik een aparte API-projectsleutel en beheer budget en gebruik in dat project.
-3. Vul in `ai-chat/config.js` de Worker-URL in met `/api/historisch-gesprek` erachter. Publiceer deze wijziging op GitHub Pages en probeer een eigen vraag bij bijvoorbeeld de Amerikaanse infanterist.
-4. Controleer dat het antwoord de aanduiding **AI-gids** en passende bronlinks toont. Bij een storing blijft de lokale chat beschikbaar.
-
-De Worker ontvangt de gekozen rol, de huidige vraag en maximaal één vorige vraag. Hij gebruikt de bronpassages in `ai-chat/sources.mjs`, begrenst het aantal verzoeken en blokkeert herkenbare persoonsgegevens voordat het verzoek naar OpenAI gaat. Er is geen opslag van leerlingvragen in de app en de API-aanroep zet `store: false`. De verwerking door de API-provider valt onder diens instellingen en voorwaarden. De browser toont een melding om geen persoonlijke gegevens te typen wanneer de AI-koppeling actief is.
-
-De gids gebruikt vier bronverwijzingen. Een antwoord op een onderwerp buiten die bronnen kan als onbekend terugkomen. De koppeling is technisch voorbereid. Controleer na activering voorbeelden per rol met de echte API vóór gebruik in de klas.
+De map `ai-chat` bevat een eerder voorbereid prototype voor een servergestuurde gids. De leerlingpagina gebruikt deze server niet. Eventuele activering is een aparte wijziging aan de website en vereist een server met een projectsleutel. Controleer daarbij opnieuw de modelbeschikbaarheid, kosten en bronkwaliteit.
