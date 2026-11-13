@@ -49,6 +49,12 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .route b{font-size:1em;line-height:1;font-weight:500;color:var(--muted)}
 #praat{position:absolute;right:3%;bottom:4%;font-size:clamp(12px,2.4cqh,16px)}
 #praat span{font-size:.9em;color:var(--muted)}
+#spel:has(#intro:not([hidden])) header>div:first-child{visibility:hidden}
+#intro{position:absolute;inset:auto 0 0;padding:clamp(20px,5cqh,52px) clamp(16px,5cqw,70px) max(clamp(16px,5cqh,52px),env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#151711e8 42%,#151711)}
+#intro h2{font:700 clamp(26px,6.5cqh,54px)/1.06 Georgia,serif;text-shadow:0 2px 10px #111}
+#intro p{max-width:42ch;margin-top:8px;font-size:clamp(14px,2.8cqh,21px);color:var(--muted)}
+#verken{margin-top:clamp(10px,2.4cqh,24px);padding-inline:18px;background:#efdb9d;color:#242318}
+#verken:hover{background:#fff0bc}
 #cafe-aanwijzing{position:absolute;inset:0;pointer-events:none}
 #cafe-aanwijzing button{pointer-events:auto}
 #doeken{position:absolute;left:var(--doeken-x);top:var(--doeken-y);transform:translate(-50%,-50%);display:grid;place-items:center;width:clamp(60px,12cqw,120px);height:clamp(44px,8cqh,70px);padding:0;background:none;border:0;border-radius:50%}
@@ -118,6 +124,11 @@ main{padding:0}
 </header>
 <nav id="routes" aria-label="Loop door Mesch"></nav>
 <button class="knop" id="praat" type="button" hidden><span aria-hidden="true">◇</span><strong></strong></button>
+<section id="intro" aria-labelledby="intro-titel" hidden>
+<h2 id="intro-titel">Mesch – De bevrijding</h2>
+<p>De eerste soldaten komen het dorp binnen. De bewoners kijken toe. Wat merken zij van de bevrijding?</p>
+<button class="knop" id="verken" type="button" disabled>Verken Mesch</button>
+</section>
 <div id="cafe-aanwijzing" hidden>
 <button id="doeken" type="button" aria-label="Bekijk de doeken op tafel"></button>
 <div class="kijkuitleg">
@@ -366,6 +377,8 @@ const plaat = document.querySelector("#plaat");
 const plek = document.querySelector("#plek");
 const routes = document.querySelector("#routes");
 const praat = document.querySelector("#praat");
+const intro = document.querySelector("#intro");
+const verken = document.querySelector("#verken");
 const cafeAanwijzing = document.querySelector("#cafe-aanwijzing");
 const doeken = document.querySelector("#doeken");
 const kijktekst = document.querySelector("#kijktekst");
@@ -435,8 +448,8 @@ function toonCafeAanwijzing(open){
   cafeHint.hidden = false;
   if (open) kijktekst.textContent = "Kijk eens rond. Zie je de opgerolde doeken op de grote tafel? Tik erop.";
   cafeAanwijzing.hidden = !open;
-  praat.hidden = open || !scene.stem;
-  routes.hidden = open;
+  praat.hidden = open || !intro.hidden || !scene.stem;
+  routes.hidden = open || !intro.hidden;
   plaat.style.setProperty("--uitsnede",scene.focus + "%");
   plaatsBediening();
 }
@@ -479,6 +492,7 @@ async function toonPlek(index,focusRoute = false){
   }
   toonCafeAanwijzing(false);
   praat.disabled = false;
+  verken.disabled = false;
   if (nieuw.stem){
     praat.querySelector("strong").textContent = "Praat met " + gesprekken[nieuw.stem].knop;
     laadBeeld(nieuw.portret);
@@ -504,9 +518,17 @@ const directeTekst = new Set();
 const afgerondeGesprekken = new Set();
 const antwoordSleutel = "mesch-verhaalkeuze-v1";
 const afgerondSleutel = "mesch-school-cafe-v1";
+const introSleutel = "mesch-intro-gezien-v1";
 const vergelijkbareGesprekken = ["meester","cafeBinnen"];
 let typTimer;
 let wachtOpAntwoord = false;
+
+intro.hidden = false;
+try{
+  intro.hidden = window.sessionStorage.getItem(introSleutel) === "1";
+} catch {
+  // The intro still works when browser storage is unavailable.
+}
 
 try{
   const bewaard = JSON.parse(window.sessionStorage.getItem(antwoordSleutel));
@@ -583,7 +605,7 @@ function startCafeAanwijzing(){
   kijktekst.focus({preventScroll:true});
 }
 function openGesprek(aanwijzingGevonden = false){
-  if (praat.disabled || !gesprek.hidden) return;
+  if (!intro.hidden || praat.disabled || !gesprek.hidden) return;
   const scene = plekken[plaats];
   if (!scene.stem) return;
   if (scene.doeken && !aanwijzingGevonden && !gekozenAntwoorden.has(scene.stem)){
@@ -704,6 +726,20 @@ function stopCafeAanwijzing(){
   praat.focus({preventScroll:true});
 }
 praat.addEventListener("click",() => openGesprek());
+function sluitIntro(){
+  intro.hidden = true;
+  try{
+    window.sessionStorage.setItem(introSleutel,"1");
+  } catch {
+    // The learner can continue even without browser storage.
+  }
+}
+verken.addEventListener("click",() => {
+  if (intro.hidden || verken.disabled) return;
+  sluitIntro();
+  toonCafeAanwijzing(false);
+  plek.focus({preventScroll:true});
+});
 cafeHint.addEventListener("click",() => {
   doeken.setAttribute("data-hint","");
   cafeHint.hidden = true;
@@ -732,6 +768,7 @@ nieuweRonde.addEventListener("click",() => {
 startRonde.addEventListener("click",async () => {
   if (!bevestigRonde.open || !gesprek.hidden) return;
   bevestigRonde.close();
+  if (!intro.hidden) sluitIntro();
   gekozenAntwoorden.clear();
   afgerondeGesprekken.clear();
   directeTekst.clear();
@@ -762,7 +799,7 @@ document.addEventListener("keydown",event => {
     }
     return;
   }
-  if (over.open || bevestigRonde.open || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
+  if (!intro.hidden || over.open || bevestigRonde.open || event.altKey || event.ctrlKey || event.metaKey || event.shiftKey) return;
   if (!cafeAanwijzing.hidden){
     if (event.key === "Escape") stopCafeAanwijzing();
     return;
