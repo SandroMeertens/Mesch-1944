@@ -126,7 +126,7 @@ main{padding:0}
 <button class="knop" id="praat" type="button" hidden><span aria-hidden="true">◇</span><strong></strong></button>
 <section id="intro" aria-labelledby="intro-titel" hidden>
 <h2 id="intro-titel">Mesch – De bevrijding</h2>
-<p>De eerste soldaten komen het dorp binnen. De bewoners kijken toe. Wat merken zij van de bevrijding?</p>
+<p>De eerste soldaten komen het dorp binnen. De bewoners kijken toe. <span id="onderzoeksvraag"></span></p>
 <button class="knop" id="verken" type="button" disabled>Verken Mesch</button>
 </section>
 <div id="cafe-aanwijzing" hidden>
@@ -368,11 +368,13 @@ const gesprekken = {
   }
 };
 const perspectieven = {
-  getuigenissen:"Schoolmeester: ‘Toen het stiller werd, ging ik naar boven.’\nCafémedewerker: ‘Toen er buiten werd geschoten, bleef de familie Van Hoven beneden.’",
-  vraag:"Wie kon de overgave bij de school zien? Leg het uit aan je maatje. Gebruik één detail uit elk gesprek.",
-  voorbeeld:"Warnier ging naar boven en zag de overgave. De familie Van Hoven bleef in de kelder en hoorde schoten. Waar iemand was, bepaalt wat diegene kon zien of horen."
+  onderzoeksvraag:"Wat merken de bewoners van Mesch van de bevrijding?",
+  getuigenissen:"Schoolmeester: ‘Ik zag een Duitse soldaat met zijn handen omhoog.’\nCafémedewerker: ‘Toen er buiten werd geschoten, bleef de familie Van Hoven beneden.’",
+  opdracht:"Vertel je maatje wat de schoolmeester zag en wat de familie in het café meemaakte. Gebruik één detail uit elk gesprek. Leg uit waarom hun ervaringen verschilden.",
+  voorbeeld:"Warnier ging naar boven en zag de overgave. De familie Van Hoven hoorde schoten vanuit de kelder. Door hun plek in het dorp en in het gebouw maakten ze de bevrijding verschillend mee."
 };
 const spel = document.querySelector("#spel");
+document.querySelector("#onderzoeksvraag").textContent = perspectieven.onderzoeksvraag;
 const plaat = document.querySelector("#plaat");
 const plek = document.querySelector("#plek");
 const routes = document.querySelector("#routes");
@@ -646,7 +648,7 @@ function openGesprek(aanwijzingGevonden = false){
     toonAntwoord(
       perspectieven.getuigenissen,
       [["Naar de opdracht",() => toonAntwoord(
-        perspectieven.vraag,
+        perspectieven.onderzoeksvraag+"\n\n"+perspectieven.opdracht,
         [
           ["Ik heb mijn uitleg gegeven",() => toonAntwoord(perspectieven.voorbeeld,einde,{stem:scene.stem,typen:true})],
           ["Lees beide uitspraken opnieuw",legVerhalenNaastElkaar]
