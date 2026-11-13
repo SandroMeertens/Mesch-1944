@@ -478,7 +478,7 @@ function openGesprek(){
     const laatste = deel === delen.length - 1;
     const acties = [...einde];
     if (scene.school && keuze === 1) acties.unshift(["Kijk in de schoolwoning",naarWoning]);
-    if (scene.stem === "inwoner") acties.unshift(["Vergelijk met een klasgenoot",vergelijk]);
+    if (scene.stem === "inwoner") acties.unshift(["Vergelijk met een klasgenoot",() => vergelijk()]);
     const volgende = laatste ? acties : [["Lees verder",() => toonGekozenInfo(keuze,deel + 1)]];
     toonAntwoord(delen[deel],volgende,{stem:scene.stem,typen});
   };
