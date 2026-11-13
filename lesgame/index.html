@@ -33,9 +33,6 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .plaatknop{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent}
 .plaatknop-icoon{display:grid;place-items:center;width:29px;height:29px;border:1px solid #f8efd95c;border-radius:50%;background:#272821b8;color:#fff5dd;font-size:16px;line-height:1;font-weight:600;text-shadow:0 1px 2px #14140f}
 .route[data-heen] .plaatknop-icoon{background:#4c5534e8;border-color:#dce5ad8c;color:#f9ffdf}
-.route[data-ingang]{width:max-content;min-width:44px;height:44px;display:inline-flex;gap:4px;padding:0 7px;border-radius:999px;background:#272d1df2;border:1px solid #dce5ad79;color:#f9ffdf}
-.route[data-ingang] .plaatknop-icoon{width:22px;height:22px;border:0;background:transparent;font-size:15px}
-.route-tekst{padding-right:3px;font-size:clamp(12px,2.3cqh,15px);white-space:nowrap}
 .plaatknop:focus-visible .plaatknop-icoon,.plaatknop:hover .plaatknop-icoon{border-color:#fff5dd}
 .plaatknop-icoon svg{width:14px;height:14px}
 .knop#sluit{
@@ -93,7 +90,6 @@ main{padding:0}
 .beeld{object-fit:cover}
 #plaat{object-position:var(--uitsnede,50%) center}
 #routes{--route-onder:calc(97% - 72px - env(safe-area-inset-bottom))}
-.route[data-ingang]{left:clamp(92px,var(--route-links),calc(100% - 92px))}
 #praat{bottom:calc(3% + env(safe-area-inset-bottom))}
 #portret{object-fit:cover;object-position:var(--portretfocus,21%) 38%}
 #gesprek .schaduw{background:linear-gradient(180deg,transparent 31%,#211f17 57%)}
@@ -222,11 +218,11 @@ const plekken = [
   {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,stem:"inwoner",portret:"portret-06",
     terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
   {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bij de open deur van het café schudt een vrouw de hand van een Amerikaanse soldaat. Een kind kijkt toe.",focus:34,verhouding:1.5,stem:"cafe",portret:"portret-13",portretfocus:35,
-    terug:[87,67,"→","Volg de straat terug"],heen:[28,24,"←","Ga het café in",true]},
+    terug:[87,67,"→","Volg de straat terug"],heen:[28,24,"←","Ga het café in"]},
   {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[78,56],
-    terug:[19,83,"←","Weer naar buiten"],heen:[51,51,"↘","Naar de kelder",true]},
+    terug:[19,83,"←","Weer naar buiten"],heen:[74,42,"↘","Naar de kelder"]},
   {beeld:"kelder",naam:"In de schuilkelder",alt:"Een familie schuilt in een gemetselde kelder. Rechts leidt een trap naar de deur.",focus:52,stem:"kelder",portret:"kelder",portretfocus:45,
-    terug:[83,36,"↗","Terug naar het café",true]},
+    terug:[83,36,"↗","Terug naar het café"]},
   {beeld:"04",naam:"In de schoolwoning",alt:"Een Amerikaanse soldaat slaapt in een bed. Op het tafeltje brandt een kaars.",focus:43,
     terug:[18,65,"↖"]}
 ];
@@ -569,7 +565,7 @@ function laadBeeld(id){
   }
   return cache.get(id);
 }
-function maakRoute({doel,positie:[,,pijl,label,zichtbaarLabel],heen}){
+function maakRoute({doel,positie:[,,pijl,label],heen}){
   const knop = document.createElement("button");
   knop.type = "button";
   knop.className = "plaatknop route";
@@ -579,14 +575,6 @@ function maakRoute({doel,positie:[,,pijl,label,zichtbaarLabel],heen}){
   icoon.setAttribute("aria-hidden","true");
   icoon.textContent = pijl;
   knop.append(icoon);
-  if (zichtbaarLabel){
-    knop.setAttribute("data-ingang","");
-    const tekst = document.createElement("span");
-    tekst.className = "route-tekst";
-    tekst.setAttribute("aria-hidden","true");
-    tekst.textContent = label;
-    knop.append(tekst);
-  }
   knop.setAttribute("aria-label",label);
   knop.title = label;
   knop.addEventListener("click",() => toonPlek(doel,true));
