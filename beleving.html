@@ -12,7 +12,7 @@ header{height:56px;display:flex;align-items:center;justify-content:space-between
 main{min-height:calc(100dvh - 56px);position:relative;display:flex;flex-direction:column}
 #scene{flex:1;position:relative;display:grid;place-items:center;min-height:350px;isolation:isolate;overflow:hidden;background:#10231d}
 #backdrop{position:absolute;inset:-16px;width:calc(100% + 32px);height:calc(100% + 32px);object-fit:cover;filter:blur(12px) brightness(.3);opacity:.58;pointer-events:none}
-#frame{position:relative;width:min(100vw,calc((100dvh - 57px)*1.5));aspect-ratio:3/2;max-height:calc(100dvh - 60px);box-shadow:0 16px 80px #0008;background:#0e1c18;overflow:hidden}
+.plate-frame{position:relative;width:min(100vw,calc((100dvh - 57px)*1.5));aspect-ratio:3/2;max-height:calc(100dvh - 60px);box-shadow:0 16px 80px #0008;background:#0e1c18;overflow:hidden}
 #art{width:100%;height:100%;object-fit:contain;display:block;user-select:none}
 #points{position:absolute;inset:0;pointer-events:none}
 .hot{position:absolute;z-index:3;pointer-events:auto;transform:translate(-50%,-50%);border:1px solid #fff7d39c;background:#17362bdc;color:#fff0d2;border-radius:24px;min-width:44px;min-height:44px;display:flex;align-items:center;justify-content:center;gap:5px;padding:6px 9px;box-shadow:0 4px 14px #0009}
@@ -44,23 +44,25 @@ main{min-height:calc(100dvh - 56px);position:relative;display:flex;flex-directio
 .chip[aria-selected=true]{background:#e5c18b;color:#19352c}
 kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 @media (max-width:700px){header{height:51px}.brand{font-size:17px}.topbuttons{gap:4px}.topbuttons button{font-size:11px;padding:7px 8px}
-#scene{min-height:calc(100dvh - 51px)}#frame{width:100%;max-height:none}
+#scene{min-height:calc(100dvh - 51px)}.plate-frame{width:100%;max-height:none}
 #status{top:8px;left:8px;max-width:90%;padding:7px 10px}#status strong{font-size:16px}#status span{font-size:9px}
 .hot{min-width:42px;min-height:42px;padding:6px}.hot b{font-size:20px}
 #footer{bottom:0;padding:9px 10px}#footer small{font-size:10px}
 #sheet{padding:15px}#sheet h2{font-size:23px}#atlasgrid{grid-template-columns:1fr}}
 
 #walk{display:flex;flex:1;flex-direction:column}
-#walk[hidden],#conversation[hidden],.topbuttons[hidden]{display:none}
-#conversation{width:min(100%,1200px);margin-inline:auto;padding:clamp(10px,2.7vw,30px)}
-#returnToWalk{min-height:44px;border:1px solid var(--line);border-radius:8px;background:#2c4439;color:var(--ink);padding:8px 12px;margin-bottom:12px}
-.person-layout{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,3fr);gap:clamp(10px,3vw,30px);align-items:start}
-.person-figure{position:sticky;top:12px;margin:0;overflow:hidden;border-radius:12px;background:#26382d;border:1px solid #dcc39765}
-.person-figure img{display:block;width:100%;height:auto;max-height:calc(100dvh - 170px);object-fit:contain;background:#0e1c18}
-.person-figure .missing-portrait{aspect-ratio:3/4;display:grid;place-items:center;padding:8px;text-align:center;background:#26382d;color:var(--gold);overflow-wrap:anywhere}
-.person-figure figcaption{padding:8px;font-size:clamp(10px,1.25vw,13px);line-height:1.35;color:#dfd1b3;overflow-wrap:anywhere}
-.person-main{min-width:0}
-.person-main h1{font:600 clamp(20px,3vw,38px)/1.12 Georgia,serif;margin:0 0 7px;overflow-wrap:anywhere}
+#walk[hidden],#conversation[hidden],.topbuttons[hidden],.person-main[hidden]{display:none}
+#conversation{flex:1;position:relative;display:grid;align-items:stretch;background:#10231d}
+.person-layout{position:relative;display:grid;place-items:center;min-height:350px}
+.person-figure{display:grid;place-items:center;align-content:center;width:100%;margin:0}
+.person-figure picture{display:block;width:100%;height:100%}
+.person-figure img{display:block;width:100%;height:100%;object-fit:cover;object-position:center 16%;background:#0e1c18}
+.person-figure .missing-portrait{width:100%;height:100%;display:grid;place-items:center;padding:8px;text-align:center;color:var(--gold)}
+.person-figure figcaption{padding:8px 12px;max-width:68ch;font-size:12px;line-height:1.35;color:#dfd1b3;text-align:center}
+.person-name{position:absolute;z-index:1;top:10px;left:10px;max-width:calc(100% - 20px);margin:0;padding:8px 10px;background:#071b16ee;border:1px solid var(--line);border-radius:8px;font:600 clamp(16px,2.5vw,27px)/1.15 Georgia,serif}
+.portrait-source{display:inline-block;color:var(--gold);margin-top:5px}
+.person-main{position:absolute;z-index:2;right:0;top:0;bottom:0;width:min(290px,calc(100vw - 18px));padding:16px;overflow:auto;background:#192b26;border-left:1px solid var(--line);box-shadow:-8px 0 25px #0006}
+.person-main h2:first-child{margin-top:0}
 .person-main h2{font:600 clamp(16px,2vw,23px) Georgia,serif;margin:15px 0 6px}
 .person-status{color:#bccdc2;font-size:12px;margin:0 0 10px}
 .person-main details{margin-top:16px;font-size:13px;color:#cfdecf}
@@ -75,13 +77,19 @@ kbd{font:inherit;padding:2px 5px;background:#344a3e;border-radius:3px}
 .chat-turn.answer{background:#102922;border-left:3px solid #eac88f;margin-right:4%}
 .chat-turn small{display:block;opacity:.75;margin-bottom:3px}
 .person-main .answer{min-height:44px;font-size:13px;padding:9px 11px;margin:6px 0}
-@media(max-width:600px){.person-layout{grid-template-columns:minmax(0,35fr) minmax(0,65fr)}#freeQuestion{font-size:16px;flex-basis:100%}#askButton{width:100%}}
+@media(min-width:calc(150dvh + 220px)){
+ .person-layout:has(.person-main:not([hidden])){padding-right:290px}
+}
+@media(max-width:700px){
+ #conversation{min-height:calc(100dvh - 51px)}
+ #returnToWalk,#toggleChat{min-height:40px}
+ #freeQuestion{font-size:16px}
+}
 </style></head><body>
-<header><div class="brand">MESCH <span>1944</span></div><div class="topbuttons" id="walkTools"><button id="guide" title="Bediening">?</button><button id="overview">Plekken</button><button id="sources">Bronnen</button></div></header>
+<header><div class="brand">MESCH <span>1944</span></div><div class="topbuttons" id="walkTools"><button id="guide" title="Bediening">?</button><button id="overview">Plekken</button><button id="sources">Bronnen</button></div><div class="topbuttons" id="conversationTools" hidden><button id="returnToWalk" type="button" aria-label="Terug naar de wandeling">← Wandeling</button><button id="toggleChat" type="button" aria-controls="personChat" aria-expanded="false">Open chat</button></div></header>
 <main>
- <section id="walk"><section id="scene"><img id="backdrop" alt="" aria-hidden="true" fetchpriority="low" decoding="async"><div id="frame"><img id="art" alt="Historische, geschilderde reconstructie van Mesch" draggable="false" fetchpriority="high"><div id="points"></div></div><div id="status" aria-live="polite"><span id="phase"></span><strong id="sceneName" tabindex="-1"></strong></div><div id="footer"><small>Historisch geïnformeerde reconstructie · geen archieffoto</small><div class="footer-actions"><button id="routes" aria-haspopup="dialog" hidden>Andere routes</button><button id="hints">Toon klikplekken</button></div></div></section></section>
+ <section id="walk"><section id="scene"><img id="backdrop" alt="" aria-hidden="true" fetchpriority="low" decoding="async"><div id="frame" class="plate-frame"><img id="art" alt="Historische, geschilderde reconstructie van Mesch" draggable="false" fetchpriority="high"><div id="points"></div></div><div id="status" aria-live="polite"><span id="phase"></span><strong id="sceneName" tabindex="-1"></strong></div><div id="footer"><small>Historisch geïnformeerde reconstructie · geen archieffoto</small><div class="footer-actions"><button id="routes" aria-haspopup="dialog" hidden>Andere routes</button><button id="hints">Toon klikplekken</button></div></div></section></section>
  <section id="conversation" aria-labelledby="personName" hidden>
-  <button id="returnToWalk" type="button">← Terug naar de wandeling</button>
   <div id="personContent" class="person-layout"></div>
  </section>
 </main>
@@ -109,6 +117,11 @@ NAV_NODES.push(
  ['mescherbrug','Mescherbrug, Bovenstraat','Tijdstip niet vastgelegd']
 );
 SCENES['german-detail'].hotspots.push({type:'talk',content:'german',label:'Praat met de Duitse soldaat',marker_x:52,marker_y:69});
+SCENES.u04.hotspots.push({type:'talk',content:'warnier',label:'Praat met schoolhoofd Jef Warnier',marker_x:60,marker_y:52});
+PEOPLE.warnier.qa.push(
+ ['Wie bleef er bij u slapen?','Volgens Warnier bleef een Amerikaanse soldaat bij het gezin slapen. De soldaat kreeg een bed. De familie ging zelf weer naar de kelder.'],
+ ['Wat ruilde u met een Amerikaanse soldaat?','Warnier schreef dat hij een flesje inkt ruilde voor een pakje Amerikaanse sigaretten. Het pakje en zijn notitie zijn later afgebeeld in het boek over de bevrijding.']
+);
 const $=id=>document.getElementById(id), esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const relatedPlates={u01:'original-1',u10:'original-2','gg2-w':'original-3',u15:'original-4',u08:'original-5'};
 const phaseOf={u01:'Ochtend · 12 september 1944',u14:'Ochtend · 12 september 1944',u06:'Tijdens de gevechten',u10:'Tijdens de gevechten',u11:'Tijdens de gevechten',u12:'Tijdens de gevechten','gg3-w':'Eerste contact · tijdstip in onderzoek','gg2-w':'Eerste contact · tijdstip in onderzoek','german-detail':'Eerste contact · tijdstip in onderzoek',u15:'Later op 12 september 1944'};
@@ -195,7 +208,11 @@ function closePanel(){$('panel').classList.remove('open');$('content').innerHTML
 $('close').onclick=closePanel;$('panel').addEventListener('click',e=>{if(e.target===$('panel'))closePanel()});
 document.addEventListener('keydown',e=>{
  if(e.key!=='Escape')return;
- if(!$('conversation').hidden){returnToWalk();return}
+ if(!$('conversation').hidden){
+  if(!$('personChat').hidden){showChat(false);$('toggleChat').focus()}
+  else returnToWalk();
+  return;
+ }
  if($('panel').classList.contains('open'))closePanel();
 });
 function go(dest){
@@ -228,22 +245,25 @@ function paint(){
 }
 // Elk portret is een afzonderlijke kunstweergave, niet de afgebeelde leerling-wereld.
 const PERSON_PORTRAITS={
- resident:{src:'assets/portrait-resident.webp',caption:'Artistiek portret van een samengestelde dorpsbewoner. Geen historisch geïdentificeerde persoon.'},
+ resident:{src:'assets/portrait-resident.webp',small:'assets/mobile/portrait-resident.webp',caption:'Geschilderd portret van een samengesteld personage uit Mesch.'},
  american:{src:'assets/sc-american-detail.webp',caption:'Geschilderd detail van een Amerikaanse militair, geen verifieerbaar portret.'},
  german:{src:'assets/sc-german-detail.webp',caption:'Geschilderde Duitse soldaat. De identiteit en uiterlijke gelijkenis zijn niet vastgesteld.'},
  medic:{src:'assets/sc-medic-detail.webp',caption:'Geschilderd detail van een samengestelde hulpverlener in het tijdelijke lazaret.'},
- warnier:{src:null,caption:'Geen geverifieerd historisch portret van Jef Warnier beschikbaar; daarom tonen we geen verzonnen gezicht als echt.'}
+ warnier:{src:'assets/portrait-warnier.webp',caption:'Artistieke voorstelling van Jef Warnier in 1944, geïnspireerd op een latere archieffoto (EV 2197). Zijn uiterlijk in 1944 is onzeker.',sourceUrl:'https://www.eijsdensverleden.nl/online/wp-content/uploads/2019/08/UEV102-De-Burgemeester-in-oorlogstijd-deel-2-OCR_Optimized.pdf#page=5'}
 };
 const QUESTION_PATTERNS={
- warnier:[/kelder|schuil|angst|bang|schiet|schoot|schot|gevecht|vuur/,/buiten|soldaat|overgave|overgegeven|ontmoet|wat zag|amerika|duits/,/nederland|hele land|andere stad|alle mensen|iedereen vrij/],
+ warnier:[/kelder|schuil|angst|bang|schiet|schoot|schot|gevecht|vuur/,/buiten|overgave|overgegeven|ontmoet|wat zag/,/nederland|hele land|andere stad|alle mensen|iedereen vrij/,/sliep|slapen|nacht|loge|overnacht/,/ruil|inkt|sigaret/],
  american:[/waarvandaan|waar vandaan|belgie|belgisch|grens|gekomen|vandaan/,/voorzichtig|gevaar|schiet|geschot|duits|waarom alert/,/hoffman|sneuvel|overled|gedood|dood|slachtoffer|gesneuveld/],
  german:[/handen|overgave|geef|overgeven|waarom omhoog/,/krijgsgevang|gevangen|gepakt|na overgave/,/dacht|voelde|bang|angst|gevoel|gedachten/],
  medic:[/verband|medisch|gewond|hulppost|lazaret|hospitaal|verzorgen/,/veilig|gevaar|schiet|gevecht|angst/,/alle|wie|welke|duits|amerik|gewonden/],
  resident:[/waarom|kelder|schuil|veilig|bang|angst|schiet|gevaar/,/amerikan|wisten|komen|hoorden|verwacht|bevrijder/,/later|daarna|buiten|afloop|na de bevrijding/]
 };
+const normalizeQuestion=value=>String(value||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim();
 function findGroundedAnswer(id,input){
- const p=PEOPLE[id],q=String(input||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();
+ const p=PEOPLE[id],q=normalizeQuestion(input);
  if(!p||!q)return null;
+ const exact=p.qa.find(([question])=>normalizeQuestion(question)===q);
+ if(exact)return exact[1];
  // Het prototype koppelt vragen alleen aan vooraf geschreven antwoorden.
  const patterns=QUESTION_PATTERNS[id]||[];
  const specificity=patterns.map((rx,i)=>({i,match:rx.exec(q)})).filter(x=>x.match);
@@ -263,6 +283,7 @@ function findGroundedAnswer(id,input){
 function returnToWalk(){
  $('conversation').hidden=true;
  $('personContent').replaceChildren();
+ $('conversationTools').hidden=true;
  $('walk').hidden=false;
  $('walkTools').hidden=false;
  document.title=SCENES[current].title+' | Mesch 1944';
@@ -270,15 +291,29 @@ function returnToWalk(){
  conversationTrigger=null;
 }
 $('returnToWalk').onclick=returnToWalk;
+function showChat(open){
+ $('personChat').hidden=!open;
+ $('toggleChat').setAttribute('aria-expanded',String(open));
+ $('toggleChat').textContent=open?'Sluit chat':'Open chat';
+}
+$('toggleChat').onclick=()=>{
+ const open=$('personChat').hidden;
+ showChat(open);
+ if(open)$('chatHeading').focus();
+};
 function talk(id){
  const person=PEOPLE[id];if(!person){information('sources');return}
  const pic=PERSON_PORTRAITS[id]||{src:null,caption:'Geen betrouwbaar portret beschikbaar.'};
- const portrait=pic.src?'<img src="'+esc(pic.src)+'" alt="Geschilderd persoonsbeeld">':'<div class="missing-portrait">Portret niet beschikbaar</div>';
+ const portrait=pic.src?`<picture>${pic.small?`<source media="(max-width: 680px)" srcset="${esc(pic.small)}">`:''}<img src="${esc(pic.src)}" alt="Geschilderd persoonsbeeld"></picture>`:'<div class="missing-portrait">Portret niet beschikbaar</div>';
+ const photoLink=pic.sourceUrl?` <a class="portrait-source" href="${esc(pic.sourceUrl)}" target="_blank" rel="noopener">Bekijk archieffoto</a>`:'';
  conversationTrigger=document.activeElement;
  $('personContent').innerHTML=`
-  <figure class="person-figure">${portrait}<figcaption>${esc(pic.caption)}</figcaption></figure>
-  <div class="person-main">
-   <h1 id="personName" tabindex="-1">${esc(person.name.replace(/ — samengesteld personage$/,''))}</h1>
+  <figure class="person-figure"><div class="plate-frame">
+   <h1 id="personName" class="person-name" tabindex="-1">${esc(person.name.replace(/ — samengesteld personage$/,''))}</h1>
+   ${portrait}
+  </div><figcaption>${esc(pic.caption)}${photoLink}</figcaption></figure>
+  <aside id="personChat" class="person-main" aria-labelledby="chatHeading" hidden>
+   <h2 id="chatHeading" tabindex="-1">Stel je vraag</h2>
    <p class="person-status">Gereconstrueerd gesprek</p>
    <form id="questionForm">
     <input id="freeQuestion" type="text" maxlength="180" autocomplete="off" placeholder="Typ je vraag" aria-label="Stel zelf een historische vraag">
@@ -288,12 +323,21 @@ function talk(id){
    <h2>Voorbeeldvragen</h2>
    <div id="q"></div>
    <details><summary>Over dit gesprek</summary><p>${esc(person.intro||'')}</p><p>De antwoorden komen uit vooraf geschreven gespreksteksten. Bron: ${esc(person.source||'Historische context')}.</p></details>
-  </div>`;
+  </aside>`;
  $('walk').hidden=true;
  $('walkTools').hidden=true;
+ $('conversationTools').hidden=false;
  $('conversation').hidden=false;
+ showChat(matchMedia('(min-width: calc(150dvh + 220px))').matches);
  document.title=$('personName').textContent+' | Mesch 1944';
  $('personName').focus();
+ const image=$('personContent').querySelector('.person-figure img');
+ image?.addEventListener('error',()=>{
+  const notice=document.createElement('div');
+  notice.className='missing-portrait';
+  notice.textContent='Het portret kon niet worden geladen.';
+  image.closest('picture').replaceWith(notice);
+ },{once:true});
  const history=$('chatHistory');
  function appendTurn(kind,txt,label){
   const div=document.createElement('div');div.className='chat-turn '+kind;
