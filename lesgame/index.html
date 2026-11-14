@@ -554,7 +554,15 @@ const perspectieven = {
     "Geef antwoord in je eigen woorden. Gebruik één detail van Warnier en één van de familie Van Hoven. Vraag je leerkracht naar de bron bij deze verhalen."
   ],
   bron:"Noteer bij je antwoord: De bevrijding van Eijsden-Margraten in september 1944, p. 84. Deze bladzijde beschrijft wat Warnier zag en wat de familie Van Hoven aantrof. Bekijk de bladzijde samen met je leerkracht.",
-  museum:"Maak een kaartje voor jullie WOII-museum. Geef het een titel. Vertel wat er bij de school en in het café gebeurde. Leg uit waarom je dit verhaal wilt doorgeven. Zet je bron erbij."
+  tijdvraag:{
+    vraag:"Op 12 september 1944 werd Mesch bevrijd. Die winter was Amsterdam nog bezet. Hoe kon dat?",
+    opties:[
+      ["De bevrijders bereikten plaatsen op verschillende momenten.","De geallieerden trokken vanuit het zuiden verder. In Mesch was de bezetting al voorbij. In Amsterdam duurde die nog voort en kregen mensen te maken met de Hongerwinter."],
+      ["De bevrijding begon overal op dezelfde dag.","Kijk naar de twee plaatsen. Mesch was in september al bevrijd. In Amsterdam duurde de bezetting voort. De geallieerden bereikten plaatsen op verschillende momenten."]
+    ]
+  },
+  museum:"Maak een kaartje voor jullie WOII-museum. Zet erop waar en wanneer dit verhaal speelt. Beschrijf één gebeurtenis uit Mesch en noem je bron. Leg uit waarom je dit verhaal wilt doorgeven.",
+  bezoekersvraag:"Laat een klasgenoot jullie kaartje lezen. Vraag: Wat leert dit verhaal je over de bevrijding? Wat zou je aan een ooggetuige willen vragen? Maak je uitleg daarna waar nodig duidelijker."
 };
 const jeansVerhaal = {
   vraag:{
@@ -868,13 +876,17 @@ function openGesprek(){
   const legVerhalenNaastElkaar = () => {
     const toonMuseumkaart = () => {
       rol.textContent = "Voor jullie WOII-museum";
-      toonAntwoord(perspectieven.museum,einde);
+      toonAntwoord(perspectieven.museum,[["Laat je kaartje lezen",() => toonAntwoord(perspectieven.bezoekersvraag,einde)],...einde]);
+    };
+    const vergelijkBevrijding = () => {
+      rol.textContent = "Mesch en Amsterdam";
+      stelRedeneervraag(perspectieven.tijdvraag,() => [["Naar het museumkaartje",toonMuseumkaart],...einde]);
     };
     const vulLogboek = (deel = 0) => {
       rol.textContent = "In je logboek";
       const [label,actie] = deel === 0
         ? ["Naar je antwoord",() => vulLogboek(1)]
-        : ["Welke bron zet ik erbij?",() => toonAntwoord(perspectieven.bron,[["Naar het museumkaartje",toonMuseumkaart],...einde])];
+        : ["Welke bron zet ik erbij?",() => toonAntwoord(perspectieven.bron,[["Vergelijk Mesch en Amsterdam",vergelijkBevrijding],...einde])];
       toonAntwoord(perspectieven.logboek[deel],[[label,actie],...einde]);
     };
     const naarLogboek = ["Naar je logboek",() => vulLogboek()];
