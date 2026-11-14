@@ -548,7 +548,13 @@ const perspectieven = {
     ["Boven vond de familie sporen van het noodhospitaal.","De familie zag bij het opruimen wat de Duitsers in het café hadden achtergelaten."]
   ],
   opdracht:"Gebruik beide details. Leg je maatje uit wat de plek of het moment te maken had met wat ieder meemaakte.",
-  uitleg:"Hun plek en het moment bepaalden wat ze konden zien, horen of vinden."
+  uitleg:"Hun plek en het moment bepaalden wat ze konden zien, horen of vinden.",
+  logboek:[
+    "Schrijf een eigen vraag over de bevrijding van Mesch. Gebruik een plek, een persoon of een moment uit de twee verhalen.",
+    "Geef antwoord in je eigen woorden. Gebruik één detail van Warnier en één van de familie Van Hoven. Vraag je leerkracht naar de bron bij deze verhalen."
+  ],
+  bron:"Noteer bij je antwoord: De bevrijding van Eijsden-Margraten in september 1944, p. 84. Deze bladzijde beschrijft wat Warnier zag en wat de familie Van Hoven aantrof. Bekijk de bladzijde samen met je leerkracht.",
+  museum:"Maak een kaartje voor jullie WOII-museum. Geef het een titel. Vertel wat er bij de school en in het café gebeurde. Leg uit waarom je dit verhaal wilt doorgeven. Zet je bron erbij."
 };
 const jeansVerhaal = {
   vraag:{
@@ -860,11 +866,23 @@ function openGesprek(){
     return acties;
   };
   const legVerhalenNaastElkaar = () => {
+    const toonMuseumkaart = () => {
+      rol.textContent = "Voor jullie WOII-museum";
+      toonAntwoord(perspectieven.museum,einde);
+    };
+    const vulLogboek = (deel = 0) => {
+      rol.textContent = "In je logboek";
+      const [label,actie] = deel === 0
+        ? ["Naar je antwoord",() => vulLogboek(1)]
+        : ["Welke bron zet ik erbij?",() => toonAntwoord(perspectieven.bron,[["Naar het museumkaartje",toonMuseumkaart],...einde])];
+      toonAntwoord(perspectieven.logboek[deel],[[label,actie],...einde]);
+    };
+    const naarLogboek = ["Naar je logboek",() => vulLogboek()];
     const vergelijkDetails = (school,cafe) => {
       const vraag = [perspectieven.onderzoeksvraag,school[0],cafe[0],perspectieven.opdracht].join("\n");
       const voorbeeld = [school[1],cafe[1],perspectieven.uitleg].join(" ");
       toonAntwoord(vraag,[
-        ["Ik heb mijn uitleg gegeven",() => toonAntwoord(voorbeeld,einde,{stem:scene.stem,typen:true})],
+        ["Ik heb mijn uitleg gegeven",() => toonAntwoord(voorbeeld,[naarLogboek,...einde],{stem:scene.stem,typen:true})],
         ["Kies andere details",legVerhalenNaastElkaar]
       ]);
     };
