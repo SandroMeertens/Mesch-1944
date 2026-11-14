@@ -550,8 +550,8 @@ const perspectieven = {
   opdracht:"Gebruik beide details. Leg je maatje uit wat de plek of het moment te maken had met wat ieder meemaakte.",
   uitleg:"Hun plek en het moment bepaalden wat ze konden zien, horen of vinden.",
   logboek:[
-    "Schrijf een eigen vraag over de bevrijding van Mesch. Gebruik een plek, een persoon of een moment uit de twee verhalen.",
-    "Geef antwoord in je eigen woorden. Gebruik één detail van Warnier en één van de familie Van Hoven. Vraag je leerkracht naar de bron bij deze verhalen."
+    "Welke vraag over de bevrijding kun je met jullie twee details onderzoeken? Schrijf jullie eigen vraag in het logboek.",
+    "Beantwoord jullie vraag in eigen woorden. Gebruik de twee gekozen details en leg uit wat de plek of het moment uitmaakte."
   ],
   bron:"Noteer bij je antwoord: De bevrijding van Eijsden-Margraten in september 1944, p. 84. Deze bladzijde beschrijft wat Warnier zag en wat de familie Van Hoven aantrof. Bekijk de bladzijde samen met je leerkracht.",
   tijdvraag:{
@@ -561,8 +561,8 @@ const perspectieven = {
       ["De bevrijding begon overal op dezelfde dag.","Kijk naar de twee plaatsen. Mesch was in september al bevrijd. In Amsterdam duurde de bezetting voort. De geallieerden bereikten plaatsen op verschillende momenten."]
     ]
   },
-  museum:"Maak een kaartje voor jullie WOII-museum. Zet erop waar en wanneer dit verhaal speelt. Beschrijf één gebeurtenis uit Mesch en noem je bron. Leg uit waarom je dit verhaal wilt doorgeven.",
-  bezoekersvraag:"Laat een klasgenoot jullie kaartje lezen. Vraag: Wat leert dit verhaal je over de bevrijding? Wat zou je aan een ooggetuige willen vragen? Maak je uitleg daarna waar nodig duidelijker."
+  museum:"Zet plaats en datum op jullie kaartje. Gebruik jullie antwoord uit het logboek. Leg uit waarom jullie dit verhaal willen doorgeven en vermeld jullie bron.",
+  bezoekersvraag:"Laat een klasgenoot jullie schets en kaartje bekijken. Wat begrijpt die nu over de bevrijding? Wat is nog onduidelijk? Pas één ding aan voor jullie bezoekers."
 };
 const jeansVerhaal = {
   vraag:{
@@ -874,23 +874,31 @@ function openGesprek(){
     return acties;
   };
   const legVerhalenNaastElkaar = () => {
-    const toonMuseumkaart = () => {
-      rol.textContent = "Voor jullie WOII-museum";
-      toonAntwoord(perspectieven.museum,[["Laat je kaartje lezen",() => toonAntwoord(perspectieven.bezoekersvraag,einde)],...einde]);
-    };
-    const vergelijkBevrijding = () => {
-      rol.textContent = "Mesch en Amsterdam";
-      stelRedeneervraag(perspectieven.tijdvraag,() => [["Naar het museumkaartje",toonMuseumkaart],...einde]);
-    };
-    const vulLogboek = (deel = 0) => {
-      rol.textContent = "In je logboek";
-      const [label,actie] = deel === 0
-        ? ["Naar je antwoord",() => vulLogboek(1)]
-        : ["Welke bron zet ik erbij?",() => toonAntwoord(perspectieven.bron,[["Vergelijk Mesch en Amsterdam",vergelijkBevrijding],...einde])];
-      toonAntwoord(perspectieven.logboek[deel],[[label,actie],...einde]);
-    };
-    const naarLogboek = ["Naar je logboek",() => vulLogboek()];
     const vergelijkDetails = (school,cafe) => {
+      const gekozenDetails = [school[0],cafe[0]];
+      const toonKaarttekst = () => toonAntwoord(perspectieven.museum,[
+        ["Laat je kaartje lezen",() => toonAntwoord(perspectieven.bezoekersvraag,einde)],...einde
+      ]);
+      const maakSchets = detail => toonAntwoord(
+        [detail,"Schets hoe jullie dit aan bezoekers willen laten zien. Wat moeten ze op jullie schets kunnen herkennen?"].join("\n"),
+        [["Naar het informatiekaartje",toonKaarttekst],...einde]
+      );
+      const toonMuseumkaart = () => {
+        rol.textContent = "Voor jullie WOII-museum";
+        toonAntwoord("Welk detail willen jullie aan museumbezoekers laten zien?",[
+          ...gekozenDetails.map(detail => [detail,() => maakSchets(detail)]),...einde
+        ]);
+      };
+      const vergelijkBevrijding = () => {
+        rol.textContent = "Mesch en Amsterdam";
+        stelRedeneervraag(perspectieven.tijdvraag,() => [["Naar het museumkaartje",toonMuseumkaart],...einde]);
+      };
+      const toonBron = () => toonAntwoord(perspectieven.bron,[["Vergelijk Mesch en Amsterdam",vergelijkBevrijding],...einde]);
+      const naarAntwoord = () => toonAntwoord(perspectieven.logboek[1],[["Welke bron zet ik erbij?",toonBron],...einde]);
+      const naarLogboek = ["Naar je logboek",() => {
+        rol.textContent = "In je logboek";
+        toonAntwoord([...gekozenDetails,perspectieven.logboek[0]].join("\n"),[["Naar je antwoord",naarAntwoord],...einde]);
+      }];
       const vraag = [perspectieven.onderzoeksvraag,school[0],cafe[0],perspectieven.opdracht].join("\n");
       const voorbeeld = [school[1],cafe[1],perspectieven.uitleg].join(" ");
       toonAntwoord(vraag,[
