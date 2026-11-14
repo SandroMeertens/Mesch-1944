@@ -55,7 +55,9 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
   }
 }
 #praat{position:absolute;left:var(--praat-x);top:var(--praat-y);transform:translate(-50%,-50%);width:clamp(54px,9cqw,110px);height:clamp(56px,12cqh,108px)}
-#praat .plaatknop-icoon{position:absolute;right:3px;top:3px;pointer-events:none}
+#praat .plaatknop-icoon{position:absolute;right:3px;top:3px;pointer-events:none;width:clamp(38px,5.5cqw,44px);height:clamp(38px,5.5cqw,44px);opacity:.82}
+#praat .plaatknop-icoon svg{width:clamp(20px,2.75cqw,22px);height:clamp(20px,2.75cqw,22px)}
+#praat:is(:hover,:focus-visible,:active) .plaatknop-icoon{opacity:1}
 #spel:has(#intro:not([hidden])) header>div:first-child{visibility:hidden}
 #intro{position:absolute;inset:auto 0 0;padding:clamp(20px,5cqh,52px) clamp(16px,5cqw,70px) max(clamp(16px,5cqh,52px),env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#151711e8 42%,#151711)}
 #intro h2{font:700 clamp(26px,6.5cqh,54px)/1.06 Georgia,serif;text-shadow:0 2px 10px #111}
