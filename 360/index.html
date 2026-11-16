@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1f2b23">
+<title>Mesch 1944 · 360°</title>
+<style>
+:root{color-scheme:dark;--paper:#fbf4e5;--green:#26382c;--gold:#ebd79e;--veil:#19251ce8}
+*{box-sizing:border-box}
+body{margin:0;background:#1f2b23;color:var(--paper);font-family:system-ui,sans-serif}
+button,a{font:inherit}
+button{cursor:pointer;color:inherit}
+button:focus-visible,a:focus-visible,canvas:focus-visible{outline:3px solid #ffe3a0;outline-offset:3px}
+[hidden]{display:none!important}
+.viewer{height:100dvh;min-height:300px;position:relative;overflow:hidden}
+canvas,.fallback{display:block;position:absolute;inset:0;width:100%;height:100%}
+canvas{touch-action:none;cursor:grab}
+canvas:active{cursor:grabbing}
+.fallback{object-fit:cover}
+.veil{position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,#151d17d9,transparent 28%,transparent 70%,#151d17cc)}
+header{position:absolute;top:0;left:0;right:0;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;padding:max(18px,env(safe-area-inset-top)) clamp(14px,3vw,38px) 0;pointer-events:none}
+h1,h2,p{margin:0}
+h1{font:700 clamp(26px,5vw,48px)/1 Georgia,serif;text-shadow:0 2px 10px #111}
+#place{margin:5px 0 0;font-size:clamp(13px,2vw,17px);text-shadow:0 1px 4px #000}
+header a{pointer-events:auto;background:var(--veil);padding:11px 13px;border:1px solid #ffefd84f;border-radius:100px;color:var(--paper);text-decoration:none;font-size:14px}
+.controls{position:absolute;bottom:max(16px,env(safe-area-inset-bottom));left:0;right:0;display:flex;flex-direction:column;gap:8px;align-items:center;padding-inline:10px;pointer-events:none}
+.controls p{font-size:13px;text-align:center;text-shadow:0 1px 4px #000}
+.controls nav{display:flex;justify-content:center;flex-wrap:wrap;gap:7px;pointer-events:auto}
+.controls button,.dialog-button,.marker{min-height:44px;padding:7px 13px;border:1px solid #fff4d66b;border-radius:100px;background:var(--veil)}
+.controls button[aria-pressed="true"]{background:#f5e4b6;color:#233225;border-color:#f5e4b6}
+.controls button:hover,.dialog-button:hover,.marker:hover{border-color:var(--gold);background:#3d4e36}
+.marker{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;gap:8px;padding:7px 12px;white-space:nowrap;box-shadow:0 2px 10px #0007;font-size:14px}
+.marker svg{width:22px;height:22px;flex:none}
+dialog{margin:auto;padding:clamp(16px,4vw,32px);border:1px solid #e5d59b83;border-radius:14px;color:var(--paper);background:#24352a;width:min(550px,calc(100% - 26px));max-height:calc(100dvh - 30px);overflow:auto}
+dialog::backdrop{background:#132018bb}
+dialog h2{font:700 clamp(22px,4vw,34px)/1.1 Georgia,serif;margin:0 0 13px}
+dialog p{line-height:1.5;margin-bottom:14px}
+.dialog-actions{display:grid;gap:7px}
+.dialog-button{border-radius:9px;text-align:left}
+.close{margin:12px 0 0}
+#notice{position:absolute;left:50%;top:43%;transform:translateX(-50%);width:max-content;max-width:85%;padding:10px;background:var(--veil);text-align:center}
+@media(max-width:480px){header a{font-size:12px;padding:8px 10px}.controls button,.marker{font-size:12px}.controls p{font-size:12px}}
+</style>
+</head>
+<body>
+<main class="viewer">
+<canvas id="view" tabindex="0" aria-label="Panorama. Gebruik de pijltjestoetsen om rond te kijken."></canvas>
+<img id="fallback" class="fallback" alt="" hidden>
+<div class="veil"></div>
+<header>
+<div><h1>Mesch 1944 · 360°</h1><p id="place"></p></div>
+<a href="../lesgame/">Gewone game</a>
+</header>
+<button class="marker" id="person" type="button" hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true"><path d="M4 4h16v12H9l-5 4z"/></svg><span></span></button>
+<p id="notice" role="status" hidden></p>
+<div class="controls">
+<p id="help">Sleep om rond te kijken · Geschilderde reconstructie</p>
+<nav aria-label="Plaatsen en gesprekken">
+<button data-scene="school" type="button">Bij de school</button>
+<button data-scene="cafe" type="button">Café Van Hoven</button>
+<button id="recenter" type="button" aria-label="Kijk terug naar de persoon" title="Kijk terug naar de persoon">⌖</button>
+<button id="compare" type="button" hidden>Vergelijk de verhalen</button>
+</nav>
+</div>
+<dialog id="conversation" aria-labelledby="conversation-title">
+<h2 id="conversation-title"></h2>
+<p id="speech" tabindex="-1"></p>
+<div class="dialog-actions" id="answers"></div>
+<form method="dialog"><button class="dialog-button close" type="submit">Terug naar het panorama</button></form>
+</dialog>
+<script src="game.js" defer></script>
+</main>
+</body>
+</html>
