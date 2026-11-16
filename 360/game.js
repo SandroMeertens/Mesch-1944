@@ -33,13 +33,17 @@ const heading = document.querySelector("#conversation-title");
 const speech = document.querySelector("#speech");
 const answers = document.querySelector("#answers");
 
-const gl = canvas.getContext("webgl", { alpha: false });
+let gl;
+let softwareView;
 let renderPanorama;
 try {
+  gl = canvas.getContext("webgl", { alpha: false });
   if (gl) renderPanorama = createRenderer(gl);
 } catch (error) {
   console.warn(error);
 }
+let usingSoftware = !renderPanorama;
+if (usingSoftware) renderPanorama = createSoftwareRenderer();
 
 const verticalLimit = Math.PI / 2 - 0.04;
 const field = Math.tan(Math.PI / 6);
@@ -123,6 +127,64 @@ function createRenderer(gl) {
   };
 }
 
+function createSoftwareRenderer() {
+  if (!softwareView) {
+    softwareView = document.createElement("canvas");
+    softwareView.setAttribute("aria-hidden", "true");
+    softwareView.style.pointerEvents = "none";
+    canvas.after(softwareView);
+  }
+  const output = softwareView.getContext("2d", { alpha: false });
+  const sheet = document.createElement("canvas");
+  const source = sheet.getContext("2d", { willReadFrequently: true });
+  if (!output || !source) return undefined;
+  let pixels;
+  let viewport;
+  return {
+    load(image) {
+      sheet.width = image.naturalWidth;
+      sheet.height = image.naturalHeight;
+      source.drawImage(image, 0, 0);
+      pixels = source.getImageData(0, 0, sheet.width, sheet.height).data;
+    },
+    draw(horizontal, vertical, scale) {
+      const reduction = Math.min(680 / canvas.width, 510 / canvas.height, 1);
+      const width = Math.max(1, Math.round(canvas.width * reduction));
+      const height = Math.max(1, Math.round(canvas.height * reduction));
+      if (!viewport || width !== viewport.width || height !== viewport.height) {
+        softwareView.width = width;
+        softwareView.height = height;
+        viewport = output.createImageData(width, height);
+      }
+      const cp = Math.cos(vertical), sp = Math.sin(vertical);
+      const cy = Math.cos(horizontal), sy = Math.sin(horizontal);
+      const { data } = viewport;
+      const textureWidth = sheet.width, textureHeight = sheet.height;
+      let target = 0;
+      for (let y = 0; y < height; y++) {
+        const viewY = (1 - (y + 0.5) * 2 / height) * field;
+        const tiltY = cp * viewY + sp;
+        const tiltZ = cp - sp * viewY;
+        for (let x = 0; x < width; x++) {
+          const viewX = ((x + 0.5) * 2 / width - 1) * scale;
+          const east = cy * viewX + sy * tiltZ;
+          const north = cy * tiltZ - sy * viewX;
+          const u = 0.5 + Math.atan2(east, north) / (2 * Math.PI);
+          const v = 0.5 - Math.atan2(tiltY, Math.sqrt(viewX * viewX + tiltZ * tiltZ)) / Math.PI;
+          const textureX = Math.floor(u * textureWidth) % textureWidth;
+          const textureY = Math.min(textureHeight - 1, Math.floor(v * textureHeight));
+          const pixel = (textureY * textureWidth + textureX) * 4;
+          data[target++] = pixels[pixel];
+          data[target++] = pixels[pixel + 1];
+          data[target++] = pixels[pixel + 2];
+          data[target++] = 255;
+        }
+      }
+      output.putImageData(viewport, 0, 0);
+    },
+  };
+}
+
 function draw() {
   frame = undefined;
   if (!ready) return;
@@ -174,6 +236,7 @@ function showFallback(scene) {
   fallback.src = scene.fallback;
   fallback.hidden = false;
   canvas.hidden = true;
+  if (softwareView) softwareView.hidden = true;
   recenter.hidden = true;
   help.textContent = "Geschilderde reconstructie";
   notice.hidden = true;
@@ -220,6 +283,7 @@ async function showScene(id) {
   }
   flat = false;
   canvas.hidden = false;
+  if (softwareView) softwareView.hidden = !usingSoftware;
   fallback.hidden = true;
   recenter.hidden = false;
   help.textContent = "Sleep om rond te kijken · Geschilderde reconstructie";
@@ -288,19 +352,24 @@ canvas.addEventListener("keydown", event => {
 });
 canvas.addEventListener("webglcontextlost", event => {
   event.preventDefault();
-  showFallback(sceneById[sceneId]);
-  renderPanorama = undefined;
+  renderPanorama = createSoftwareRenderer();
+  usingSoftware = true;
+  reloadScene();
 });
 canvas.addEventListener("webglcontextrestored", () => {
   try {
     renderPanorama = createRenderer(gl);
-    const id = sceneId;
-    sceneId = "";
-    showScene(id);
+    usingSoftware = false;
+    reloadScene();
   } catch (error) {
     console.warn(error);
   }
 });
+function reloadScene() {
+  const id = sceneId;
+  sceneId = "";
+  showScene(id);
+}
 window.addEventListener("resize", requestDraw);
 recenter.addEventListener("click", () => look(...sceneById[sceneId].direction));
 marker.addEventListener("click", talk);
