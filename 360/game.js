@@ -43,7 +43,10 @@ try {
   console.warn(error);
 }
 let usingSoftware = !renderPanorama;
-if (usingSoftware) renderPanorama = createSoftwareRenderer();
+if (usingSoftware) {
+  try { renderPanorama = createSoftwareRenderer(); }
+  catch (error) { console.warn(error); }
+}
 
 const verticalLimit = Math.PI / 2 - 0.04;
 const field = Math.tan(Math.PI / 6);
@@ -196,7 +199,7 @@ function draw() {
   }
   const { clientWidth: width, clientHeight: height } = canvas;
   if (!width || !height) return;
-  const ratio = Math.min(window.devicePixelRatio, 2);
+  const ratio = Math.min(window.devicePixelRatio || 1, 2);
   const pixelsWide = Math.round(width * ratio);
   const pixelsHigh = Math.round(height * ratio);
   if (canvas.width !== pixelsWide || canvas.height !== pixelsHigh) {
@@ -247,8 +250,17 @@ function showFallback(scene) {
 function imageFor(id) {
   if (!pictures.has(id)) {
     const image = new Image();
-    image.src = sceneById[id].picture;
-    const pending = image.decode().then(() => image);
+    let pending;
+    if (typeof image.decode === "function") {
+      image.src = sceneById[id].picture;
+      pending = image.decode().then(() => image);
+    } else {
+      pending = new Promise((resolve, reject) => {
+        image.onload = () => resolve(image);
+        image.onerror = () => reject(new Error("De panoramafoto kon niet worden geladen."));
+        image.src = sceneById[id].picture;
+      });
+    }
     pending.catch(() => pictures.delete(id));
     pictures.set(id, pending);
   }
@@ -352,8 +364,9 @@ canvas.addEventListener("keydown", event => {
 });
 canvas.addEventListener("webglcontextlost", event => {
   event.preventDefault();
-  renderPanorama = createSoftwareRenderer();
   usingSoftware = true;
+  try { renderPanorama = createSoftwareRenderer(); }
+  catch (error) { console.warn(error); renderPanorama = undefined; }
   reloadScene();
 });
 canvas.addEventListener("webglcontextrestored", () => {
@@ -375,9 +388,9 @@ recenter.addEventListener("click", () => look(...sceneById[sceneId].direction));
 marker.addEventListener("click", talk);
 for (const button of sceneButtons) button.addEventListener("click", () => showScene(button.dataset.scene));
 compare.addEventListener("click", () => showText("Twee plekken, twee verhalen",
-  "Wat zag Warnier bij de school? Wat vond de familie Van Hoven in het café? Leg met één detail per plek uit waarom de verhalen verschillen. Gebruik jullie uitleg in het logboek.", [
+  "Wat zag Warnier bij de school? Wat vond de familie Van Hoven in het café? Leg met één detail per plek uit waarom de verhalen verschillen. Bespreek jullie uitleg met elkaar.", [
     ["Naar het museumkaartje", () => showText("Voor jullie WOII-museum",
-      "Kies een detail uit jullie logboek. Schets hoe jullie het bezoekers willen laten zien. Leg op het informatiekaartje uit wat er gebeurde, waarom jullie dit verhaal willen doorgeven en welke bron jullie gebruikten.")],
+      "Kies een detail uit jullie gesprekken. Schets hoe jullie het bezoekers willen laten zien. Leg op het informatiekaartje uit wat er gebeurde, waarom jullie dit verhaal willen doorgeven en welke bron jullie gebruikten.")],
   ]));
 
 // De gesprekken hieronder komen uit de gewone lesgame.
