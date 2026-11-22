@@ -707,7 +707,13 @@ async function toonPlek(index,focusRoute = false){
   const nieuw = plekken[index];
   praat.disabled = true;
   const beeld = laadBeeld(nieuw.beeld);
-  if (!beeld.complete) await beeld.decode().catch(() => {});
+  if (!beeld.complete) {
+    if (typeof beeld.decode === "function") await beeld.decode().catch(() => {});
+    else await new Promise(resolve => {
+      beeld.addEventListener("load",resolve,{once:true});
+      beeld.addEventListener("error",resolve,{once:true});
+    });
+  }
   if (aanvraag !== wissel) return;
   plaats = index;
   plaat.src = beeld.src;
@@ -728,7 +734,7 @@ async function toonPlek(index,focusRoute = false){
     laadBeeld(nieuw.portret);
   }
   if (nieuw.school) laadBeeld(plekken[schoolwoning].beeld);
-  if (index === schoolwoning && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+  if (index === schoolwoning && typeof plaat.animate === "function" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
     plaat.animate([{opacity:.14},{opacity:1}],{duration:360,easing:"ease-out"});
   }
   if (focusRoute && !over.open){
@@ -1092,7 +1098,8 @@ document.addEventListener("keydown",event => {
     toonPlek(passendeUitgangen[0].doel,true);
   }
 });
-new ResizeObserver(plaatsBediening).observe(spel);
+if (typeof ResizeObserver === "function") new ResizeObserver(plaatsBediening).observe(spel);
+else window.addEventListener("resize",plaatsBediening);
 toonPlek(0);
 </script>
 </body>
