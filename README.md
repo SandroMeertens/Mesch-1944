@@ -2,13 +2,24 @@
 
 Een interactieve, filmische verkenning van de bevrijding van Mesch op 12 september 1944, bedoeld voor groep 8.
 
+## Start de game
+
+**Voor leerlingen:** [Start de lesgame *De bevrijding van Mesch*](https://sandromeertens.github.io/Mesch-1944/lesgame/).
+
+De lesgame is de hoofdversie: één begeleide route langs de schilderingen met personages, gesprekken en opdrachten, zonder pagina-scrollen. De andere twee versies zijn aanvullend:
+
+- [Interactieve dorpswandeling](https://sandromeertens.github.io/Mesch-1944/beleving.html) — klikplekken in de schilderingen en verdiepende historische informatie.
+- [360°-proefversie](https://sandromeertens.github.io/Mesch-1944/360/) — rondkijken in twee panorama's bij de school en Café Van Hoven.
+
+De weergaven zijn artistieke reconstructies, geen exacte digitale kopie van het dorp in 1944. De 360°-proef is nog **geen** volledig aaneengesloten 360°-dorpswandeling. De leerlinggame gebruikt geen externe betaalde AI-dienst.
+
 ## Nieuw: historische beleving (proefversie)
 
 [**Open Mesch 1944 als beeldgestuurde historische wandeling**](https://sandromeertens.github.io/Mesch-1944/beleving.html)
 
 Dit is een nieuwe, zelfstandige proefversie **naast** de bestaande website. De schilderingen vormen de navigatie: je loopt via klikplekken in de beelden, kunt teruglopen via dezelfde omgeving, spreekt personen aan en onderzoekt historische broninformatie. Er zijn geen logboek, vaste vorige/volgende-knoppen of verplichte score-opdrachten. De oorspronkelijke zoekplaten zijn op relevante momenten bereikbaar.
 
-**Let op:** de beelden zijn artistieke reconstructies; er is nog geen echte 360°-Street View of historisch ingemeten stratenstelsel. Zie [bouw- en bronnenverantwoording](docs/BELEVING_V14.md).
+**Let op:** `beleving.html` gebruikt gewone schilderingen, geen echte 360°-Street View. De afzonderlijke 360°-proef toont twee panorama's; er is nog geen historisch ingemeten, doorlopend stratenstelsel. Zie [bouw- en bronnenverantwoording](docs/BELEVING_V14.md).
 
 ## Website
 Na activering van GitHub Pages: https://sandromeertens.github.io/Mesch-1944/
