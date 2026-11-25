@@ -14,13 +14,13 @@ Status: inventarisatie, niet de bevestiging dat alle platen opnieuw zijn gemaakt
 
 | # | Speelplek | Actieve scène-afbeelding | Portret | Eindcontrole |
 |---|---|---|---|---|
-| 01 | Dorpsrand | `beelden/22-2cac07747b.webp` | `beelden/portret-22-2786c7c581.webp` | nieuwe schildering voorbereid; nog niet gepubliceerd |
+| 01 | Dorpsrand | `beelden/22-2cac07747b.webp` | `beelden/portret-22-2786c7c581.webp` | R2 in repository; geteste preview live |
 | 02 | Bij de heg | `beelden/20-33d05d31f5.webp` | `beelden/portret-20-8c52997495.webp` | controleren |
 | 03 | Eerste contact | `beelden/01-8ed1456ed0.webp` | `beelden/portret-01-4fe2865e39.webp` | nieuwe schildering en klikpunt voorbereid; nog niet gepubliceerd |
 | 04 | Bij de school | `beelden/09-cc889f5d4b.webp` | `beelden/portret-09-a1b05e2100.webp` | nieuwe schildering en klikpunt voorbereid; nog niet gepubliceerd |
 | 05 | Aan de Grijzegraaf | `beelden/21-c2f03c2244.webp` | `beelden/portret-21-682eab0f07.webp` | controleren |
 | 06 | Tussen de dorpshuizen | `beelden/11-a81b18d1c7.webp` | `beelden/portret-11-436060b766.webp` | controleren |
-| 07 | De dorpsstraat | `beelden/14-5548580760.webp` | `beelden/portret-14-fad6da9f02.webp` | nieuwe schildering voorbereid; nog niet gepubliceerd |
+| 07 | De dorpsstraat | `beelden/14-5548580760.webp` | `beelden/portret-14-fad6da9f02.webp` | R2 in repository; geteste preview live |
 | 08 | Bij de buren | `beelden/12-7759df69ef.webp` | `beelden/portret-12-358b4e0d28.webp` | controleren |
 | 09 | Het dorpshart | `beelden/10-7da81f88ee.webp` | `beelden/portret-10-83fff77c20.webp` | nieuwe schildering en klikpunt voorbereid; nog niet gepubliceerd |
 | 10 | Langs de velden | `beelden/06-cc0e3fd621.webp` | `beelden/portret-06-7878970c8d.webp` | controleren |
@@ -47,8 +47,15 @@ Nieuwe schilderingen zijn nog **niet** geüpload of ingeschakeld. Deze audit voo
 
 Zeven nieuwe schilderingen zijn gemaakt voor de bestaande leerlinggame. Er zijn veertien WebP-bestanden geproduceerd (zeven originele formaten en zeven mobiele varianten) en een installatie-/verificatietool is samengesteld. De nieuwe scènes zijn: **Dorpsrand (22)**, **Eerste contact (01)**, **Bij de school (09)**, **De dorpsstraat (14)**, **Het dorpshart (10)**, **Voor Café Van Hoven (13)** en **In Café Van Hoven (02)**. De scripts vervangen alleen deze zeven afbeeldingen, met indien nodig verplaatste hotspots, en behouden de portretgesprekken en overige routegegevens.
 
-**BELANGRIJK:** deze R2-beeldbestanden staan in een lokaal downloadpakket uit de ChatGPT-projectchat, niet in deze repository. De R2-beeldwijzigingen zijn daarom **nog niet live**; behoud bestaande verwijzingen tot de bijbehorende WebP-bestanden zijn toegevoegd. De originele bestanden en duplicaten worden niet weggegooid.
+**R2 is in GitHub opgenomen:** alle zeven schilderingen en zeven mobiele WebP's staan op de hoofdbranch en zijn verbonden met de zeven bedoelde scènes in lesgame/index.html. De oorspronkelijke beelden zijn behouden als terugval. GitHub Pages heeft bij de eerste twee publicatiepogingen HTTP 500 geretourneerd; gebruik tot de officiële deploy lukt de [geteste HTML-preview](https://htmlpreview.github.io/?https://raw.githubusercontent.com/SandroMeertens/Mesch-1944/main/lesgame/index.html).
 
 De installatiescripts zijn tegen een synthetische testrepo geverifieerd (zeven scènepaden, veertien afbeeldingen, backup, twee opeenvolgende installaties). Een volledige visuele iPad-/telefoon-/digibordcontrole op de gepubliceerde site is nog vereist. De overige negen lesgame-scènes hebben nog geen nieuw R2-beeld. Ook `beleving.html` en `360/` gebruiken aparte beeldsets en zijn nog niet bijgewerkt.
 
-**Regiecontrole:** Een extra proefbeeld met een Duits noodhospitaal bij de school is afgekeurd en niet als scènebeeld opgenomen. Het nieuwe beeld voor *Dorpsrand* is wel aan het lokale R2-pakket toegevoegd. De GitHub-website verwijst nog naar de oorspronkelijke versies totdat de beeldbestanden daadwerkelijk gepubliceerd zijn.
+**Regiecontrole:** Een extra proefbeeld met een Duits noodhospitaal bij de school is afgekeurd en niet als scènebeeld opgenomen. Het nieuwe beeld voor *Dorpsrand* is wel aan het lokale R2-pakket toegevoegd. De officiële GitHub Pages-site kan een oudere versie blijven tonen totdat de Pages-deploy is geslaagd.
+
+### Automatische eindcontrole R2
+
+- Installatie op GitHub geslaagd op 25 november 2026: [release-run](https://github.com/SandroMeertens/Mesch-1944/actions/runs/45649291190).
+- Directe bronbestanden in `lesgame/beelden/r2/`: 7 grote + 7 mobiele WebP-bestanden.
+- Spel getest op telefoon, iPad en digibord: 16 scènes, 7 R2-beelden en 15 geopende gesprekken per formaat, geen JavaScript-fouten of pagina-scrollen.
+- Een [live preview via GitHub HTML Preview](https://htmlpreview.github.io/?https://raw.githubusercontent.com/SandroMeertens/Mesch-1944/main/lesgame/index.html) is op drie schermformaten geslaagd. Dit is een tussenroute, niet de definitieve GitHub Pages-publicatie.
