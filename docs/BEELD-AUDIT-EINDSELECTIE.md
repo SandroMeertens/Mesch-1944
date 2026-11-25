@@ -14,7 +14,7 @@ Status: inventarisatie, niet de bevestiging dat alle platen opnieuw zijn gemaakt
 
 | # | Speelplek | Actieve scène-afbeelding | Portret | Eindcontrole |
 |---|---|---|---|---|
-| 01 | Dorpsrand | `beelden/22-2cac07747b.webp` | `beelden/portret-22-2786c7c581.webp` | controleren |
+| 01 | Dorpsrand | `beelden/22-2cac07747b.webp` | `beelden/portret-22-2786c7c581.webp` | nieuwe schildering voorbereid; nog niet gepubliceerd |
 | 02 | Bij de heg | `beelden/20-33d05d31f5.webp` | `beelden/portret-20-8c52997495.webp` | controleren |
 | 03 | Eerste contact | `beelden/01-8ed1456ed0.webp` | `beelden/portret-01-4fe2865e39.webp` | nieuwe schildering en klikpunt voorbereid; nog niet gepubliceerd |
 | 04 | Bij de school | `beelden/09-cc889f5d4b.webp` | `beelden/portret-09-a1b05e2100.webp` | nieuwe schildering en klikpunt voorbereid; nog niet gepubliceerd |
@@ -45,8 +45,10 @@ Nieuwe schilderingen zijn nog **niet** geüpload of ingeschakeld. Deze audit voo
 
 ## R2 beeldbewerking voorbereid — 25 november 2026
 
-Zes nieuwe schilderingen zijn gemaakt voor de bestaande leerlinggame. Er zijn twaalf WebP-bestanden geproduceerd (zes originele formaten en zes mobiele varianten) en een installatie-/verificatietool is samengesteld. De nieuwe scènes zijn: **Eerste contact (01)**, **Bij de school (09)**, **De dorpsstraat (14)**, **Het dorpshart (10)**, **Voor Café Van Hoven (13)** en **In Café Van Hoven (02)**. De scripts vervangen alleen deze zes afbeeldingen, met indien nodig verplaatste hotspots, en behouden de portretgesprekken en overige routegegevens.
+Zeven nieuwe schilderingen zijn gemaakt voor de bestaande leerlinggame. Er zijn veertien WebP-bestanden geproduceerd (zeven originele formaten en zeven mobiele varianten) en een installatie-/verificatietool is samengesteld. De nieuwe scènes zijn: **Dorpsrand (22)**, **Eerste contact (01)**, **Bij de school (09)**, **De dorpsstraat (14)**, **Het dorpshart (10)**, **Voor Café Van Hoven (13)** en **In Café Van Hoven (02)**. De scripts vervangen alleen deze zeven afbeeldingen, met indien nodig verplaatste hotspots, en behouden de portretgesprekken en overige routegegevens.
 
 **BELANGRIJK:** deze R2-beeldbestanden staan in een lokaal downloadpakket uit de ChatGPT-projectchat, niet in deze repository. De R2-beeldwijzigingen zijn daarom **nog niet live**; behoud bestaande verwijzingen tot de bijbehorende WebP-bestanden zijn toegevoegd. De originele bestanden en duplicaten worden niet weggegooid.
 
-De installatiescripts zijn tegen een synthetische testrepo geverifieerd (zes scènepaden, twaalf afbeeldingen, backup, twee opeenvolgende installaties). Een volledige visuele iPad-/telefoon-/digibordcontrole op de gepubliceerde site is nog vereist. De overige tien lesgame-scènes hebben nog geen nieuw R2-beeld. Ook `beleving.html` en `360/` gebruiken aparte beeldsets en zijn nog niet bijgewerkt.
+De installatiescripts zijn tegen een synthetische testrepo geverifieerd (zeven scènepaden, veertien afbeeldingen, backup, twee opeenvolgende installaties). Een volledige visuele iPad-/telefoon-/digibordcontrole op de gepubliceerde site is nog vereist. De overige negen lesgame-scènes hebben nog geen nieuw R2-beeld. Ook `beleving.html` en `360/` gebruiken aparte beeldsets en zijn nog niet bijgewerkt.
+
+**Regiecontrole:** Een extra proefbeeld met een Duits noodhospitaal bij de school is afgekeurd en niet als scènebeeld opgenomen. Het nieuwe beeld voor *Dorpsrand* is wel aan het lokale R2-pakket toegevoegd. De GitHub-website verwijst nog naar de oorspronkelijke versies totdat de beeldbestanden daadwerkelijk gepubliceerd zijn.
