@@ -1,10 +1,8 @@
-# Mesch 1944 — R3-scèneplan voor de negen resterende lesgameplaten
+# Mesch 1944 — flexibel beeldplan (R3)
 
-Datum: 25 november 2026. Dit document is **beeldregie en audit**, geen claim dat de nieuwe schilderingen al gemaakt of gepubliceerd zijn. De zeven R2-platen staan apart in `lesgame/beelden/r2/`. De GitHub Pages-livegang controleren we afzonderlijk.
+De **negen nog te vernieuwen scènes** staan hieronder. Dit is een creatieve leidraad, **geen lijst met harde blokkades**. Zeven R2-schilderingen zijn al aan de hoofdgame gekoppeld; de nieuwe R3-beelden zijn nog niet gemaakt.
 
-## Gecontroleerde broncode
-
-De lesgame bevat 16 speelplekken. Zeven scènes gebruiken een R2-afbeelding; de volgende negen verwijzen nog naar de oude WebP-versie:
+## Scènes en ideeën
 
 | # in route | Scène | Code-ID | Huidig bestand | Regie van de nieuwe plaat |
 |---|---|---|---|---|
@@ -18,32 +16,14 @@ De lesgame bevat 16 speelplekken. Zeven scènes gebruiken een R2-afbeelding; de 
 | 15 | In de schoolwoning | 04 | `beelden/04-14bc4a1e45.webp` | Nachtelijke rust na bevrijding, Amerikaanse soldaat te gast; geen doorgang suggereren naar dezelfde kelder zonder gebouwbewijs |
 | 16 | In het schoollokaal | schoollokaal | `beelden/schoollokaal-d3b897e804.webp` | Schoolinterieur met bureau, inkt en banken; raamrichting en ingang afstemmen op geverifieerde schoolgevel, geen exact interieur als feit presenteren |
 
-## Historische ijkpunten uit de aangeleverde projectbronnen
+## Drie uitgangspunten
 
-- Archiefregister A02: luchtfoto Moelingen–Mesch (1944) helpt bij wegen en heggen, **niet** bij elke deur of boom.
-- A03: school-/raadhuis-/woningfoto geeft aanwijzingen voor daklijn en raamverdeling, maar opnamejaar en situatie op 12 september staan niet vast.
-- A04: latere foto Café Van Hoven bewijst geen exacte cafégevel in 1944; reclame of naoorlogse borden niet overnemen.
-- A06/A07: pantserwagen en tank zijn geen bewijs voor aanwezigheid op een specifieke Meschse straathoek; geen onbewezen voertuig reconstrueren.
-- A09: Raleigh-wikkel en notitie geven een concrete didactische invalshoek voor inkt, schrijven en getuigenissen.
-- Het eerste-contactbewijs onderscheidt nadrukkelijk **overgave** van het **latere warme onthaal**.
+1. **Historische kern:** Mesch, september 1944 en passende hoofdlijnen. Details mogen artistiek zijn; onzekere reconstructies noemen we geen bewezen feiten.
+2. **Filmbeleving:** maak verschillende momenten en emoties zichtbaar, met één herkenbare warme schilderstijl. Laat personages en omgeving leven.
+3. **Speelbaarheid:** behoud de route, portretten en gesprekken. Pas klikpunten zo nodig aan de nieuwe compositie aan; controleer daarna telefoon, iPad en digibord.
 
-## Bevindingen in spelroute (eerst uitwerken, nog niet gewijzigd)
+## Creatieve ruimte
 
-1. Na `In Café Van Hoven` volgt direct `In de schuilkelder`. Deze opeenvolging wekt de indruk van een fysieke doorgang café→kelder. De projectbronnen onderbouwen die verbinding **niet**. Vervang dit conceptueel door een duidelijke filmische scène-/perspectiefwisseling; vermijd een deur-/traphotspot die een echte plattegrond suggereert.
-2. Na `Bij de veldkeuken` kan de schoolwoning via een gesprek bereikt worden. Dit is een ander moment dan schuilen tijdens gevechten. Houd het contrast in licht, geluid en gesprek duidelijk; geen klok of storend tussenscherm.
-3. Bij het schoollokaal moeten deur, gevel en portret ruimtelijk aansluiten op een fotogebonden schoolpaspoort.
-4. R2 heeft zeven mobiele bestanden, maar de negen oude scènes hebben niet automatisch zulke mobiele R3-varianten; pas de mobiele bronkeuze aan wanneer de nieuwe schilderingen gereed zijn.
-5. Houd portretgesprekken, terugroute, tekstballonnen en hotspot-verbindingen beschikbaar tijdens elk vervangen van een plaat.
+Een steen, raam of anoniem gezicht hoeft niet in elke scène met een bron bewezen te worden. Gebruik gebouwfoto's waar ze helpen en vermijd opvallende moderne details. De overgang van het café naar de schuilkelder mag filmisch worden verteld zonder een exacte interne verbinding te suggereren; de nachtelijke schoolwoning is een later moment, zonder klok of lange overgang. Geen extra harde stopregels toevoegen.
 
-## Productievoorwaarden voor alle negen
-
-- Nieuwe native schilderingen; geen simpele vergroting van 1660–1672px-bestanden. Richtformaat 16:9 met ruime compositiemarge voor telefoonuitsnede.
-- Vaste warme realistische olieverfstijl, menselijke ooghoogte ca. 145–160 cm, Zuid-Limburgs groen in september; geen felle najaarskleuren.
-- Gebouwen vóór sfeer: gevels, raamvolgorde en dakvorm prioriteren wanneer een betrouwbare referentie aanwezig is; onbewezen details niet presenteren als exacte reconstructie.
-- Geen moderne borden, monumenten, naoorlogse reclame, gedocumenteerd onjuiste uniformpatches of zonder bron bevestigde tank/jeep.
-- Bewaar afzonderlijk groot WebP, mobiel WebP, herkomst-/onzekerheidsnotitie en hotspotplan. Pas de live game pas aan na beeldcontrole.
-- Test op telefoon (staand), iPad (staand en liggend), en digibord (breed); controleer dat gesprek-/routeknoppen zichtbaar blijven en dat terugnavigatie werkt.
-
-## Releasecriterium
-
-R3 heet pas **klaar** wanneer negen nieuwe afzonderlijke eindplaten bestaan, hun historische vrijgave per plaat is gecontroleerd, iedere scène in `lesgame/index.html` naar de correcte nieuwe naam verwijst, alle assets werkelijk in GitHub staan en de Pages-deploy en visuele routecontrole slagen. Tot die tijd worden de originele negen beelden en portretten behouden.
+**Status:** het oorspronkelijke beeldmateriaal blijft staan totdat er geschikte nieuwe bestanden zijn. De publicatiestoring van GitHub Pages pakken we afzonderlijk op.
