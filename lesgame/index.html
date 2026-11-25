@@ -174,17 +174,17 @@ main{padding:0}
 </dialog>
 <script>
 const beelden = {
-  "14": "beelden/14-5548580760.webp",
-  "22": "beelden/22-2cac07747b.webp",
-  "10": "beelden/10-7da81f88ee.webp",
+  "14": "beelden/r2/dorpsstraat.webp",
+  "22": "beelden/r2/dorpsrand.webp",
+  "10": "beelden/r2/dorpshart.webp",
   "12": "beelden/12-7759df69ef.webp",
   "11": "beelden/11-a81b18d1c7.webp",
-  "09": "beelden/09-cc889f5d4b.webp",
-  "01": "beelden/01-8ed1456ed0.webp",
+  "09": "beelden/r2/school.webp",
+  "01": "beelden/r2/eerste-contact.webp",
   "20": "beelden/20-33d05d31f5.webp",
-  "13": "beelden/13-ff3c631992.webp",
+  "13": "beelden/r2/cafe-buiten.webp",
   "21": "beelden/21-c2f03c2244.webp",
-  "02": "beelden/02-50413d5d84.webp",
+  "02": "beelden/r2/cafe-binnen.webp",
   "04": "beelden/04-14bc4a1e45.webp",
   "06": "beelden/06-cc0e3fd621.webp",
   "portret-10": "beelden/portret-10-83fff77c20.webp",
@@ -208,10 +208,10 @@ const plekken = [
     heen:[55,65,"↗","Volg de weg"]},
   {beeld:"20",naam:"Bij de heg",alt:"Bewoners kijken over de heg naar de soldaten die over de dorpsweg naderen.",focus:45,persoon:[21,45],stem:"inwoner",portret:"portret-20",
     terug:[44,88,"↙","Dorpsrand"],heen:[85,62,"↗","Verder langs de heg"]},
-  {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,persoon:[43,48],stem:"soldaat",portret:"portret-01",
-    terug:[54,88,"↘","Terug langs de heg"],heen:[32,60,"↖","Volg de dorpsweg"]},
-  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,persoon:[28,55],stem:"meester",portret:"portret-09",portretfocus:33,school:true,
-    terug:[41,87,"↙","Terug naar de weg"],heen:[86,63,"→","Naar de Grijzegraaf"],ingang:[70,48,"↑","Ga het schoollokaal in"]},
+  {beeld:"01",naam:"Eerste contact",alt:"Op een dorpsweg houdt een Duitse soldaat zijn handen omhoog bij een Amerikaanse soldaat.",focus:52,persoon:[35,50],stem:"soldaat",portret:"portret-01",
+    terug:[54,88,"↘","Terug langs de heg"],heen:[85,64,"↗","Volg de dorpsweg"]},
+  {beeld:"09",naam:"Bij de school",alt:"Voor het schoolgebouw verzamelen enkele bewoners en militairen zich.",focus:45,persoon:[29,45],stem:"meester",portret:"portret-09",portretfocus:33,school:true,
+    terug:[41,87,"↙","Terug naar de weg"],heen:[86,63,"→","Naar de Grijzegraaf"],ingang:[12,46,"↑","Ga het schoollokaal in"]},
   {beeld:"21",naam:"Aan de Grijzegraaf",alt:"Een man groet een Amerikaanse militair op straat terwijl bewoners toekijken.",focus:65,persoon:[85,41],stem:"inwoner",portret:"portret-21",
     terug:[42,88,"↙","Bij de school"],heen:[91,66,"↗","Volg de Grijzegraaf"]},
   {beeld:"11",naam:"Tussen de dorpshuizen",alt:"Amerikaanse militairen passeren huizen waar bewoners in de deuropening staan.",focus:57,persoon:[15,50],stem:"soldaat",portret:"portret-11",
@@ -220,14 +220,14 @@ const plekken = [
     terug:[43,89,"↙","Terug tussen de huizen"],heen:[61,61,"↗","Verder de straat in"]},
   {beeld:"12",naam:"Bij de buren",alt:"Bewoners komen naar buiten en kijken naar de militairen in de straat.",focus:45,persoon:[33,53],stem:"inwoner",portret:"portret-12",
     terug:[56,88,"↙","Terug door de straat"],heen:[74,62,"↗","Naar het dorpshart"]},
-  {beeld:"10",naam:"Het dorpshart",alt:"Een Amerikaanse soldaat en een dorpsbewoner geven elkaar een hand tussen de omstanders.",focus:58,persoon:[64,49],stem:"inwoner",portret:"portret-10",
-    terug:[42,88,"↙","Terug naar de buren"],heen:[76,61,"↗","Langs de velden"]},
+  {beeld:"10",naam:"Het dorpshart",alt:"Een Amerikaanse soldaat en een dorpsbewoner geven elkaar een hand tussen de omstanders.",focus:58,persoon:[77,48],stem:"inwoner",portret:"portret-10",
+    terug:[42,88,"↙","Terug naar de buren"],heen:[60,68,"↗","Langs de velden"]},
   {beeld:"06",naam:"Langs de velden",alt:"Bewoners en Amerikaanse soldaten groeten elkaar aan de rand van een veld.",focus:57,persoon:[83,46],stem:"inwoner",portret:"portret-06",
     terug:[42,88,"↙","Terug naar het dorpshart"],heen:[63,69,"↗","Naar Café Van Hoven"]},
   {beeld:"13",naam:"Voor Café Van Hoven",alt:"Bij de open deur van het café schudt een vrouw de hand van een Amerikaanse soldaat. Een kind kijkt toe.",focus:34,verhouding:1.5,persoon:[33,48],stem:"cafe",portret:"portret-13",portretfocus:35,
-    terug:[87,67,"→","Volg de straat terug"],heen:[28,24,"←","Ga het café in"]},
-  {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,persoon:[61,45],stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[78,56],
-    terug:[19,83,"←","Weer naar buiten"],heen:[74,42,"↘","Naar de kelder"]},
+    terug:[87,67,"→","Volg de straat terug"],heen:[21,45,"←","Ga het café in"]},
+  {beeld:"02",naam:"In Café Van Hoven",alt:"De cafémedewerker in haar blauwe bloemenjurk ruimt op. Op de grote tafel rechts liggen opgerolde doeken.",focus:76.5,persoon:[60,47],stem:"cafeBinnen",portret:"portret-02",portretfocus:32,doeken:[80,62],
+    terug:[19,83,"←","Weer naar buiten"],heen:[47,34,"↘","Naar de kelder"]},
   {beeld:"kelder",naam:"In de schuilkelder",alt:"Een familie schuilt in een gemetselde kelder. Rechts leidt een trap naar de deur.",focus:52,persoon:[44,50],stem:"kelder",portret:"kelder",portretfocus:45,
     terug:[83,72,"↗","Terug naar het café"],heen:[46,33,"↙","Naar de veldkeuken"]},
   {beeld:"veldkeuken",naam:"Bij de veldkeuken",alt:"Een Amerikaanse kok geeft een kind een stuk brood bij een veldkeuken aan de rand van het dorp.",focus:48,persoon:[61,53],stem:"veldkeuken",portret:"veldkeuken",portretfocus:43,
@@ -679,10 +679,11 @@ function toonCafeAanwijzing(open){
   routes.hidden = open || !intro.hidden;
   plaatsBediening();
 }
+const mobieleBeeldenR2 = {"22":"beelden/r2/mobile/dorpsrand.webp","01":"beelden/r2/mobile/eerste-contact.webp","09":"beelden/r2/mobile/school.webp","14":"beelden/r2/mobile/dorpsstraat.webp","10":"beelden/r2/mobile/dorpshart.webp","13":"beelden/r2/mobile/cafe-buiten.webp","02":"beelden/r2/mobile/cafe-binnen.webp"};
 function laadBeeld(id){
   if (!cache.has(id)){
     const img = new Image();
-    img.src = beelden[id];
+    img.src = (window.matchMedia && window.matchMedia("(max-width: 740px)").matches && mobieleBeeldenR2[id]) || beelden[id];
     cache.set(id,img);
   }
   return cache.get(id);
