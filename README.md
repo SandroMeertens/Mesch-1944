@@ -2,6 +2,9 @@
 
 Een interactieve, filmische verkenning van de bevrijding van Mesch op 12 september 1944, bedoeld voor groep 8.
 
+
+**Beeldrelease R2 (25 november 2026):** zeven nieuwe scène-afbeeldingen en zeven mobiele varianten zijn toegevoegd aan de bestaande lesgame. De overige scènes, gesprekken en looproutes blijven bestaan. De op GitHub gepubliceerde bestanden zijn automatisch gecontroleerd; controleer na de GitHub Pages-deploy de zichtbare versie via de leerlinglink.
+
 ## Start de game
 
 **Voor leerlingen:** [Start de lesgame *De bevrijding van Mesch*](https://sandromeertens.github.io/Mesch-1944/lesgame/).
