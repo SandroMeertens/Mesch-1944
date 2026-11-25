@@ -58,12 +58,64 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 #praat .plaatknop-icoon{position:absolute;right:3px;top:3px;pointer-events:none;width:clamp(38px,5.5cqw,44px);height:clamp(38px,5.5cqw,44px);opacity:.82}
 #praat .plaatknop-icoon svg{width:clamp(20px,2.75cqw,22px);height:clamp(20px,2.75cqw,22px)}
 #praat:is(:hover,:focus-visible,:active) .plaatknop-icoon{opacity:1}
-#spel:has(#intro:not([hidden])) header>div:first-child{visibility:hidden}
-#intro{position:absolute;inset:auto 0 0;padding:clamp(20px,5cqh,52px) clamp(16px,5cqw,70px) max(clamp(16px,5cqh,52px),env(safe-area-inset-bottom));background:linear-gradient(180deg,transparent,#151711e8 42%,#151711)}
-#intro h2{font:700 clamp(26px,6.5cqh,54px)/1.06 Georgia,serif;text-shadow:0 2px 10px #111}
-#intro p{max-width:42ch;margin-top:8px;font-size:clamp(14px,2.8cqh,21px);color:var(--muted)}
-#verken{margin-top:clamp(10px,2.4cqh,24px);padding-inline:18px;background:#efdb9d;color:#242318}
-#verken:hover{background:#fff0bc}
+/* Filmische, schermvullende start — zelfde dorpsrand als de eerste speelscène. */
+#spel:has(#intro:not([hidden])) header{visibility:hidden}
+#intro{position:absolute;inset:0;z-index:5;overflow:hidden;isolation:isolate;background:#10130f}
+#intro::after{content:"";position:absolute;inset:0;z-index:2;background:#0a0e0b;pointer-events:none;animation:introOntwaakt 2s ease-out both}
+#intro.intro-sluit{animation:introVerdwijnt .5s ease-in both;pointer-events:none}
+.intro-beeld,.intro-beeld picture,.intro-beeld picture img{position:absolute;inset:0;width:100%;height:100%}
+.intro-beeld{overflow:hidden;z-index:0}
+.intro-opname{object-fit:cover;object-position:50% 45%;filter:brightness(.83) saturate(.89) contrast(1.08);transform:scale(1.16);animation:introCamera 11s cubic-bezier(.18,.55,.25,1) both}
+.intro-nevel{position:absolute;inset:-20%;pointer-events:none;background:radial-gradient(ellipse at 16% 60%,#d9d6bc52,transparent 41%),radial-gradient(ellipse at 87% 35%,#bdb9a13b,transparent 38%);opacity:.35;filter:blur(23px);animation:introNevel 10s ease-out both}
+.intro-donker{position:absolute;inset:0;z-index:1;pointer-events:none;background:linear-gradient(180deg,#11150fc2 0%,#11150f25 34%,#11140f55 49%,#0d120de8 82%,#0b100cf5 100%),linear-gradient(90deg,#070d0a40,transparent 70%)}
+.intro-boven{position:absolute;z-index:3;top:clamp(18px,4cqh,44px);left:clamp(18px,5cqw,64px);max-width:calc(100% - 190px);margin:0;color:#f9e6b6;font-size:clamp(10px,1.7cqh,15px);font-weight:700;letter-spacing:.19em;text-shadow:0 1px 10px #080c08}
+.intro-filmregels{position:absolute;z-index:3;inset:20% 5% auto;height:18%;pointer-events:none;text-align:center}
+.intro-regel{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:#fff6de;font:italic 600 clamp(16px,3.2cqh,32px)/1.18 Georgia,serif;text-shadow:0 2px 14px #090c09,0 1px 3px #090c09;opacity:0}
+.intro-regel:nth-child(1){animation:introZin 3.2s .6s both}
+.intro-regel:nth-child(2){animation:introZin 3.2s 3.4s both}
+.intro-regel:nth-child(3){animation:introLaatsteZin 1.4s 6.3s both}
+.intro-onder{position:absolute;z-index:3;left:clamp(18px,5cqw,70px);right:clamp(18px,5cqw,70px);bottom:clamp(15px,4cqh,42px);padding-bottom:env(safe-area-inset-bottom)}
+#intro .intro-plaats{margin:0 0 clamp(3px,.8cqh,8px);color:#f5dfad;font-size:clamp(11px,1.8cqh,16px);letter-spacing:.17em;text-transform:uppercase}
+#intro h2{font:700 clamp(42px,10cqh,92px)/.92 Georgia,serif;letter-spacing:.05em;text-shadow:0 3px 16px #080d09}
+#intro h2 span{display:block;margin-top:clamp(4px,1cqh,10px);font:500 clamp(18px,3.8cqh,34px)/1.1 Georgia,serif;letter-spacing:.03em}
+#intro .intro-belofte{margin:clamp(8px,1.8cqh,18px) 0 0;max-width:60ch;font-size:clamp(13px,2.5cqh,20px);font-weight:600;line-height:1.35;color:#fff5dd;text-shadow:0 1px 8px #0a0e0a}
+#intro .intro-vraag{margin:clamp(4px,.9cqh,10px) 0 0;max-width:60ch;font-size:clamp(12px,2cqh,17px);color:#ecdbb5}
+#verken{margin-top:clamp(10px,2.2cqh,22px);padding:clamp(9px,2cqh,17px) clamp(16px,3cqw,30px);background:#efdb9d;border:1px solid #fff0bc;color:#242318;font-weight:800;font-size:clamp(14px,2.4cqh,19px);box-shadow:0 10px 38px #040b08b8;transition:transform .16s ease,background-color .16s ease}
+#verken span{font-size:1.3em;line-height:1}
+#verken:disabled{opacity:.65;cursor:wait}
+#verken:not(:disabled):hover{background:#fff0bc;transform:translateY(-2px)}
+#intro .intro-hint{margin:clamp(6px,1.3cqh,12px) 0 0;color:#e0d4bc;font-size:clamp(11px,1.8cqh,15px)}
+.intro-overslaan{position:absolute;z-index:3;right:clamp(18px,4cqw,50px);top:clamp(12px,3cqh,32px);min-height:44px;border:1px solid #e8d8b97a;border-radius:999px;padding:8px 16px;background:#10170fd9;color:#fff4dd;font-size:clamp(12px,2cqh,16px)}
+.intro-overslaan:hover{background:#343b2b}
+.intro-overslaan:disabled{opacity:.6;cursor:wait}
+@keyframes introOntwaakt{0%{opacity:1}100%{opacity:0}}
+@keyframes introCamera{0%{transform:scale(1.16) translate(-.8%,-.5%)}100%{transform:scale(1.02) translate(.5%,.4%)}}
+@keyframes introNevel{0%{opacity:.1;transform:translateX(-3%)}100%{opacity:.45;transform:translateX(7%)}}
+@keyframes introZin{0%,8%{opacity:0;transform:translateY(12px)}24%,71%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-8px)}}
+@keyframes introLaatsteZin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+@keyframes introVerdwijnt{from{opacity:1}to{opacity:0}}
+@media(max-aspect-ratio:1/1){
+  .intro-opname{object-position:54% center}
+  .intro-filmregels{top:25%;height:13%}
+  #intro .intro-hint{max-width:44ch}
+  #intro h2{font-size:clamp(46px,9cqh,82px)}
+}
+@media(max-height:460px) and (min-aspect-ratio:1/1){
+  .intro-filmregels{top:19%}
+  #intro h2{font-size:clamp(31px,9cqh,48px)}
+  #intro h2 span{font-size:clamp(15px,3.3cqh,20px)}
+  #intro .intro-hint{display:none}
+  #intro .intro-belofte{font-size:clamp(11px,2.6cqh,14px);margin-top:4px}
+  #intro .intro-vraag{font-size:11px;margin-top:2px}
+  #verken{margin-top:5px;padding:6px 14px;min-height:38px}
+}
+@media(prefers-reduced-motion:reduce){
+  #intro::after,.intro-opname,.intro-nevel,#intro.intro-sluit{animation:none!important}
+  #intro::after{opacity:0}
+  .intro-regel{animation:none!important;opacity:0}
+  .intro-regel:last-child{opacity:1}
+  #verken{transition:none}
+}
 #cafe-aanwijzing{position:absolute;inset:0;pointer-events:none}
 #cafe-aanwijzing button{pointer-events:auto}
 #doeken{position:absolute;left:var(--doeken-x);top:var(--doeken-y);transform:translate(-50%,-50%);display:grid;place-items:center;width:clamp(60px,12cqw,120px);height:clamp(44px,8cqh,70px);padding:0;background:none;border:0;border-radius:50%}
@@ -113,7 +165,7 @@ main{padding:0}
 }
 
 </style>
-<link rel="preload" as="image" href="beelden/22-2cac07747b.webp" fetchpriority="high">
+<link rel="preload" as="image" href="beelden/r2/dorpsrand.webp" imagesrcset="beelden/r2/mobile/dorpsrand.webp 740w, beelden/r2/dorpsrand.webp 1660w" imagesizes="100vw" fetchpriority="high">
 </head>
 <body>
 <main>
@@ -134,9 +186,29 @@ main{padding:0}
 <span class="plaatknop-icoon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h16v12H9l-5 4z"/></svg></span>
 </button>
 <section id="intro" aria-labelledby="intro-titel" hidden>
-<h2 id="intro-titel">Mesch – De bevrijding</h2>
-<p>De eerste soldaten komen het dorp binnen. De bewoners kijken toe. <span id="onderzoeksvraag"></span></p>
-<button class="knop" id="verken" type="button" disabled>Verken Mesch</button>
+<div class="intro-beeld" aria-hidden="true">
+  <picture>
+    <source media="(max-width:740px)" srcset="beelden/r2/mobile/dorpsrand.webp">
+    <img class="intro-opname" src="beelden/r2/dorpsrand.webp" alt="" decoding="async" fetchpriority="high">
+  </picture>
+  <div class="intro-nevel"></div>
+</div>
+<div class="intro-donker" aria-hidden="true"></div>
+<p class="intro-boven">EEN DORP. EEN KEERPUNT. VELE VERHALEN.</p>
+<div class="intro-filmregels" aria-hidden="true">
+  <p class="intro-regel">Een dorp aan de grens wacht af.</p>
+  <p class="intro-regel">De eerste Amerikanen naderen.</p>
+  <p class="intro-regel">Wat betekent bevrijding voor de mensen hier?</p>
+</div>
+<div class="intro-onder">
+  <p class="intro-plaats">Zuid-Limburg · september 1944</p>
+  <h2 id="intro-titel">MESCH <span>De bevrijding</span></h2>
+  <p class="intro-belofte">Loop het dorp binnen. Ontmoet de bewoners. Ontdek hun verhalen.</p>
+  <p class="intro-vraag" id="onderzoeksvraag"></p>
+  <button class="knop" id="verken" type="button" disabled>Stap het verhaal binnen <span aria-hidden="true">→</span></button>
+  <p class="intro-hint">Kijk goed om je heen. Iedereen beleefde deze dag anders.</p>
+</div>
+<button class="intro-overslaan" id="intro-overslaan" type="button" disabled>Intro overslaan <span aria-hidden="true">›</span></button>
 </section>
 <div id="cafe-aanwijzing" hidden>
 <button id="doeken" type="button" aria-label="Bekijk de doeken op tafel"></button>
@@ -589,6 +661,7 @@ const routes = document.querySelector("#routes");
 const praat = document.querySelector("#praat");
 const intro = document.querySelector("#intro");
 const verken = document.querySelector("#verken");
+const introOverslaan = document.querySelector("#intro-overslaan");
 const cafeAanwijzing = document.querySelector("#cafe-aanwijzing");
 const doeken = document.querySelector("#doeken");
 const kijktekst = document.querySelector("#kijktekst");
@@ -729,6 +802,7 @@ async function toonPlek(index,focusRoute = false){
   toonCafeAanwijzing(false);
   praat.disabled = false;
   verken.disabled = false;
+  introOverslaan.disabled = false;
   if (nieuw.stem){
     const {knop,label = "Praat met " + knop} = gesprekken[nieuw.stem];
     praat.setAttribute("aria-label",label);
@@ -752,18 +826,13 @@ const directeTekst = new Set();
 const afgerondeGesprekken = new Set();
 const antwoordSleutel = "mesch-verhaalkeuze-v1";
 const afgerondSleutel = "mesch-school-cafe-v1";
-const introSleutel = "mesch-intro-gezien-v1";
+// De opening speelt bij iedere nieuwe paginalading; een lesronde herhaalt hem niet.
 const vergelijkbareGesprekken = ["meester","cafeBinnen"];
 let typTimer;
 let wachtOpAntwoord = false;
 let slotOpen = false;
 
 intro.hidden = false;
-try{
-  intro.hidden = window.sessionStorage.getItem(introSleutel) === "1";
-} catch {
-  // The intro still works when browser storage is unavailable.
-}
 
 try{
   const bewaard = JSON.parse(window.sessionStorage.getItem(antwoordSleutel));
@@ -1016,18 +1085,24 @@ function stopCafeAanwijzing(){
 praat.addEventListener("click",() => openGesprek());
 function sluitIntro(){
   intro.hidden = true;
-  try{
-    window.sessionStorage.setItem(introSleutel,"1");
-  } catch {
-    // The learner can continue even without browser storage.
+  intro.classList.remove("intro-sluit");
+}
+function beginSpel(overslaan = false){
+  if (intro.hidden || verken.disabled || intro.classList.contains("intro-sluit")) return;
+  const naarSpel = () => {
+    sluitIntro();
+    toonCafeAanwijzing(false);
+    plek.focus({preventScroll:true});
+  };
+  if (overslaan || minderBeweging.matches){
+    naarSpel();
+  } else {
+    intro.classList.add("intro-sluit");
+    window.setTimeout(naarSpel,500);
   }
 }
-verken.addEventListener("click",() => {
-  if (intro.hidden || verken.disabled) return;
-  sluitIntro();
-  toonCafeAanwijzing(false);
-  plek.focus({preventScroll:true});
-});
+verken.addEventListener("click",() => beginSpel());
+introOverslaan.addEventListener("click",() => beginSpel(true));
 cafeHint.addEventListener("click",() => {
   doeken.setAttribute("data-hint","");
   cafeHint.hidden = true;
