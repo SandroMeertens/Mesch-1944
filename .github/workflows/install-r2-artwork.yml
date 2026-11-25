@@ -1,0 +1,48 @@
+name: Publiceer Mesch 1944 R2-schilderingen
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/install-r2-artwork.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  install:
+    if: github.repository == 'SandroMeertens/Mesch-1944'
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Haal bestaande game op
+        uses: actions/checkout@v4
+
+      - name: Download en verifieer de zeven nieuwe schilderingen
+        shell: bash
+        run: |
+          set -euo pipefail
+          curl --fail --location --retry 3 --max-time 120 \
+            'https://d2ol7oe51mr4n9.cloudfront.net/user_3MQMrb09We7kHaU9jGuG7F0SkwQ/ee09a554-f350-41fc-a1c5-61afc3b672ce.zip' \
+            --output /tmp/mesch-r2-schilderingen.zip
+          echo 'dd0bdb9e4a0dcea364fdbc349e7a7c571b0dcef4198a1d59d84f188805fbd4ff  /tmp/mesch-r2-schilderingen.zip' | sha256sum --check
+          mkdir -p /tmp/mesch-r2
+          unzip -q /tmp/mesch-r2-schilderingen.zip -d /tmp/mesch-r2
+          python3 /tmp/mesch-r2/MESCH_1944_beelden_R2/install.py "$GITHUB_WORKSPACE"
+          python3 /tmp/mesch-r2/MESCH_1944_beelden_R2/verify.py "$GITHUB_WORKSPACE"
+          test "$(find lesgame/beelden/r2 -type f -name '*.webp' | wc -l)" -eq 14
+
+      - name: Publiceer de afbeeldingen in de bestaande game
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Mesch 1944 release"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lesgame/index.html lesgame/beelden/r2/
+          if git diff --cached --quiet; then
+            echo 'Dezelfde beeldversie is al aanwezig.'
+            exit 0
+          fi
+          git commit -m 'Publiceer zeven vernieuwde R2-schilderingen in de lesgame'
+          git push origin HEAD:main
