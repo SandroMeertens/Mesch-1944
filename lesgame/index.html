@@ -614,8 +614,9 @@ const staand = window.matchMedia("(max-aspect-ratio: 1/1)");
 function uitgangen(index){
   const {terug,heen,ingang} = plekken[index];
   if (index === schoolwoning){
-    const label = plekken[schoolVertrek].beeld === "09" ? "Terug naar de school" : "Terug naar de Grijzegraaf";
-    return [{doel:schoolVertrek,positie:[...terug.slice(0,3),label]}];
+    const vertrek = Number.isInteger(schoolVertrek) && plekken[schoolVertrek] ? schoolVertrek : schoolBuiten;
+    const label = plekken[vertrek].beeld === "09" ? "Terug naar de school" : "Terug naar de Grijzegraaf";
+    return [{doel:vertrek,positie:[...terug.slice(0,3),label]}];
   }
   if (index === schoollokaal) return [{doel:schoolBuiten,positie:terug}];
   const lijst = [];
