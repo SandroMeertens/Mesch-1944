@@ -811,8 +811,14 @@ async function toonPlek(index,focusRoute = false){
     laadBeeld(nieuw.portret);
   }
   if (nieuw.school) laadBeeld(plekken[schoolwoning].beeld);
-  if (index === schoolwoning && typeof plaat.animate === "function" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
-    plaat.animate([{opacity:.14},{opacity:1}],{duration:360,easing:"ease-out"});
+  // Korte filmische binnenkomst, afgestemd op voorwaarts of teruglopen.
+  // Geen extra laadscherp of tijdsprong en niet bij verminderde beweging.
+  if (focusRoute && typeof plaat.animate === "function" && !window.matchMedia("(prefers-reduced-motion: reduce)").matches){
+    const richting = index > vorig ? 1 : -1;
+    plaat.animate([
+      {opacity:.45,transform:`translateX(${richting*1.25}%) scale(1.014)`},
+      {opacity:1,transform:"translateX(0) scale(1)"}
+    ],{duration:420,easing:"cubic-bezier(.23,.58,.31,1)"});
   }
   if (focusRoute && !over.open){
     const route = index > vorig ? routes.lastElementChild : routes.firstElementChild;
