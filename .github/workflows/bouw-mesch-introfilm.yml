@@ -1,0 +1,49 @@
+name: Bouw Mesch 1944 introfilm
+on:
+  push:
+    paths:
+      - .github/workflows/bouw-mesch-introfilm.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  maak-film:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Maak film uit schildering
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p lesgame/beelden/intro
+          if ! command -v ffmpeg >/dev/null; then sudo apt-get update && sudo apt-get install -y ffmpeg; fi
+          curl -fsSL --retry 3 'https://d2ol7oe51mr4n9.cloudfront.net/user_3MQMrb09We7kHaU9jGuG7F0SkwQ/073f75ae-f237-4a5d-91e3-bf6280e5ea12.png' -o /tmp/mesch-bron.png
+          python3 - <<'PY'
+          import math,random,wave,array
+          r=32000;seconds=8.6;random.seed(1944);samples=array.array('h');last=0.
+          for i in range(int(seconds*r)):
+              t=i/r;n=random.uniform(-1,1);last=last*.982+n*.018
+              wind=(.018+.006*math.sin(2*math.pi*.25*t))*last
+              step=0
+              for k in range(12):
+                  dt=t-(.85+.62*k)
+                  if 0<=dt<.23:
+                      env=math.exp(-23*dt)*math.sin(math.pi*min(1,dt/.23))
+                      step+=.12*n*env+.27*last*env
+              samples.append(int(max(-.95,min(.95,(wind+step)*.8))*32767))
+          with wave.open('/tmp/mesch-stappen.wav','wb') as f:
+              f.setnchannels(1);f.setsampwidth(2);f.setframerate(r);f.writeframes(samples.tobytes())
+          PY
+          HD_FILTER="scale=2342:1318:flags=lanczos,zoompan=z='1.022+0.049*on/206':x='(iw-iw/zoom)/2+4*sin(on*0.21)':y='(ih-ih/zoom)/2+4*sin(on*0.22)':d=1:s=1920x1080:fps=24,eq=brightness=0.013:contrast=1.028:saturation=1.04,unsharp=5:5:0.45:5:5:0.0,fade=t=in:st=0:d=0.85,format=yuv420p"
+          MOB_FILTER="scale=1172:659:flags=lanczos,zoompan=z='1.022+0.049*on/206':x='(iw-iw/zoom)/2+3*sin(on*0.21)':y='(ih-ih/zoom)/2+3*sin(on*0.22)':d=1:s=960x540:fps=24,eq=brightness=0.013:contrast=1.028:saturation=1.04,unsharp=5:5:0.0:5:5:0.0,fade=t=in:st=0:d=0.85,format=yuv420p"
+          ffmpeg -hide_banner -loglevel error -y -loop 1 -framerate 24 -i /tmp/mesch-bron.png -i /tmp/mesch-stappen.wav -vf "$HD_FILTER" -t 8.6 -map 0:v:0 -map 1:a:0 -c:v libx264 -preset veryfast -crf 23 -maxrate 2400k -bufsize 4800k -pix_fmt yuv420p -c:a aac -b:a 64k -ar 32000 -movflags +faststart -shortest lesgame/beelden/intro/mesch-film-HD-v4.mp4
+          ffmpeg -hide_banner -loglevel error -y -loop 1 -framerate 24 -i /tmp/mesch-bron.png -i /tmp/mesch-stappen.wav -vf "$MOB_FILTER" -t 8.6 -map 0:v:0 -map 1:a:0 -c:v libx264 -preset veryfast -crf 29 -maxrate 1200k -bufsize 2400k -pix_fmt yuv420p -c:a aac -b:a 48k -ar 32000 -movflags +faststart -shortest lesgame/beelden/intro/mesch-film-mobiel-v4.mp4
+          ffprobe -v error -show_entries format=duration,size -of json lesgame/beelden/intro/mesch-film-HD-v4.mp4
+          ls -lh lesgame/beelden/intro/mesch-film-*.mp4
+          git config user.name "Mesch filmrenderer"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add lesgame/beelden/intro/mesch-film-HD-v4.mp4 lesgame/beelden/intro/mesch-film-mobiel-v4.mp4
+          git commit -m "Voeg filmische Mesch-intro in Full HD en mobiel toe"
+          git push
