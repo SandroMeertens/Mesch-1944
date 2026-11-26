@@ -757,7 +757,8 @@ const mobieleBeeldenR2 = {"22":"beelden/intro/mobile/dorpsrand-r3.webp","01":"be
 function laadBeeld(id){
   if (!cache.has(id)){
     const img = new Image();
-    img.src = (window.matchMedia && window.matchMedia("(max-width: 740px)").matches && mobieleBeeldenR2[id] && (id !== "22" || navigator.connection?.saveData)) || beelden[id];
+    const mobieleVersie = window.matchMedia && window.matchMedia("(max-width: 740px)").matches && (id !== "22" || Boolean(navigator.connection?.saveData));
+    img.src = (mobieleVersie && mobieleBeeldenR2[id]) || beelden[id];
     cache.set(id,img);
   }
   return cache.get(id);
