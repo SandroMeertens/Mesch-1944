@@ -747,72 +747,29 @@ try {
     if (Number.isInteger(id) && plekken[id]?.stem) gesprokenPlekken.add(id);
   }
 } catch { /* Zonder opslag werkt de gespreksplicht in deze lesronde gewoon door. */ }
-// Per bezoekbare plaat minstens vijftien seconden daadwerkelijk leestijd in het geopende gesprek.
-const MIN_LEESTIJD_MS=15000;
-const reageerdePlekken=new Set();
-const leestijdPerPlek=new Map();
-let actieveLeesPlek=null;
-let leesStart=null;
-let leesTimer=null;
-function leesVerstreken(id){
-  const basis=leestijdPerPlek.get(id)||0;
-  return Math.min(MIN_LEESTIJD_MS,basis+(actieveLeesPlek===id && leesStart!==null ? Math.max(0,performance.now()-leesStart):0));
-}
+// Kinderen gaan verder nadat zij een inhoudelijke tegenvraag hebben beantwoord, zonder wachttijd.
 function gesprekNodig(){return Boolean(plekken[plaats]?.stem && !gesprokenPlekken.has(plaats));}
 function verversGespreksRoutes(){
   const nodig=gesprekNodig();
   spel.toggleAttribute("data-gesprek-nodig",nodig);
   for(const knop of routes.querySelectorAll("button[data-verder]")){
     knop.toggleAttribute("data-locked",nodig);
-    const uitleg="Lees het gesprek aandachtig en reageer voordat je verderloopt";
+    const uitleg="Beantwoord eerst de vraag van de persoon voordat je verderloopt";
     knop.title=nodig ? uitleg : knop.getAttribute("aria-label");
     knop.setAttribute("aria-description",nodig ? uitleg : "Je kunt verderlopen");
   }
 }
-function controleerGesprekAfgerond(id=plaats){
-  if(!plekken[id]?.stem || gesprokenPlekken.has(id))return;
-  if(!reageerdePlekken.has(id)||leesVerstreken(id)<MIN_LEESTIJD_MS)return;
-  gesprokenPlekken.add(id);
+function registreerGesprek(){
+  if(!plekken[plaats]?.stem || gesprokenPlekken.has(plaats))return;
+  gesprokenPlekken.add(plaats);
   try{window.sessionStorage.setItem(gesprokenSleutel,JSON.stringify([...gesprokenPlekken]));}
   catch{/* Het gesprek blijft in deze lesronde afgerond. */}
   gesprekMelding.hidden=true;
   verversGespreksRoutes();
 }
-function pauzeerLeestijd(){
-  if(actieveLeesPlek!==null && leesStart!==null){
-    leestijdPerPlek.set(actieveLeesPlek,leesVerstreken(actieveLeesPlek));
-  }
-  leesStart=null;
-  actieveLeesPlek=null;
-  window.clearInterval(leesTimer);
-  leesTimer=null;
-}
-function verversLeestijd(){
-  if(gesprek.hidden || document.hidden)return;
-  controleerGesprekAfgerond();
-  if(!gesprekNodig() || leesVerstreken(plaats)>=MIN_LEESTIJD_MS){
-    // Laat na afloop van de leestijd het scherm ongemoeid; het gesprek kan doorgaan.
-    pauzeerLeestijd();
-  }
-}
-function startLeestijd(){
-  if(gesprek.hidden || document.hidden || !gesprekNodig() || leesTimer!==null)return;
-  actieveLeesPlek=plaats;
-  leesStart=performance.now();
-  leesTimer=window.setInterval(verversLeestijd,250);
-}
-document.addEventListener("visibilitychange",()=>{
-  if(document.hidden)pauzeerLeestijd();
-  else if(!gesprek.hidden)startLeestijd();
-});
-function registreerGesprek(){
-  if(!plekken[plaats]?.stem || gesprokenPlekken.has(plaats))return;
-  reageerdePlekken.add(plaats);
-  controleerGesprekAfgerond();
-}
 let meldingTimer;
 function toonGesprekMelding(){
-  gesprekMelding.textContent="Praat met de persoon en lees het gesprek aandachtig voordat je verdergaat";
+  gesprekMelding.textContent="Beantwoord eerst de vraag in het gesprek";
   gesprekMelding.hidden=false;
   window.clearTimeout(meldingTimer);
   meldingTimer=window.setTimeout(()=>{gesprekMelding.hidden=true;},2800);
@@ -820,7 +777,6 @@ function toonGesprekMelding(){
 function probeerUitgang(uitgang){
   if(uitgang.verder && gesprekNodig()){
     toonGesprekMelding();
-    // Zet kinderen meteen bij het gesprek dat zij nog moeten lezen.
     openGesprek();
     return;
   }
@@ -936,7 +892,6 @@ async function toonPlek(index,focusRoute = false){
     });
   }
   if (aanvraag !== wissel) return;
-  pauzeerLeestijd();
   plaats = index;
   plaat.src = beeld.src;
   plaat.alt = nieuw.alt;
@@ -977,13 +932,11 @@ const leesbareTekst = document.querySelector("#leesbare-tekst");
 const typendeTekst = document.querySelector("#typende-tekst");
 const minderBeweging = window.matchMedia("(prefers-reduced-motion: reduce)");
 const gekozenAntwoorden = new Map();
-const directeTekst = new Set();
 const afgerondeGesprekken = new Set();
 const antwoordSleutel = "mesch-verhaalkeuze-v1";
 const afgerondSleutel = "mesch-school-cafe-v1";
 // De opening speelt bij iedere nieuwe paginalading; een lesronde herhaalt hem niet.
 const vergelijkbareGesprekken = ["meester","cafeBinnen"];
-let typTimer;
 let wachtOpAntwoord = false;
 let slotOpen = false;
 
@@ -1005,51 +958,20 @@ try{
   // Playing from a local file can limit access to browser storage.
 }
 function stopTypen(){
-  window.clearInterval(typTimer);
   antwoord.removeAttribute("data-typt");
-  typendeTekst.textContent = "";
+  typendeTekst.textContent="";
 }
-function toonAntwoord(tekst,keuzes,{stem,typen = false} = {}){
+function toonAntwoord(tekst,keuzes){
   stopTypen();
-  leesbareTekst.textContent = tekst;
+  leesbareTekst.textContent=tekst;
   opties.replaceChildren();
-  const voegKeuzeToe = (label,actie) => {
-    const knop = document.createElement("button");
-    knop.type = "button";
-    knop.className = "keuze";
-    knop.textContent = label;
-    knop.addEventListener("click",() => {
-      // Alleen een echte reactie telt; openen/sluiten of 'Toon hele tekst' niet.
-      if (!["Toon hele tekst","Terug naar de plaat"].includes(label)) registreerGesprek();
-      actie();
-    });
+  for(const [label,actie] of keuzes){
+    const knop=document.createElement("button");
+    knop.type="button";
+    knop.className="keuze";
+    knop.textContent=label;
+    knop.addEventListener("click",actie);
     opties.append(knop);
-    return knop;
-  };
-  const toonKeuzes = () => {
-    opties.replaceChildren();
-    for (const [label,actie] of keuzes) voegKeuzeToe(label,actie);
-  };
-  if (typen && !minderBeweging.matches && !directeTekst.has(stem)){
-    const maakAf = () => {
-      const knopHadFocus = document.activeElement === opties.firstElementChild;
-      stopTypen();
-      toonKeuzes();
-      if (knopHadFocus) opties.firstElementChild.focus({preventScroll:true});
-    };
-    voegKeuzeToe("Toon hele tekst",() => {
-      directeTekst.add(stem);
-      maakAf();
-    });
-    antwoord.setAttribute("data-typt","");
-    let zichtbaar = 0;
-    typTimer = window.setInterval(() => {
-      zichtbaar += 2;
-      if (zichtbaar >= tekst.length) maakAf();
-      else typendeTekst.textContent = tekst.slice(0,zichtbaar);
-    },30);
-  } else {
-    toonKeuzes();
   }
   antwoord.focus({preventScroll:true});
 }
@@ -1059,9 +981,7 @@ function zetGesprek(open){
     stopTypen();
     slotOpen = false;
   }
-  if(!open)pauzeerLeestijd();
   gesprek.hidden = !open;
-  if(open)startLeestijd();
   routes.inert = open;
   info.inert = open;
   herstart.inert = open;
@@ -1078,9 +998,9 @@ function openGesprek(){
   if (!scene.stem) return;
   const persoon = gesprekken[scene.stem];
   const terug = () => zetGesprek(false);
-  const gaNaLezen = doel => {
+  const gaNaGesprek = doel => {
     if(gesprekNodig()){
-      // Ook directe sprongen vanuit een gespreksantwoord moeten 15 s wachten.
+      // Ook directe sprongen mogen het inhoudelijke gesprek niet omzeilen.
       toonGesprekMelding();
       return;
     }
@@ -1090,21 +1010,18 @@ function openGesprek(){
   const naarWoning = () => {
     if(gesprekNodig()){toonGesprekMelding();return;}
     schoolVertrek=plaats;
-    gaNaLezen(schoolwoning);
+    gaNaGesprek(schoolwoning);
   };
   const einde = [["Terug naar de plaat",terug]];
-  const vergelijk = (deel = 0) => {
-    const opdracht = [
-      "Zoek een klasgenoot die bij de inwoner het andere verhaal koos. Vertel elkaar wie iets opschreef, waar die persoon was en wat die zag.",
-      "Leg jullie verhalen naast elkaar. Wat weet je nu over de bevrijding dat je uit jouw eigen verhaal nog niet wist?"
-    ];
-    toonAntwoord(opdracht[deel],deel === 0 ? [["Lees verder",() => vergelijk(1)],...einde] : einde);
-  };
+  const vergelijk = () => toonAntwoord(
+    "Zoek een klasgenoot die het andere verhaal koos. Vergelijk waar jullie getuigen waren en wat zij zelf konden zien of horen.",
+    einde
+  );
   const actiesNaAntwoord = keuze => {
     const acties = [];
     if (scene.stem === "inwoner") acties.push(["Vergelijk met een klasgenoot",() => vergelijk()]);
     if (scene.stem === "kelder") acties.push(["Hoe ging het verder?",() => {
-      return gaNaLezen(veldkeuken);
+      return gaNaGesprek(veldkeuken);
     }]);
     if (scene.stem === "veldkeuken") acties.push(["Leg Jeans verhaal uit",beginJeansOpdracht]);
     if (!vergelijkbareGesprekken.includes(scene.stem)) return acties;
@@ -1161,10 +1078,10 @@ function openGesprek(){
     toonAntwoord("Wat zag de schoolmeester? Kies één detail voor je uitleg.",
       perspectieven.school.map(school => [school[0],() => kiesCafedetail(school)]));
   };
-  const stelRedeneervraag = ({vraag,opties:antwoorden},naAntwoord) => {
+  const stelRedeneervraag = ({vraag,opties:antwoorden},naAntwoord,aanloop="") => {
     wachtOpAntwoord = true;
     sluit.hidden = true;
-    toonAntwoord(vraag,antwoorden.map(([label,feedback]) => [label,() => {
+    toonAntwoord([aanloop,vraag].filter(Boolean).join("\n\n"),antwoorden.map(([label,feedback]) => [label,() => {
       wachtOpAntwoord = false;
       sluit.hidden = false;
       toonAntwoord(feedback,naAntwoord(),{stem:scene.stem,typen:true});
@@ -1181,61 +1098,42 @@ function openGesprek(){
     };
     const naarSlot = ["Naar het einde",toonSlot];
     const geefVoorbeeld = () => toonAntwoord(jeansVerhaal.voorbeeld,[naarSlot,...einde]);
-    const legUit = () => toonAntwoord(jeansVerhaal.opdracht[0],[
-      ["Lees verder",() => toonAntwoord(jeansVerhaal.opdracht[1],[
-        ["Bekijk een voorbeelduitleg",geefVoorbeeld],naarSlot,...einde
-      ])],
-      ...einde
-    ]);
+    const legUit = () => toonAntwoord(
+      jeansVerhaal.opdracht.join("\n\n"),
+      [["Bekijk een voorbeelduitleg",geefVoorbeeld],naarSlot,...einde]
+    );
     stelRedeneervraag(jeansVerhaal.vraag,() => [["Leg uit wat veranderde",legUit],...einde]);
   };
   const stelTegenvraag = keuze => {
+    const toelichting=persoon.keuzes[keuze][1][0];
     stelRedeneervraag(persoon.vervolg[keuze],() => {
+      // De leerling heeft nu een vraag én een tegenvraag beantwoord.
+      registreerGesprek();
       if (vergelijkbareGesprekken.includes(scene.stem)){
         afgerondeGesprekken.add(scene.stem);
         try{
           window.sessionStorage.setItem(afgerondSleutel,JSON.stringify([...afgerondeGesprekken]));
-        } catch {
-          // The completed conversation still counts in this open game.
-        }
+        } catch { /* De voortgang blijft geldig voor deze lesronde. */ }
       }
       return [...actiesNaAntwoord(keuze),...einde];
-    });
+    },toelichting);
   };
-  const toonGekozenInfo = (keuze,deel = 0,typen = true) => {
-    const delen = persoon.keuzes[keuze][1];
-    const volgende = [];
-    if (deel < delen.length - 1) volgende.push(["Lees verder",() => toonGekozenInfo(keuze,deel + 1)]);
-    else {
-      volgende.push(["Naar de tegenvraag",() => stelTegenvraag(keuze)]);
-      if (afgerondeGesprekken.has(scene.stem)) volgende.push(...actiesNaAntwoord(keuze));
-    }
-    toonAntwoord(delen[deel],volgende,{stem:scene.stem,typen});
-  };
-  const stelVraag = () => {
-    wachtOpAntwoord = true;
-    sluit.hidden = true;
-    toonAntwoord(persoon.vraag,persoon.keuzes.map(([label],keuze) => [label,() => {
-      if (gekozenAntwoorden.has(scene.stem)) return;
+  const eersteVraag = () => {
+    wachtOpAntwoord=false;
+    sluit.hidden=false;
+    const keuzes=persoon.keuzes.map(([label],keuze)=>[label,() => {
       gekozenAntwoorden.set(scene.stem,keuze);
       try{
         window.sessionStorage.setItem(antwoordSleutel,JSON.stringify(Object.fromEntries(gekozenAntwoorden)));
-      } catch {
-        // The choice remains available in this open game.
-      }
-      wachtOpAntwoord = false;
-      sluit.hidden = false;
-      toonGekozenInfo(keuze);
-    }]));
-  };
-  const vertel = (deel = 0) => {
-    const laatste = deel === persoon.verhaal.length - 1;
-    const keuzes = [laatste ? ["Naar de vraag",stelVraag] : ["Lees verder",() => vertel(deel + 1)]];
-    if (scene.doeken && deel === 0) keuzes.push(["Bekijk de doeken op tafel",() => {
+      } catch { /* Het antwoord blijft bewaard zolang de game open is. */ }
+      stelTegenvraag(keuze);
+    }]);
+    if(scene.doeken)keuzes.push(["Bekijk de doeken op tafel",() => {
       terug();
       startCafeAanwijzing();
     }]);
-    toonAntwoord(persoon.verhaal[deel],keuzes,{stem:scene.stem,typen:true});
+    // Geen 'Lees verder': een compacte context en meteen betekenisvolle antwoordkeuzes.
+    toonAntwoord([persoon.verhaal[0],persoon.vraag].join("\n\n"),keuzes);
   };
   rol.textContent = persoon.naam;
   portret.src = laadBeeld(scene.portret).src;
@@ -1243,9 +1141,7 @@ function openGesprek(){
   portret.alt = scene.portret === scene.beeld ? scene.alt : "Geschilderd portret van " + persoon.knop;
   sluit.hidden = false;
   zetGesprek(true);
-  const keuze = gekozenAntwoorden.get(scene.stem);
-  if (keuze === undefined) vertel();
-  else toonGekozenInfo(keuze,0,false);
+  eersteVraag();
 }
 function stopCafeAanwijzing(){
   toonCafeAanwijzing(false);
@@ -1387,7 +1283,6 @@ startRonde.addEventListener("click",async () => {
   if (!intro.hidden) sluitIntro();
   gekozenAntwoorden.clear();
   afgerondeGesprekken.clear();
-  directeTekst.clear();
   try{
     window.sessionStorage.removeItem(antwoordSleutel);
     window.sessionStorage.removeItem(afgerondSleutel);
@@ -1396,9 +1291,6 @@ startRonde.addEventListener("click",async () => {
   }
   schoolVertrek = undefined;
   gesprokenPlekken.clear();
-  reageerdePlekken.clear();
-  pauzeerLeestijd();
-  leestijdPerPlek.clear();
   gesprekMelding.hidden = true;
   window.clearTimeout(meldingTimer);
   try{window.sessionStorage.removeItem(gesprokenSleutel);}catch{}
