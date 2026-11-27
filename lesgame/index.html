@@ -116,45 +116,46 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
   .intro-opname{transform:none}
   #verken{transition:none}
 }
-/* R4: historische proloog -> first-person camerafilm -> startscherm. */
+/* R5: een ononderbroken dorpsbeeld, eerst context en daarna HD-film. */
 #intro::after{display:none}
-.intro-video{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;pointer-events:none;transition:opacity .75s ease}
+#intro .intro-opname{animation:none;transform:scale(1.02);filter:saturate(.93) brightness(.98) contrast(1.02)}
+.intro-video{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center;opacity:0;pointer-events:none;transition:opacity .55s ease;filter:none}
 #intro.intro-film .intro-video{opacity:1}
-.intro-nevel,.intro-zon{z-index:2}
-.intro-donker{z-index:3;transition:opacity .9s ease;background:linear-gradient(180deg,#0b100ac0,transparent 36%,#091006c6 100%)}
-#intro.intro-film .intro-donker{opacity:.43}
-#intro.intro-eind .intro-donker{opacity:.85}
-.intro-proloog{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:clamp(20px,7cqw,100px);background:#090d0b;transition:opacity .9s ease,visibility .9s ease}
-.intro-proloog .proloog-zin{position:absolute;left:8%;right:8%;top:50%;margin:0;transform:translateY(-42%);color:#f7ecd5;font:500 clamp(20px,4.3cqh,46px)/1.33 Georgia,serif;text-align:center;text-wrap:balance;opacity:0;text-shadow:0 2px 15px #000;transition:opacity .8s ease,transform .8s ease}
+.intro-nevel,.intro-zon{z-index:2;opacity:.1;pointer-events:none}
+#intro.intro-film .intro-nevel,#intro.intro-film .intro-zon{opacity:.04}
+.intro-donker{z-index:3;transition:opacity .75s ease,background .75s ease;background:linear-gradient(180deg,#0b100ac0,transparent 36%,#091006c6 100%);opacity:.28}
+#intro.intro-film .intro-donker{opacity:.19}
+#intro.intro-eind .intro-donker{background:linear-gradient(90deg,#090f0be8 0%,#090f0bbc 23%,#090f0b5a 52%,transparent 77%),linear-gradient(0deg,#090f0bca 0%,transparent 63%);opacity:1}
+.intro-proloog{position:absolute;inset:0;z-index:5;display:grid;place-items:center;padding:clamp(20px,7cqw,100px);background:#090c09;transition:opacity .85s ease,visibility .85s ease}
+.intro-proloog .proloog-zin{position:absolute;left:8%;right:8%;top:50%;margin:0;transform:translateY(-42%);color:#f4eddd;font:500 clamp(20px,4.2cqh,45px)/1.32 Georgia,serif;text-align:center;text-wrap:balance;opacity:0;text-shadow:0 2px 14px #000;transition:opacity .78s ease,transform .78s ease}
 #intro[data-proloog="1"] .proloog-zin-een,#intro[data-proloog="2"] .proloog-zin-twee{opacity:1;transform:translateY(-50%)}
 #intro.intro-film .intro-proloog,#intro.intro-eind .intro-proloog{opacity:0;visibility:hidden}
-.intro-filmtekst{position:absolute;z-index:4;inset:13% 7% auto;height:26%;pointer-events:none}
-.filmzin{position:absolute;inset:0;display:grid;place-items:center;margin:0;color:#fffae8;font:italic 600 clamp(17px,3.8cqh,39px)/1.22 Georgia,serif;text-align:center;text-wrap:balance;text-shadow:0 2px 18px #050a06,0 1px 5px #050a06;opacity:0;transform:translateY(12px);transition:opacity .65s ease,transform .65s ease}
-#intro.intro-film[data-filmzin="1"] .filmzin-een,#intro.intro-film[data-filmzin="2"] .filmzin-twee,#intro.intro-film[data-filmzin="3"] .filmzin-drie{opacity:1;transform:translateY(0)}
-#intro.intro-eind .filmzin{opacity:0}
-#intro .intro-onder{opacity:0;visibility:hidden;transform:translateY(16px);animation:none;transition:opacity .9s ease,transform .9s ease,visibility .9s ease}
+.intro-locatie{position:absolute;z-index:4;bottom:clamp(21px,5cqh,60px);left:clamp(19px,4.5cqw,70px);margin:0;padding:8px 11px;background:#0b100b78;border-left:2px solid #e8d7b6a8;color:#fff4da;font-size:clamp(11px,1.9cqh,17px);font-weight:600;letter-spacing:.13em;text-transform:uppercase;text-shadow:0 1px 5px #000;opacity:0;transform:translateY(7px);transition:opacity .7s ease,transform .7s ease;pointer-events:none}
+#intro.intro-film .intro-locatie{opacity:1;transform:translateY(0)}
+#intro.intro-eind .intro-locatie{opacity:0}
+#intro .intro-onder{opacity:0;visibility:hidden;transform:translateY(14px);animation:none;transition:opacity .75s ease,transform .75s ease,visibility .75s ease}
 #intro.intro-eind .intro-onder{opacity:1;visibility:visible;transform:translateY(0)}
 #intro .intro-beeld{background:#121c12}
-#intro .intro-opname{animation:none;transform:scale(1.02)}
 #intro.intro-eind .intro-video{opacity:0}
-#intro.intro-eind .intro-opname{animation:introCamera 10s ease-out both}
+#intro.intro-eind .intro-opname{animation:introR5Uitloop 9s ease-out both}
 #intro .intro-bediening{z-index:7}
 #intro.intro-sluit{animation:introVerdwijnt .75s ease-out both}
+@keyframes introR5Uitloop{from{transform:scale(1.10)}to{transform:scale(1.02)}}
 @media(max-aspect-ratio:1/1){
   #intro .intro-video{object-position:center}
-  .intro-filmtekst{inset:20% 5% auto;height:20%}
+  #intro .intro-locatie{bottom:38%;left:5%;right:auto;font-size:11px;letter-spacing:.07em;padding:6px 8px}
+  #intro.intro-eind .intro-donker{background:linear-gradient(0deg,#090f0bed 0%,#090f0baf 35%,transparent 78%)}
   .intro-proloog .proloog-zin{left:6%;right:6%;font-size:clamp(24px,4cqh,38px)}
 }
 @media(max-height:460px) and (min-aspect-ratio:1/1){
-  .intro-filmtekst{inset:17% 5% auto;height:24%}
-  .filmzin{font-size:clamp(16px,4cqh,23px)}
+  #intro .intro-locatie{bottom:14px;left:6%;font-size:10px}
   .intro-proloog .proloog-zin{font-size:clamp(19px,5.1cqh,31px)}
 }
 @media(prefers-reduced-motion:reduce){
   #intro .intro-video{display:none}
-  #intro .intro-proloog,#intro .intro-filmtekst{display:none}
+  #intro .intro-proloog{display:none}
   #intro .intro-onder{transition:none}
-  #intro.intro-eind .intro-opname{animation:none}
+  #intro.intro-eind .intro-opname{animation:none;transform:none}
 }
 #cafe-aanwijzing{position:absolute;inset:0;pointer-events:none}
 #cafe-aanwijzing button{pointer-events:auto}
@@ -232,7 +233,7 @@ main{padding:0}
     <img class="intro-opname" src="beelden/intro/dorpsrand-r3.webp" alt="" decoding="async" fetchpriority="high">
   </picture>
   <video id="intro-video" class="intro-video" preload="auto" muted playsinline tabindex="-1">
-    <source src="beelden/intro/mesch-r4-first-person.mp4" type="video/mp4">
+    <source src="beelden/intro/mesch-r5-first-person-hd.mp4" type="video/mp4">
   </video>
   <div class="intro-nevel"></div>
   <div class="intro-zon"></div>
@@ -242,11 +243,7 @@ main{padding:0}
   <p class="proloog-zin proloog-zin-een">Vier jaar lang leefde Nederland in oorlog.</p>
   <p class="proloog-zin proloog-zin-twee">Maar in Zuid-Limburg komt de bevrijding dichterbij.</p>
 </div>
-<div class="intro-filmtekst" id="intro-filmtekst" aria-hidden="true">
-  <p class="filmzin filmzin-een">September 1944. In Mesch wachten de bewoners gespannen af.</p>
-  <p class="filmzin filmzin-twee">Dan verschijnen de eerste Amerikaanse soldaten.</p>
-  <p class="filmzin filmzin-drie">Voor Mesch begint een dag die alles verandert.</p>
-</div>
+<p class="intro-locatie" aria-hidden="true">Mesch · 12 september 1944</p>
 <div class="intro-bediening">
   <button class="intro-geluid" id="intro-geluid" type="button" aria-pressed="false" aria-label="Sfeergeluid aanzetten">♪ <span id="geluid-status">Geluid aan</span></button>
   <button class="intro-overslaan" id="intro-overslaan" type="button" disabled>Overslaan <span aria-hidden="true">›</span></button>
@@ -1152,7 +1149,6 @@ function toonIntroEind(){
   introAfgerond = true;
   intro.classList.remove("intro-film");
   intro.classList.add("intro-eind");
-  intro.removeAttribute("data-filmzin");
   introVideo.pause();
 }
 function beginFilmischeIntro(){
@@ -1166,16 +1162,15 @@ function beginFilmischeIntro(){
   introTimer(() => {
     intro.classList.add("intro-film");
     intro.removeAttribute("data-proloog");
-    intro.dataset.filmzin = "1";
     introVideo.currentTime = 0;
     const poging = introVideo.play();
     if (poging && typeof poging.catch==="function") poging.catch(() => {});
   },6100);
-  introTimer(() => {intro.dataset.filmzin = "2";},9000);
-  introTimer(() => {intro.dataset.filmzin = "3";},11600);
-  introTimer(toonIntroEind,14500);
+  // Laat de hele dorpsopname zonder grote tekst zien.
+  introTimer(toonIntroEind,14300);
 }
-introVideo.addEventListener("error",() => {/* Geschilderde achtergrond blijft beschikbaar. */});
+introVideo.addEventListener("error",() => {/* Scherpe schildering blijft beschikbaar. */});
+introVideo.addEventListener("ended",() => {if(intro.classList.contains("intro-film"))toonIntroEind();});
 beginFilmischeIntro();
 // Rustig, volledig lokaal gegenereerd sfeergeluid. Standaard uit voor de klas.
 let introAudio = null;
