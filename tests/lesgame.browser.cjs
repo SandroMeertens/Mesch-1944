@@ -6,6 +6,7 @@ const { chromium, webkit } = require("playwright");
 const URL = "http://127.0.0.1:8765/lesgame/";
 async function openGame(browser, viewport, intro = false) {
   const page = await browser.newPage({ viewport, reducedMotion: "reduce" });
+  await page.clock.install();
   const errors = [];
   page.on("pageerror", e => errors.push(e.message));
   page.on("requestfailed", req => {
@@ -59,6 +60,7 @@ async function praatKort(page) {
   if (await toonHeleTekst.count()) await toonHeleTekst.click();
   const eersteReactie=page.locator("#opties .keuze").first();
   await eersteReactie.click();
+  await page.clock.fastForward(30_500);
   await page.locator("#sluit").click();
   await page.locator("#gesprek").waitFor({state:"hidden"});
 }
@@ -86,7 +88,7 @@ try {
     } finally { await page.close(); }
   });
 
-  await test("Gespreksplicht: vooruit vergrendeld, terug vrij en gesprek vereist een echte reactie", async () => {
+  await test("Leestijd: geen voortgang vóór 30 seconden én een echte reactie", async () => {
     const {page,errors}=await openGame(browser,{width:1366,height:768});
     try{
       const verder=page.locator("#routes button[data-heen]");
@@ -96,31 +98,54 @@ try {
       await expectPlace(page,"Dorpsrand");
       await page.locator("#sluit").click();
       await page.locator("#gesprek").waitFor({state:"hidden"});
-      assert.equal(await verder.getAttribute("data-locked"),"","Openen en sluiten alleen mag de route niet vrijgeven");
+      assert.equal(await verder.getAttribute("data-locked"),"","Alleen gesprek openen telt niet");
 
       await page.locator("#praat").click();
       const skip=page.getByRole("button",{name:"Toon hele tekst"});
       if(await skip.count())await skip.click();
-      assert.equal(await verder.getAttribute("data-locked"),"","Alleen de tekst tonen telt nog niet");
+      assert.equal(await verder.getAttribute("data-locked"),"","Alleen hele tekst tonen telt niet");
       await page.getByRole("button",{name:"Lees verder"}).first().click();
+      assert.equal(await verder.getAttribute("data-locked"),"","Reageren voor 30 s telt nog niet");
+      await page.clock.fastForward(29_000);
+      assert.equal(await verder.getAttribute("data-locked"),"","Na 29 s nog vergrendeld");
+      await page.clock.fastForward(1_200);
+      assert.equal(await verder.getAttribute("data-locked"),null,"Na minstens 30 s en reactie mag je verder");
       await page.locator("#sluit").click();
-      assert.equal(await verder.getAttribute("data-locked"),null,"Een echte reactie ontgrendelt de route");
       await verder.click();
       await expectPlace(page,"Bij de heg");
       const vervolg=page.locator("#routes button[data-heen]");
-      assert.equal(await vervolg.getAttribute("data-locked"),"","Elke nieuwe plaat heeft zijn eigen gespreksplicht");
+      assert.equal(await vervolg.getAttribute("data-locked"),"","Nieuwe plaat vereist opnieuw leestijd");
 
       await page.keyboard.press("ArrowRight");
       await page.locator("#gesprek").waitFor({state:"visible"});
       await expectPlace(page,"Bij de heg");
       await page.locator("#sluit").click();
-      assert.equal(await vervolg.getAttribute("data-locked"),"","Pijltjestoets mag de vergrendeling niet omzeilen");
-
+      assert.equal(await vervolg.getAttribute("data-locked"),"","Toetsen mogen niet om de vergrendeling heen");
       await page.getByRole("button",{name:"Dorpsrand",exact:true}).click();
       await expectPlace(page,"Dorpsrand");
-      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null,"Eerder gehouden gesprek blijft afgerond");
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null,"Geslaagd gesprek blijft afgerond");
       await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
       await expectPlace(page,"Bij de heg");
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
+  await test("Leestijd pauzeert bij gesprek sluiten en hervat bij opnieuw openen", async () => {
+    const {page,errors}=await openGame(browser,{width:1366,height:768});
+    try{
+      await page.locator("#praat").click();
+      await page.clock.fastForward(10_000);
+      await page.locator("#sluit").click();
+      await page.clock.fastForward(60_000);
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),"");
+      await page.locator("#praat").click();
+      const label=await page.locator("#leestijd-status").textContent();
+      assert.match(label,/Nog (1[89]|20|21) seconden leestijd/,"Leestijd is gepauzeerd");
+      await page.clock.fastForward(20_500);
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),"","Leestijd zonder reactie geeft geen toegang");
+      await page.getByRole("button",{name:"Lees verder"}).click();
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null);
+      await page.locator("#sluit").click();
       await assertNoPageErrors(errors);
     }finally{await page.close();}
   });
@@ -205,6 +230,7 @@ try {
         await page.getByRole("button",{name:"Toon hele tekst"}).click();
       }
       await page.getByRole("button",{name:"Lees verder"}).first().click();
+      await page.clock.fastForward(30_500);
       await assertConversationVisible(page, errors);
       await page.locator("#sluit").click();
       assert.equal(await page.locator("#gesprek").isHidden(),true);
@@ -231,6 +257,7 @@ try {
         const heleTekst=page.getByRole("button",{name:"Toon hele tekst"});
         if (await heleTekst.count()) await heleTekst.click();
         await page.locator("#opties .keuze").first().click();
+        await page.clock.fastForward(30_500);
         await page.locator("#sluit").click();
         await page.locator("#gesprek").waitFor({state:"hidden"});
         await expectPlace(page,names[i]);
