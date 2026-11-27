@@ -130,6 +130,80 @@ try {
     } finally {await page.close();}
   });
 
+  await test("Alle portretgesprekken en terugkeer naar de juiste plaat", async () => {
+    const {page,errors}=await openGame(browser,{width:1366,height:768});
+    try{
+      const names=["Dorpsrand","Bij de heg","Eerste contact","Bij de school","Aan de Grijzegraaf","Tussen de dorpshuizen","De dorpsstraat","Bij de buren","Het dorpshart","Langs de velden","Voor Café Van Hoven","In Café Van Hoven","In de schuilkelder","Bij de veldkeuken"];
+      assert.equal(await page.locator("#gesprek").evaluate(x=>x.parentElement.id),"spel","Gesprekken zijn geen kinderen van de speelplaat");
+      for(let i=0;i<names.length;i++){
+        await expectPlace(page,names[i]);
+        await page.locator("#praat").click();
+        await page.locator("#gesprek").waitFor({state:"visible"});
+        assert.ok((await page.locator("#rol").textContent()).trim().length>0,"Ontbrekend personage op "+names[i]);
+        await loadedImage(page,"#portret");
+        await page.locator("#sluit").click();
+        await page.locator("#gesprek").waitFor({state:"hidden"});
+        await expectPlace(page,names[i]);
+        if(i<names.length-1)await page.locator("#routes button[data-heen]").click();
+      }
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
+  await test("Café: doeken bekijken, interactie openen en teruggaan", async () => {
+    const {page,errors}=await openGame(browser,{width:1366,height:768});
+    try{
+      for(let i=0;i<11;i++)await page.locator("#routes button[data-heen]").click();
+      await expectPlace(page,"In Café Van Hoven");
+      await page.locator("#praat").click();
+      await page.locator("#gesprek").waitFor({state:"visible"});
+      const skip=page.getByRole("button",{name:"Toon hele tekst"});
+      if(await skip.count())await skip.click();
+      await page.getByRole("button",{name:"Bekijk de doeken op tafel"}).click();
+      assert.equal(await page.locator("#cafe-aanwijzing").isVisible(),true);
+      await page.locator("#doeken").click();
+      await page.locator("#gesprek").waitFor({state:"visible"});
+      await loadedImage(page,"#portret");
+      await page.locator("#sluit").click();
+      await expectPlace(page,"In Café Van Hoven");
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
+  await test("Vraag en tegenvraag van Amerikaanse soldaat", async () => {
+    const {page,errors}=await openGame(browser,{width:1366,height:768});
+    try{
+      await page.locator("#praat").click();
+      await page.locator("#gesprek").waitFor({state:"visible"});
+      const skip=page.getByRole("button",{name:"Toon hele tekst"});
+      if(await skip.count())await skip.click();
+      for(let i=0;i<12;i++){
+        if(await page.getByRole("button",{name:"Naar de vraag"}).count())break;
+        await page.getByRole("button",{name:"Lees verder"}).click();
+      }
+      await page.getByRole("button",{name:"Naar de vraag"}).click();
+      assert.equal(await page.locator("#sluit").isHidden(),true,"Verplichte vraag kan niet worden weggeklikt");
+      await page.locator("#opties .keuze").first().click();
+      assert.equal(await page.locator("#sluit").isVisible(),true);
+      for(let i=0;i<12;i++){
+        if(await page.getByRole("button",{name:"Naar de tegenvraag"}).count())break;
+        const next=page.getByRole("button",{name:"Lees verder"});
+        if(await next.count())await next.click();
+        else if(await skip.count())await skip.click();
+        else break;
+      }
+      await page.getByRole("button",{name:"Naar de tegenvraag"}).click();
+      assert.equal(await page.locator("#sluit").isHidden(),true);
+      await page.locator("#opties .keuze").first().click();
+      assert.equal(await page.locator("#sluit").isVisible(),true);
+      const stored=await page.evaluate(()=>window.sessionStorage.getItem("mesch-verhaalkeuze-v1"));
+      assert.match(stored,/soldaat/);
+      await page.locator("#sluit").click();
+      await expectPlace(page,"Dorpsrand");
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
   await test("Nieuwe lesronde vanuit het spel", async () => {
     const {page,errors}=await openGame(browser,{width:1280,height:800});
     try{
