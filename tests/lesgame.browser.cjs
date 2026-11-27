@@ -35,6 +35,23 @@ async function expectPlace(page, title) {
   );
   assert.equal(await page.locator("#plek").textContent(), title);
 }
+async function assertConversationVisible(page, errors){
+  const visible = await page.locator("#gesprek").isVisible();
+  if (!visible){
+    const debug=await page.evaluate(()=>({
+      introHidden: document.querySelector("#intro").hidden,
+      gesprekHidden: document.querySelector("#gesprek").hidden,
+      praatHidden: document.querySelector("#praat").hidden,
+      praatDisabled: document.querySelector("#praat").disabled,
+      scene: document.querySelector("#plek").textContent,
+      gesprekStyle: getComputedStyle(document.querySelector("#gesprek")).display,
+      currentFocus: document.activeElement?.id,
+      rol: document.querySelector("#rol").textContent
+    }));
+    console.error("GESPREK DEBUG", JSON.stringify({debug,errors}));
+  }
+  assert.equal(visible,true,"Gesprek hoort zichtbaar te zijn");
+}
 async function assertNoPageErrors(errors) {
   assert.deepEqual(errors, [], "Er trad een JavaScript- of netwerkfout op");
 }
@@ -94,20 +111,20 @@ try {
     const { page, errors } = await openGame(browser,{width:1024,height:768});
     try {
       await page.locator("#praat").click();
-      assert.equal(await page.locator("#gesprek").isVisible(),true);
+      await assertConversationVisible(page, errors);
       await loadedImage(page,"#portret");
       assert.match(await page.locator("#rol").textContent(),/Amerikaanse soldaat/);
       if (await page.getByRole("button",{name:"Toon hele tekst"}).count()) {
         await page.getByRole("button",{name:"Toon hele tekst"}).click();
       }
       await page.getByRole("button",{name:"Lees verder"}).first().click();
-      assert.equal(await page.locator("#gesprek").isVisible(),true);
+      await assertConversationVisible(page, errors);
       await page.locator("#sluit").click();
       assert.equal(await page.locator("#gesprek").isHidden(),true);
       await expectPlace(page, "Dorpsrand");
       await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
       await page.locator("#praat").click();
-      assert.equal(await page.locator("#gesprek").isVisible(),true);
+      await assertConversationVisible(page, errors);
       await page.locator("#sluit").click();
       await assertNoPageErrors(errors);
     } finally {await page.close();}
@@ -145,7 +162,7 @@ try {
         await next.click();
         await expectPlace(page, "Bij de heg");
         await page.locator("#praat").click();
-        assert.equal(await page.locator("#gesprek").isVisible(),true);
+        await assertConversationVisible(page, errors);
         assert.equal(await page.locator("#sluit").isVisible(),true);
         await loadedImage(page,"#portret");
         await page.locator("#sluit").click();
