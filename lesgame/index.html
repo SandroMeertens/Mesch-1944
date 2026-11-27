@@ -248,6 +248,7 @@ main{padding:0}
 <div class="intro-donker" aria-hidden="true"></div>
 <div class="intro-proloog" id="intro-proloog" aria-live="polite">
   <p class="proloog-zin proloog-zin-een">Vier jaar lang leefde Nederland in oorlog.</p>
+  <p class="proloog-zin proloog-zin-twee">Maar in Zuid-Limburg komt de bevrijding dichterbij.</p>
 </div>
 <p class="intro-locatie" aria-hidden="true">Mesch · 12 september 1944</p>
 <div class="intro-bediening">
@@ -1140,13 +1141,14 @@ function stopCafeAanwijzing(){
   praat.focus({preventScroll:true});
 }
 praat.addEventListener("click",() => openGesprek());
-// Eén korte proloogzin, gevolgd door de speelbare eerste plaat zonder startknop.
+// Twee korte proloogzinnen na elkaar, daarna automatisch de eerste speelplaat zonder startknop.
 const introTimers = [];
 let introAfgerond = false;
 function introTimer(fn,ms){introTimers.push(window.setTimeout(() => {if(!intro.hidden && !introAfgerond) fn();},ms));}
 function beginFilmischeIntro(){
   intro.dataset.proloog = "1";
-  introTimer(() => beginSpel(),3000);
+  introTimer(() => { intro.dataset.proloog = "2"; },2300);
+  introTimer(() => beginSpel(),5000);
 }
 beginFilmischeIntro();
 // Rustig, volledig lokaal gegenereerd sfeergeluid. Standaard uit voor de klas.
