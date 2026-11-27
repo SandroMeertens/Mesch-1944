@@ -768,6 +768,10 @@ function gesprekNodig(){return Boolean(plekken[plaats]?.stem && !gesprokenPlekke
 function verversLeestijdStatus(){
   if(!plekken[plaats]?.stem){leestijdStatus.hidden=true;return;}
   leestijdStatus.hidden=false;
+  if(gesprokenPlekken.has(plaats)){
+    leestijdStatus.textContent="Gesprek afgerond — je mag verder";
+    return;
+  }
   const seconden=resterendeLeesSeconden();
   leestijdStatus.textContent=seconden>0
     ? "Nog "+seconden+" seconden leestijd"
