@@ -1,0 +1,41 @@
+name: Test de volledige lesgame
+on:
+  push:
+    branches: [main]
+    paths:
+      - "lesgame/**"
+      - "tests/lesgame.browser.cjs"
+      - ".github/workflows/test-lesgame.yml"
+  pull_request:
+    paths:
+      - "lesgame/**"
+      - "tests/lesgame.browser.cjs"
+      - ".github/workflows/test-lesgame.yml"
+permissions:
+  contents: read
+jobs:
+  browser-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - name: Haal het bestaande project op
+        uses: actions/checkout@v4
+      - name: Installeer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Installeer testbrowser
+        run: |
+          npm install --no-save playwright
+          npx playwright install --with-deps chromium
+      - name: Start lokale game-server
+        run: |
+          python3 -m http.server 8765 --bind 127.0.0.1 >/tmp/mesch-http.log 2>&1 &
+          for i in $(seq 1 15); do
+            if curl -fsS -o /dev/null http://127.0.0.1:8765/lesgame/; then exit 0; fi
+            sleep 1
+          done
+          cat /tmp/mesch-http.log
+          exit 1
+      - name: Test intro, route, gesprekken, telefoon, iPad en digibord
+        run: node tests/lesgame.browser.cjs
