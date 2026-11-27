@@ -60,7 +60,7 @@ async function praatKort(page) {
   if (await toonHeleTekst.count()) await toonHeleTekst.click();
   const eersteReactie=page.locator("#opties .keuze").first();
   await eersteReactie.click();
-  await page.clock.fastForward(30_500);
+  await page.clock.fastForward(15_500);
   await page.locator("#sluit").click();
   await page.locator("#gesprek").waitFor({state:"hidden"});
 }
@@ -88,7 +88,7 @@ try {
     } finally { await page.close(); }
   });
 
-  await test("Leestijd: geen voortgang vóór 30 seconden én een echte reactie", async () => {
+  await test("Leestijd: geen voortgang vóór 15 seconden én een echte reactie", async () => {
     const {page,errors}=await openGame(browser,{width:1366,height:768});
     try{
       const verder=page.locator("#routes button[data-heen]");
@@ -105,11 +105,11 @@ try {
       if(await skip.count())await skip.click();
       assert.equal(await verder.getAttribute("data-locked"),"","Alleen hele tekst tonen telt niet");
       await page.getByRole("button",{name:"Lees verder"}).first().click();
-      assert.equal(await verder.getAttribute("data-locked"),"","Reageren voor 30 s telt nog niet");
-      await page.clock.fastForward(29_000);
-      assert.equal(await verder.getAttribute("data-locked"),"","Na 29 s nog vergrendeld");
+      assert.equal(await verder.getAttribute("data-locked"),"","Reageren voor 15 s telt nog niet");
+      await page.clock.fastForward(14_000);
+      assert.equal(await verder.getAttribute("data-locked"),"","Na 14 s nog vergrendeld");
       await page.clock.fastForward(1_200);
-      assert.equal(await verder.getAttribute("data-locked"),null,"Na minstens 30 s en reactie mag je verder");
+      assert.equal(await verder.getAttribute("data-locked"),null,"Na minstens 15 s en reactie mag je verder");
       await page.locator("#sluit").click();
       await verder.click();
       await expectPlace(page,"Bij de heg");
@@ -140,8 +140,8 @@ try {
       assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),"");
       await page.locator("#praat").click();
       const label=await page.locator("#leestijd-status").textContent();
-      assert.match(label,/Nog (1[89]|20|21) seconden leestijd/,"Leestijd is gepauzeerd");
-      await page.clock.fastForward(20_500);
+      assert.match(label,/Nog ([3456]) seconden leestijd/,"Leestijd is gepauzeerd");
+      await page.clock.fastForward(5_500);
       assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),"","Leestijd zonder reactie geeft geen toegang");
       await page.getByRole("button",{name:"Lees verder"}).click();
       assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null);
@@ -230,7 +230,7 @@ try {
         await page.getByRole("button",{name:"Toon hele tekst"}).click();
       }
       await page.getByRole("button",{name:"Lees verder"}).first().click();
-      await page.clock.fastForward(30_500);
+      await page.clock.fastForward(15_500);
       await assertConversationVisible(page, errors);
       await page.locator("#sluit").click();
       assert.equal(await page.locator("#gesprek").isHidden(),true);
@@ -257,7 +257,7 @@ try {
         const heleTekst=page.getByRole("button",{name:"Toon hele tekst"});
         if (await heleTekst.count()) await heleTekst.click();
         await page.locator("#opties .keuze").first().click();
-        await page.clock.fastForward(30_500);
+        await page.clock.fastForward(15_500);
         await page.locator("#sluit").click();
         await page.locator("#gesprek").waitFor({state:"hidden"});
         await expectPlace(page,names[i]);
