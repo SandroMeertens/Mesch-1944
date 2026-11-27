@@ -35,6 +35,10 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .plaatknop{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent}
 .plaatknop-icoon{display:grid;place-items:center;width:29px;height:29px;border:1px solid #f8efd93d;border-radius:50%;background:#22251d3d;color:#fff5dd;opacity:.57;font-size:16px;line-height:1;font-weight:600;text-shadow:0 1px 3px #14140f}
 .route[data-heen] .plaatknop-icoon{width:31px;height:31px;background:#344421f5;border-color:#cbd99ec9;color:#ffffe9;opacity:1;box-shadow:0 1px 4px #14170e66}
+.route[data-locked] .plaatknop-icoon{background:#242d20e0;border-color:#ddd2b27a;color:#e3ddcf;opacity:.72}
+.route[data-locked]::after{content:"🔒";position:absolute;top:-7px;right:-5px;font-size:13px;filter:drop-shadow(0 1px 2px #12170e);pointer-events:none}
+#spel[data-gesprek-nodig] #praat .plaatknop-icoon{background:#5b4729e8;border:2px solid #e8d59f;opacity:1;box-shadow:0 0 0 4px #e8d59f26}
+#gesprek-melding{position:absolute;z-index:2;left:50%;bottom:clamp(22px,6cqh,65px);transform:translateX(-50%);max-width:85%;padding:7px 12px;border-radius:9px;background:#162820e8;border:1px solid #e6d4a3aa;color:#fff4d8;font-size:clamp(12px,2.1cqh,17px);text-align:center;pointer-events:none}
 .plaatknop:is(:hover,:focus-visible,:active) .plaatknop-icoon{opacity:1;background:#373b2de8;border-color:#fff5dd}
 .route[data-heen]:is(:hover,:focus-visible,:active) .plaatknop-icoon{background:#43572a;border-color:#fff5dd}
 .plaatknop-icoon svg{width:14px;height:14px}
@@ -233,6 +237,7 @@ main{padding:0}
 <button class="plaatknop" id="praat" type="button" hidden>
 <span class="plaatknop-icoon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h16v12H9l-5 4z"/></svg></span>
 </button>
+<p id="gesprek-melding" role="status" aria-live="polite" hidden>Praat eerst met de persoon voordat je verdergaat</p>
 <section id="intro" aria-label="Introductie Mesch 1944" hidden>
 <div class="intro-beeld" aria-hidden="true">
   <picture>
@@ -705,6 +710,7 @@ const plaat = document.querySelector("#plaat");
 const plek = document.querySelector("#plek");
 const routes = document.querySelector("#routes");
 const praat = document.querySelector("#praat");
+const gesprekMelding = document.querySelector("#gesprek-melding");
 const intro = document.querySelector("#intro");
 let eerstePlaatKlaar = false;
 const introOverslaan = document.querySelector("#intro-overslaan");
@@ -733,6 +739,47 @@ const cache = new Map();
 let plaats = 0;
 let wissel = 0;
 let schoolVertrek;
+const gesprokenPlekken = new Set();
+const gesprokenSleutel = "mesch-gesproken-plekken-v1";
+try {
+  const herstel = JSON.parse(window.sessionStorage.getItem(gesprokenSleutel));
+  if (Array.isArray(herstel)) for (const id of herstel) {
+    if (Number.isInteger(id) && plekken[id]?.stem) gesprokenPlekken.add(id);
+  }
+} catch { /* Zonder opslag werkt de gespreksplicht in deze lesronde gewoon door. */ }
+function gesprekNodig(){return Boolean(plekken[plaats]?.stem && !gesprokenPlekken.has(plaats));}
+function verversGespreksRoutes(){
+  const nodig = gesprekNodig();
+  spel.toggleAttribute("data-gesprek-nodig",nodig);
+  for(const knop of routes.querySelectorAll("button[data-verder]")){
+    knop.toggleAttribute("data-locked",nodig);
+    knop.title = nodig ? "Praat eerst met de persoon voordat je verdergaat" : knop.getAttribute("aria-label");
+    knop.setAttribute("aria-description",nodig ? "Eerst het gesprek openen en minstens één reactie kiezen" : "Je kunt verderlopen");
+  }
+}
+function registreerGesprek(){
+  if(!plekken[plaats]?.stem || gesprokenPlekken.has(plaats))return;
+  gesprokenPlekken.add(plaats);
+  try{window.sessionStorage.setItem(gesprokenSleutel,JSON.stringify([...gesprokenPlekken]));}
+  catch { /* Blijft in de huidige lesronde werken. */ }
+  gesprekMelding.hidden = true;
+  verversGespreksRoutes();
+}
+let meldingTimer;
+function toonGesprekMelding(){
+  gesprekMelding.hidden=false;
+  window.clearTimeout(meldingTimer);
+  meldingTimer=window.setTimeout(()=>{gesprekMelding.hidden=true;},2800);
+}
+function probeerUitgang(uitgang){
+  if(uitgang.verder && gesprekNodig()){
+    toonGesprekMelding();
+    // In plaats van verdwalen wordt de leerling naar het aanwezige gesprek geleid.
+    openGesprek();
+    return;
+  }
+  toonPlek(uitgang.doel,true);
+}
 const staand = window.matchMedia("(max-aspect-ratio: 1/1)");
 function uitgangen(index){
   const {terug,heen,ingang} = plekken[index];
@@ -744,8 +791,8 @@ function uitgangen(index){
   if (index === schoollokaal) return [{doel:schoolBuiten,positie:terug}];
   const lijst = [];
   if (terug) lijst.push({doel:index - 1,positie:terug});
-  if (ingang) lijst.push({doel:schoollokaal,positie:ingang});
-  if (heen) lijst.push({doel:index + 1,positie:heen,heen:true});
+  if (ingang) lijst.push({doel:schoollokaal,positie:ingang,verder:true});
+  if (heen) lijst.push({doel:index + 1,positie:heen,heen:true,verder:true});
   return lijst;
 }
 function plaatsBediening(){
@@ -812,11 +859,13 @@ function laadBeeld(id){
   }
   return cache.get(id);
 }
-function maakRoute({doel,positie:[,,pijl,label],heen}){
+function maakRoute(uitgang){
+  const {positie:[,,pijl,label],heen,verder} = uitgang;
   const knop = document.createElement("button");
   knop.type = "button";
   knop.className = "plaatknop route";
   if (heen) knop.setAttribute("data-heen","");
+  if (verder) knop.setAttribute("data-verder","");
   const icoon = document.createElement("span");
   icoon.className = "plaatknop-icoon";
   icoon.setAttribute("aria-hidden","true");
@@ -824,7 +873,7 @@ function maakRoute({doel,positie:[,,pijl,label],heen}){
   knop.append(icoon);
   knop.setAttribute("aria-label",label);
   knop.title = label;
-  knop.addEventListener("click",() => toonPlek(doel,true));
+  knop.addEventListener("click",() => probeerUitgang(uitgang));
   routes.append(knop);
 }
 async function toonPlek(index,focusRoute = false){
@@ -851,6 +900,8 @@ async function toonPlek(index,focusRoute = false){
     laadBeeld(plekken[uitgang.doel].beeld);
   }
   toonCafeAanwijzing(false);
+  gesprekMelding.hidden = true;
+  verversGespreksRoutes();
   praat.disabled = false;
   eerstePlaatKlaar = true;
   introOverslaan.disabled = false;
@@ -920,7 +971,11 @@ function toonAntwoord(tekst,keuzes,{stem,typen = false} = {}){
     knop.type = "button";
     knop.className = "keuze";
     knop.textContent = label;
-    knop.addEventListener("click",actie);
+    knop.addEventListener("click",() => {
+      // Alleen een echte reactie telt; openen/sluiten of 'Toon hele tekst' niet.
+      if (!["Toon hele tekst","Terug naar de plaat"].includes(label)) registreerGesprek();
+      actie();
+    });
     opties.append(knop);
     return knop;
   };
@@ -1283,6 +1338,10 @@ startRonde.addEventListener("click",async () => {
     // The new round still works when browser storage is unavailable.
   }
   schoolVertrek = undefined;
+  gesprokenPlekken.clear();
+  gesprekMelding.hidden = true;
+  window.clearTimeout(meldingTimer);
+  try{window.sessionStorage.removeItem(gesprokenSleutel);}catch{}
   over.close();
   await toonPlek(0);
   plek.focus({preventScroll:true});
@@ -1312,7 +1371,7 @@ document.addEventListener("keydown",event => {
   const passendeUitgangen = uitgangen(plaats).filter(({positie}) => richtingen[positie[2]].includes(event.key));
   if (passendeUitgangen.length === 1){
     event.preventDefault();
-    toonPlek(passendeUitgangen[0].doel,true);
+    probeerUitgang(passendeUitgangen[0]);
   }
 });
 if (typeof ResizeObserver === "function") new ResizeObserver(plaatsBediening).observe(spel);
