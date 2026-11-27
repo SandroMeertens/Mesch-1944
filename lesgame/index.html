@@ -35,6 +35,21 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .plaatknop{display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;border-radius:50%;background:transparent}
 .plaatknop-icoon{display:grid;place-items:center;width:29px;height:29px;border:1px solid #f8efd93d;border-radius:50%;background:#22251d3d;color:#fff5dd;opacity:.57;font-size:16px;line-height:1;font-weight:600;text-shadow:0 1px 3px #14140f}
 .route[data-heen] .plaatknop-icoon{width:31px;height:31px;background:#344421f5;border-color:#cbd99ec9;color:#ffffe9;opacity:1;box-shadow:0 1px 4px #14170e66}
+.route[data-einde]{width:clamp(76px,13cqw,120px);height:clamp(60px,10cqh,82px);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px}
+.route[data-einde] .plaatknop-icoon{width:clamp(36px,6cqh,48px);height:clamp(36px,6cqh,48px);font-size:clamp(19px,3cqh,25px);background:#485f2dfa;border-color:#e6d79d;box-shadow:0 0 0 4px #d6c99533,0 3px 14px #0e150be8}
+.route-eindlabel{padding:1px 8px;border-radius:999px;background:#1a231ae8;border:1px solid #e6d79da6;color:#fff4d8;font-weight:800;line-height:1.2;font-size:clamp(11px,1.8cqh,14px);letter-spacing:.07em;text-transform:uppercase}
+.route[data-locked][data-einde] .plaatknop-icoon{background:#242d20e0}
+#eindscherm{position:absolute;inset:0;z-index:7;display:grid;place-items:center;padding:clamp(12px,3cqh,32px) clamp(12px,5cqw,64px);background:linear-gradient(180deg,#10190de8 0%,#11160cec 100%);-webkit-backdrop-filter:blur(7px);backdrop-filter:blur(7px);animation:eindeIn .6s ease-out both}
+#eindkaart{width:min(100%,760px);max-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(7px,1.5cqh,15px);text-align:center}
+#eindkaart .eind-kicker{font-size:clamp(10px,1.8cqh,15px);font-weight:750;letter-spacing:.21em;color:#e8d6a8;text-transform:uppercase}
+#eindkaart h2{font:700 clamp(29px,7cqh,68px)/1.04 Georgia,serif;text-shadow:0 4px 24px #000}
+#eindkaart .eind-tekst{max-width:640px;font-size:clamp(13px,2.4cqh,20px);line-height:1.4;color:#f1e8d5}
+#eindkaart .eind-vraag{max-width:600px;font-size:clamp(13px,2.35cqh,20px);line-height:1.35;color:#f5dc9e;font-weight:650}
+#eindkaart .eind-acties{display:flex;justify-content:center;flex-wrap:wrap;gap:clamp(7px,1.7cqh,13px);padding-top:clamp(4px,1cqh,8px)}
+#eindkaart .eind-primair{background:#495e2e;border-color:#dddfae;font-weight:750}
+#eindkaart .eind-primair:hover{background:#617c3d}
+@keyframes eindeIn{from{opacity:0}to{opacity:1}}
+@media(prefers-reduced-motion:reduce){#eindscherm{animation:none}}
 .route[data-locked] .plaatknop-icoon{background:#242d20e0;border-color:#ddd2b27a;color:#e3ddcf;opacity:.72}
 .route[data-locked]::after{content:"🔒";position:absolute;top:-7px;right:-5px;font-size:13px;filter:drop-shadow(0 1px 2px #12170e);pointer-events:none}
 #spel[data-gesprek-nodig] #praat .plaatknop-icoon{background:#5b4729e8;border:2px solid #e8d59f;opacity:1;box-shadow:0 0 0 4px #e8d59f26}
@@ -280,6 +295,19 @@ main{padding:0}
 <p class="tekst" id="antwoord" tabindex="-1"><span id="leesbare-tekst"></span><span id="typende-tekst" aria-hidden="true"></span></p>
 <div id="opties"></div>
 </div>
+</section>
+<section id="eindscherm" role="dialog" aria-modal="true" aria-labelledby="eind-titel" aria-describedby="eind-uitleg" hidden>
+  <div id="eindkaart">
+    <p class="eind-kicker">Mesch · 12 september 1944</p>
+    <h2 id="eind-titel">Je tocht is voltooid</h2>
+    <p id="eind-uitleg" class="eind-tekst">Je zag Amerikaanse soldaten aankomen, hoorde hoe bewoners moesten schuilen en ontdekte wat de bevrijding voor Jean betekende.</p>
+    <p class="eind-tekst">Mesch was bevrijd. Maar de oorlog was nog niet voorbij en niet heel Nederland was al vrij.</p>
+    <p class="eind-vraag">Welk verhaal uit Mesch zou jij doorvertellen?</p>
+    <div class="eind-acties">
+      <button class="knop eind-primair" id="eind-opnieuw" type="button">Speel opnieuw ↻</button>
+      <button class="knop" id="eind-terug" type="button">Terug naar de veldkeuken</button>
+    </div>
+  </div>
 </section>
 </section>
 </main>
@@ -730,6 +758,9 @@ const startRonde = document.querySelector("#start-ronde");
 const over = document.querySelector("#over");
 const nieuweRonde = document.querySelector("#nieuwe-ronde");
 const gesprek = document.querySelector("#gesprek");
+const eindscherm = document.querySelector("#eindscherm");
+const eindOpnieuw = document.querySelector("#eind-opnieuw");
+const eindTerug = document.querySelector("#eind-terug");
 const portret = document.querySelector("#portret");
 const sluit = document.querySelector("#sluit");
 const rol = document.querySelector("#rol");
@@ -780,6 +811,7 @@ function probeerUitgang(uitgang){
     openGesprek();
     return;
   }
+  if(uitgang.einde){toonEindscherm();return;}
   toonPlek(uitgang.doel,true);
 }
 const staand = window.matchMedia("(max-aspect-ratio: 1/1)");
@@ -795,6 +827,9 @@ function uitgangen(index){
   if (terug) lijst.push({doel:index - 1,positie:terug});
   if (ingang) lijst.push({doel:schoollokaal,positie:ingang,verder:true});
   if (heen) lijst.push({doel:index + 1,positie:heen,heen:true,verder:true});
+  if (index === veldkeuken) lijst.push({
+    doel:"einde",positie:[79,67,"→","Rond je tocht af"],heen:true,verder:true,einde:true
+  });
   return lijst;
 }
 function plaatsBediening(){
@@ -862,17 +897,24 @@ function laadBeeld(id){
   return cache.get(id);
 }
 function maakRoute(uitgang){
-  const {positie:[,,pijl,label],heen,verder} = uitgang;
+  const {positie:[,,pijl,label],heen,verder,einde} = uitgang;
   const knop = document.createElement("button");
   knop.type = "button";
   knop.className = "plaatknop route";
   if (heen) knop.setAttribute("data-heen","");
   if (verder) knop.setAttribute("data-verder","");
+  if (einde) knop.setAttribute("data-einde","");
   const icoon = document.createElement("span");
   icoon.className = "plaatknop-icoon";
   icoon.setAttribute("aria-hidden","true");
   icoon.textContent = pijl;
   knop.append(icoon);
+  if(einde){
+    const bijschrift=document.createElement("span");
+    bijschrift.className="route-eindlabel";
+    bijschrift.textContent="Einde";
+    knop.append(bijschrift);
+  }
   knop.setAttribute("aria-label",label);
   knop.title = label;
   knop.addEventListener("click",() => probeerUitgang(uitgang));
@@ -899,7 +941,7 @@ async function toonPlek(index,focusRoute = false){
   routes.replaceChildren();
   for (const uitgang of uitgangen(index)){
     maakRoute(uitgang);
-    laadBeeld(plekken[uitgang.doel].beeld);
+    if(!uitgang.einde)laadBeeld(plekken[uitgang.doel].beeld);
   }
   toonCafeAanwijzing(false);
   gesprekMelding.hidden = true;
@@ -1088,14 +1130,7 @@ function openGesprek(){
     }]));
   };
   const beginJeansOpdracht = () => {
-    const toonSlot = () => {
-      slotOpen = true;
-      rol.textContent = "Einde van je tocht";
-      toonAntwoord(jeansVerhaal.slot,[
-        ["Nieuwe ronde",() => bevestigRonde.showModal()],
-        ["Terug naar de veldkeuken",terug]
-      ]);
-    };
+    const toonSlot = () => toonEindscherm();
     const naarSlot = ["Naar het einde",toonSlot];
     const geefVoorbeeld = () => toonAntwoord(jeansVerhaal.voorbeeld,[naarSlot,...einde]);
     const legUit = () => toonAntwoord(
@@ -1142,6 +1177,25 @@ function openGesprek(){
   sluit.hidden = false;
   zetGesprek(true);
   eersteVraag();
+}
+function toonEindscherm(){
+  // Alleen na de ontmoeting bij de veldkeuken; nooit bij een eerdere scène.
+  if(plaats!==veldkeuken || gesprekNodig() || !intro.hidden)return;
+  if(!gesprek.hidden)zetGesprek(false);
+  eindscherm.hidden=false;
+  routes.inert=true;
+  praat.inert=true;
+  herstart.inert=true;
+  info.inert=true;
+  eindOpnieuw.focus({preventScroll:true});
+}
+function sluitEindscherm(){
+  eindscherm.hidden=true;
+  routes.inert=false;
+  praat.inert=false;
+  herstart.inert=false;
+  info.inert=false;
+  praat.focus({preventScroll:true});
 }
 function stopCafeAanwijzing(){
   toonCafeAanwijzing(false);
@@ -1276,10 +1330,9 @@ herstart.addEventListener("click",() => {
 nieuweRonde.addEventListener("click",() => {
   if (!nieuweRonde.hidden && over.open && gesprek.hidden && !bevestigRonde.open) bevestigRonde.showModal();
 });
-startRonde.addEventListener("click",async () => {
-  if (!bevestigRonde.open || (!gesprek.hidden && !slotOpen)) return;
-  bevestigRonde.close();
-  if (slotOpen) zetGesprek(false);
+async function speelNieuweRonde(){
+  if(!eindscherm.hidden)sluitEindscherm();
+  if (!gesprek.hidden)zetGesprek(false);
   if (!intro.hidden) sluitIntro();
   gekozenAntwoorden.clear();
   afgerondeGesprekken.clear();
@@ -1294,11 +1347,27 @@ startRonde.addEventListener("click",async () => {
   gesprekMelding.hidden = true;
   window.clearTimeout(meldingTimer);
   try{window.sessionStorage.removeItem(gesprokenSleutel);}catch{}
-  over.close();
+  if(over.open)over.close();
   await toonPlek(0);
   plek.focus({preventScroll:true});
+}
+startRonde.addEventListener("click",async () => {
+  if(!bevestigRonde.open || (!gesprek.hidden && !slotOpen))return;
+  bevestigRonde.close();
+  await speelNieuweRonde();
 });
+eindOpnieuw.addEventListener("click",async () => speelNieuweRonde());
+eindTerug.addEventListener("click",sluitEindscherm);
 document.addEventListener("keydown",event => {
+  if(!eindscherm.hidden && !bevestigRonde.open){
+    if(event.key==="Escape"){event.preventDefault();sluitEindscherm();return;}
+    if(event.key==="Tab"){
+      const actief=document.activeElement;
+      if(event.shiftKey && actief===eindOpnieuw){event.preventDefault();eindTerug.focus();}
+      else if(!event.shiftKey && actief===eindTerug){event.preventDefault();eindOpnieuw.focus();}
+    }
+    return;
+  }
   if (bevestigRonde.open) return;
   if (!gesprek.hidden){
     if (event.key === "Escape") zetGesprek(false);
