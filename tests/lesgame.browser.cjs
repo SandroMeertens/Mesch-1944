@@ -1,7 +1,7 @@
 /* Browsertests voor de bestaande leerlinggame Mesch 1944. */
 const { test } = require("node:test");
 const assert = require("node:assert/strict");
-const { chromium } = require("playwright");
+const { chromium, webkit } = require("playwright");
 
 const URL = "http://127.0.0.1:8765/lesgame/";
 async function openGame(browser, viewport, intro = false) {
@@ -243,6 +243,26 @@ try {
         await assertNoPageErrors(errors);
       }finally{await page.close();}
     }
+  });
+  await test("WebKit: iPad en iPhone met navigatie en gesprekken", async () => {
+    const safari=await webkit.launch({headless:true});
+    try{
+      for(const viewport of [{width:820,height:1180},{width:390,height:844}]){
+        const {page,errors}=await openGame(safari,viewport);
+        try{
+          await loadedImage(page);
+          await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
+          await expectPlace(page,"Bij de heg");
+          await page.locator("#praat").click();
+          await page.locator("#gesprek").waitFor({state:"visible"});
+          await loadedImage(page,"#portret");
+          await page.locator("#sluit").click();
+          await page.locator("#gesprek").waitFor({state:"hidden"});
+          assert.equal(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight+2),true);
+          await assertNoPageErrors(errors);
+        }finally{await page.close();}
+      }
+    }finally{await safari.close();}
   });
 } finally { await browser.close(); }
 })().catch(err=>{console.error(err);process.exitCode=1;});
