@@ -107,7 +107,7 @@ try {
       await page.getByRole("button",{name:"Lees verder"}).first().click();
       assert.equal(await verder.getAttribute("data-locked"),"","Reageren voor 15 s telt nog niet");
       assert.equal(await page.locator("#leestijd-status").count(),0,"Geen zichtbare leestijdmelding");
-      assert.doesNotMatch(await verder.getAttribute("title"),/\\d+\\s*seconden/,"Geen seconden in de routehint");
+      assert.doesNotMatch(await verder.getAttribute("title"),/\d+\s*seconden/,"Geen seconden in de routehint");
       await page.clock.fastForward(14_000);
       assert.equal(await verder.getAttribute("data-locked"),"","Na 14 s nog vergrendeld");
       await page.clock.fastForward(1_200);
@@ -145,7 +145,7 @@ try {
       const resterend=await page.evaluate(() => (MIN_LEESTIJD_MS-leesVerstreken(0))/1000);
       assert.ok(resterend>3.5 && resterend<6.5,"De onzichtbare leestijd moet gepauzeerd zijn");
       const uitleg=await page.locator("#routes button[data-heen]").getAttribute("title");
-      assert.doesNotMatch(uitleg,/\\d+\\s*seconden/,"Ook de pijl mag geen aftelling tonen");
+      assert.doesNotMatch(uitleg,/\d+\s*seconden/,"Ook de pijl mag geen aftelling tonen");
       await page.clock.fastForward(5_500);
       assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),"","Leestijd zonder reactie geeft geen toegang");
       await page.getByRole("button",{name:"Lees verder"}).click();
