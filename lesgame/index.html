@@ -205,6 +205,13 @@ main{padding:0}
 .keuze{font-size:clamp(11px,3.3cqh,13px);padding:4px 7px}
 }
 
+/* R3: eerste zin verschijnt meteen; daarna de bestaande speelplaat en pijlen. */
+#intro{background:#090c09}
+#intro .intro-beeld,#intro .intro-onder,#intro .intro-locatie,#intro .intro-geluid{display:none!important}
+#intro .intro-proloog{display:grid!important;opacity:1;visibility:visible}
+#intro .proloog-zin{transition:opacity .25s ease,transform .25s ease}
+#intro.intro-sluit{animation:introVerdwijnt .52s ease-out both}
+@media (prefers-reduced-motion:reduce){#intro.intro-sluit{animation:none!important}}
 </style>
 <link rel="preload" as="image" href="beelden/intro/dorpsrand-r3.webp" fetchpriority="high">
 </head>
@@ -226,13 +233,13 @@ main{padding:0}
 <button class="plaatknop" id="praat" type="button" hidden>
 <span class="plaatknop-icoon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"><path d="M4 4h16v12H9l-5 4z"/></svg></span>
 </button>
-<section id="intro" aria-labelledby="intro-titel" hidden>
+<section id="intro" aria-label="Introductie Mesch 1944" hidden>
 <div class="intro-beeld" aria-hidden="true">
   <picture>
     <source media="(max-width:740px) and (max-height:650px)" srcset="beelden/intro/mobile/dorpsrand-r3.webp">
     <img class="intro-opname" src="beelden/intro/dorpsrand-r3.webp" alt="" decoding="async" fetchpriority="high">
   </picture>
-  <video id="intro-video" class="intro-video" preload="auto" muted playsinline tabindex="-1">
+  <video id="intro-video" class="intro-video" preload="none" muted playsinline tabindex="-1">
     <source src="beelden/intro/mesch-r5-first-person-hd.mp4" type="video/mp4">
   </video>
   <div class="intro-nevel"></div>
@@ -241,21 +248,14 @@ main{padding:0}
 <div class="intro-donker" aria-hidden="true"></div>
 <div class="intro-proloog" id="intro-proloog" aria-hidden="true">
   <p class="proloog-zin proloog-zin-een">Vier jaar lang leefde Nederland in oorlog.</p>
-  <p class="proloog-zin proloog-zin-twee">Maar in Zuid-Limburg komt de bevrijding dichterbij.</p>
 </div>
 <p class="intro-locatie" aria-hidden="true">Mesch · 12 september 1944</p>
 <div class="intro-bediening">
   <button class="intro-geluid" id="intro-geluid" type="button" aria-pressed="false" aria-label="Sfeergeluid aanzetten">♪ <span id="geluid-status">Geluid aan</span></button>
   <button class="intro-overslaan" id="intro-overslaan" type="button" disabled>Overslaan <span aria-hidden="true">›</span></button>
 </div>
-<div class="intro-onder">
-  <p class="intro-plaats">12 september 1944 · Zuid-Limburg</p>
-  <h2 id="intro-titel">MESCH 1944 <span>Beleef de bevrijding</span></h2>
-  <p class="intro-belofte">Ontmoet de mensen. Ontdek hun verhalen.</p>
-  <button class="knop" id="verken" type="button" disabled>Stap het dorp binnen <span aria-hidden="true">→</span></button>
-  <p class="intro-hint">Volg de weg. Praat met mensen. Ontdek verschillende verhalen.</p>
-</div>
 </section>
+<div id="cafe-aanwijzing"</section>
 <div id="cafe-aanwijzing" hidden>
 <button id="doeken" type="button" aria-label="Bekijk de doeken op tafel"></button>
 <div class="kijkuitleg">
@@ -706,7 +706,7 @@ const plek = document.querySelector("#plek");
 const routes = document.querySelector("#routes");
 const praat = document.querySelector("#praat");
 const intro = document.querySelector("#intro");
-const verken = document.querySelector("#verken");
+let eerstePlaatKlaar = false;
 const introOverslaan = document.querySelector("#intro-overslaan");
 const introVideo = document.querySelector("#intro-video");
 
@@ -852,7 +852,7 @@ async function toonPlek(index,focusRoute = false){
   }
   toonCafeAanwijzing(false);
   praat.disabled = false;
-  verken.disabled = false;
+  eerstePlaatKlaar = true;
   introOverslaan.disabled = false;
   if (nieuw.stem){
     const {knop,label = "Praat met " + knop} = gesprekken[nieuw.stem];
@@ -1140,37 +1140,14 @@ function stopCafeAanwijzing(){
   praat.focus({preventScroll:true});
 }
 praat.addEventListener("click",() => openGesprek());
-// Eerst historische context, daarna loopfilm en tenslotte zelf de wereld binnenstappen.
+// Eén korte proloogzin, gevolgd door de speelbare eerste plaat zonder startknop.
 const introTimers = [];
 let introAfgerond = false;
 function introTimer(fn,ms){introTimers.push(window.setTimeout(() => {if(!intro.hidden && !introAfgerond) fn();},ms));}
-function toonIntroEind(){
-  if (introAfgerond || intro.hidden) return;
-  introAfgerond = true;
-  intro.classList.remove("intro-film");
-  intro.classList.add("intro-eind");
-  introVideo.pause();
-}
 function beginFilmischeIntro(){
-  if (minderBeweging.matches || navigator.connection?.saveData){
-    introAfgerond = false;
-    toonIntroEind();
-    return;
-  }
   intro.dataset.proloog = "1";
-  introTimer(() => {intro.dataset.proloog = "2";},3100);
-  introTimer(() => {
-    intro.classList.add("intro-film");
-    intro.removeAttribute("data-proloog");
-    introVideo.currentTime = 0;
-    const poging = introVideo.play();
-    if (poging && typeof poging.catch==="function") poging.catch(() => {});
-  },6100);
-  // Laat de hele dorpsopname zonder grote tekst zien.
-  introTimer(toonIntroEind,14300);
+  introTimer(() => beginSpel(),3000);
 }
-introVideo.addEventListener("error",() => {/* Scherpe schildering blijft beschikbaar. */});
-introVideo.addEventListener("ended",() => {if(intro.classList.contains("intro-film"))toonIntroEind();});
 beginFilmischeIntro();
 // Rustig, volledig lokaal gegenereerd sfeergeluid. Standaard uit voor de klas.
 let introAudio = null;
@@ -1246,22 +1223,24 @@ function sluitIntro(){
   intro.classList.remove("intro-sluit");
 }
 function beginSpel(overslaan = false){
-  if (intro.hidden || verken.disabled || intro.classList.contains("intro-sluit")) return;
-  // De grote startknop komt pas in het eindbeeld tevoorschijn.
-  if (!overslaan && !intro.classList.contains("intro-eind")) return;
+  if (intro.hidden || intro.classList.contains("intro-sluit")) return;
+  // De eerste plaat moet geladen zijn voordat de intro automatisch verdwijnt.
+  if (!eerstePlaatKlaar){
+    introTimer(() => beginSpel(overslaan),200);
+    return;
+  }
+  introAfgerond = true;
   const naarSpel = () => {
     sluitIntro();
     toonCafeAanwijzing(false);
     plek.focus({preventScroll:true});
   };
-  if (overslaan || minderBeweging.matches) {
-    naarSpel();
-  } else {
+  if (overslaan || minderBeweging.matches) naarSpel();
+  else {
     intro.classList.add("intro-sluit");
-    window.setTimeout(naarSpel,750);
+    window.setTimeout(naarSpel,520);
   }
 }
-verken.addEventListener("click",() => beginSpel());
 introOverslaan.addEventListener("click",() => beginSpel(true));
 cafeHint.addEventListener("click",() => {
   doeken.setAttribute("data-hint","");
