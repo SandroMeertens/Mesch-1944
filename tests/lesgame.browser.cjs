@@ -38,6 +38,13 @@ async function expectPlace(page, title) {
 async function assertNoPageErrors(errors) {
   assert.deepEqual(errors, [], "JavaScript- of netwerkfout in het spel");
 }
+async function naarVeldkeuken(page){
+  for(let i=0;i<13;i++){
+    await antwoordGesprek(page);
+    await page.locator("#routes button[data-heen]").click();
+  }
+  await expectPlace(page,"Bij de veldkeuken");
+}
 async function antwoordGesprek(page) {
   await page.locator("#praat").click();
   await page.locator("#gesprek").waitFor({state:"visible"});
@@ -197,11 +204,85 @@ try {
           assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null);
           await page.locator("#routes button[data-heen]").click();
         } else {
-          assert.equal(await page.locator("#routes button[data-heen]").count(),0,"De veldkeuken is het einde van de hoofdroute");
+          const eindroute=page.getByRole("button",{name:"Rond je tocht af"});
+          assert.equal(await eindroute.count(),1,"De veldkeuken moet een herkenbare eindroute hebben");
+          assert.equal(await eindroute.getAttribute("data-locked"),null);
+          assert.equal(await eindroute.locator(".route-eindlabel").textContent(),"Einde");
         }
       }
       await assertNoPageErrors(errors);
     }finally{await page.close();}
+  });
+
+  await test("Eindplaat: duidelijke afronding pas na het laatste gesprek", async () => {
+    const {page,errors}=await openGame(browser,{width:1366,height:768});
+    try{
+      await naarVeldkeuken(page);
+      const eindroute=page.getByRole("button",{name:"Rond je tocht af"});
+      assert.equal(await eindroute.getAttribute("data-locked"),"","Eindscherm is eerst vergrendeld");
+      await eindroute.click();
+      await page.locator("#gesprek").waitFor({state:"visible"});
+      assert.equal(await page.locator("#eindscherm").isHidden(),true,"Geen einde zonder veldkeukenverhaal");
+      await page.locator("#sluit").click();
+      await antwoordGesprek(page);
+      assert.equal(await eindroute.getAttribute("data-locked"),null);
+      await eindroute.click();
+      await page.locator("#eindscherm").waitFor({state:"visible"});
+      assert.equal(await page.locator("#eind-titel").textContent(),"Je tocht is voltooid");
+      assert.match(await page.locator("#eindkaart").textContent(),/12 september 1944/);
+      assert.match(await page.locator("#eindkaart").textContent(),/niet heel Nederland was al vrij/);
+      assert.equal(await page.locator("#gesprek").isHidden(),true);
+      assert.equal(await page.locator("#routes").evaluate(x=>x.inert),true);
+      assert.equal(await page.locator("#eind-opnieuw").isVisible(),true);
+      assert.equal(await page.locator("#eind-terug").isVisible(),true);
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
+  await test("Eindplaat: terug naar de veldkeuken of opnieuw beginnen", async () => {
+    const {page,errors}=await openGame(browser,{width:1280,height:800});
+    try{
+      await naarVeldkeuken(page);
+      await antwoordGesprek(page);
+      await page.getByRole("button",{name:"Rond je tocht af"}).click();
+      await page.locator("#eind-terug").click();
+      assert.equal(await page.locator("#eindscherm").isHidden(),true);
+      await expectPlace(page,"Bij de veldkeuken");
+      assert.equal(await page.getByRole("button",{name:"Rond je tocht af"}).getAttribute("data-locked"),null);
+      await page.getByRole("button",{name:"Rond je tocht af"}).click();
+      await page.locator("#eind-opnieuw").click();
+      await expectPlace(page,"Dorpsrand");
+      assert.equal(await page.locator("#eindscherm").isHidden(),true);
+      assert.equal(await page.locator("#intro").isHidden(),true,"Opnieuw spelen herhaalt geen introductie");
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),"","Nieuwe ronde vergrendelt de eerste route");
+      const history=await page.evaluate(()=>window.sessionStorage.getItem("mesch-gesproken-plekken-v1"));
+      assert.equal(history,null);
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
+  await test("Eindplaat past zonder scrollen op mobiel, iPad en digibord", async () => {
+    for(const viewport of [{width:390,height:844},{width:844,height:390},{width:820,height:1180},{width:1920,height:1080}]){
+      const {page,errors}=await openGame(browser,viewport);
+      try{
+        await naarVeldkeuken(page);
+        await antwoordGesprek(page);
+        await page.getByRole("button",{name:"Rond je tocht af"}).click();
+        const layout=await page.evaluate(()=>{
+          const panel=document.querySelector("#eindscherm").getBoundingClientRect();
+          const title=document.querySelector("#eind-titel").getBoundingClientRect();
+          const actions=[...document.querySelectorAll("#eindkaart .eind-acties button")].map(b=>b.getBoundingClientRect());
+          const all=[title,...actions];
+          return {panel:{top:panel.top,bottom:panel.bottom,left:panel.left,right:panel.right},
+            elements:all.map(r=>({top:r.top,bottom:r.bottom,left:r.left,right:r.right})),
+            scrollW:document.documentElement.scrollWidth,
+            scrollH:document.documentElement.scrollHeight,vw:innerWidth,vh:innerHeight};
+        });
+        assert.ok(layout.elements.every(r=>r.top>=layout.panel.top-2&&r.bottom<=layout.panel.bottom+2&&r.left>=layout.panel.left-2&&r.right<=layout.panel.right+2),JSON.stringify({viewport,layout}));
+        assert.ok(layout.scrollW<=layout.vw+2&&layout.scrollH<=layout.vh+2,JSON.stringify({viewport,layout}));
+        await assertNoPageErrors(errors);
+      }finally{await page.close();}
+    }
   });
 
   await test("Café: doeken bekijken, vragen beantwoorden en teruggaan", async () => {
