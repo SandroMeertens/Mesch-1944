@@ -39,7 +39,6 @@ h1{font:700 clamp(22px,4.7cqh,46px)/1.05 Georgia,serif;text-shadow:0 2px 12px #1
 .route[data-locked]::after{content:"🔒";position:absolute;top:-7px;right:-5px;font-size:13px;filter:drop-shadow(0 1px 2px #12170e);pointer-events:none}
 #spel[data-gesprek-nodig] #praat .plaatknop-icoon{background:#5b4729e8;border:2px solid #e8d59f;opacity:1;box-shadow:0 0 0 4px #e8d59f26}
 #gesprek-melding{position:absolute;z-index:2;left:50%;bottom:clamp(22px,6cqh,65px);transform:translateX(-50%);max-width:85%;padding:7px 12px;border-radius:9px;background:#162820e8;border:1px solid #e6d4a3aa;color:#fff4d8;font-size:clamp(12px,2.1cqh,17px);text-align:center;pointer-events:none}
-#leestijd-status{align-self:flex-start;max-width:100%;margin:0;padding:4px 9px;border-radius:7px;border:1px solid #e1c99d88;background:#192a22e8;color:#fff1ce;font-size:clamp(11px,1.8cqh,14px);line-height:1.2;font-variant-numeric:tabular-nums}
 .plaatknop:is(:hover,:focus-visible,:active) .plaatknop-icoon{opacity:1;background:#373b2de8;border-color:#fff5dd}
 .route[data-heen]:is(:hover,:focus-visible,:active) .plaatknop-icoon{background:#43572a;border-color:#fff5dd}
 .plaatknop-icoon svg{width:14px;height:14px}
@@ -278,7 +277,6 @@ main{padding:0}
 <button class="knop" id="sluit" type="button">Terug naar de plaat</button>
 <div id="chat">
 <h2 id="rol"></h2>
-<p id="leestijd-status" role="timer" aria-live="off">Nog 15 seconden leestijd</p>
 <p class="tekst" id="antwoord" tabindex="-1"><span id="leesbare-tekst"></span><span id="typende-tekst" aria-hidden="true"></span></p>
 <div id="opties"></div>
 </div>
@@ -713,7 +711,6 @@ const plek = document.querySelector("#plek");
 const routes = document.querySelector("#routes");
 const praat = document.querySelector("#praat");
 const gesprekMelding = document.querySelector("#gesprek-melding");
-const leestijdStatus = document.querySelector("#leestijd-status");
 const intro = document.querySelector("#intro");
 let eerstePlaatKlaar = false;
 const introOverslaan = document.querySelector("#intro-overslaan");
@@ -761,33 +758,13 @@ function leesVerstreken(id){
   const basis=leestijdPerPlek.get(id)||0;
   return Math.min(MIN_LEESTIJD_MS,basis+(actieveLeesPlek===id && leesStart!==null ? Math.max(0,performance.now()-leesStart):0));
 }
-function resterendeLeesSeconden(id=plaats){
-  return Math.ceil(Math.max(0,MIN_LEESTIJD_MS-leesVerstreken(id))/1000);
-}
 function gesprekNodig(){return Boolean(plekken[plaats]?.stem && !gesprokenPlekken.has(plaats));}
-function verversLeestijdStatus(){
-  if(!plekken[plaats]?.stem){leestijdStatus.hidden=true;return;}
-  leestijdStatus.hidden=false;
-  if(gesprokenPlekken.has(plaats)){
-    leestijdStatus.textContent="Gesprek afgerond — je mag verder";
-    return;
-  }
-  const seconden=resterendeLeesSeconden();
-  leestijdStatus.textContent=seconden>0
-    ? "Nog "+seconden+" seconden leestijd"
-    : (reageerdePlekken.has(plaats)||gesprokenPlekken.has(plaats)
-        ? "Je hebt gelezen en gereageerd — je mag verder"
-        : "Leestijd voorbij — reageer nog op het gesprek");
-}
 function verversGespreksRoutes(){
   const nodig=gesprekNodig();
   spel.toggleAttribute("data-gesprek-nodig",nodig);
-  const seconden=resterendeLeesSeconden();
   for(const knop of routes.querySelectorAll("button[data-verder]")){
     knop.toggleAttribute("data-locked",nodig);
-    const uitleg=seconden>0
-      ? "Lees nog "+seconden+" seconden tijdens het gesprek en reageer voordat je verderloopt"
-      : "Reageer eerst op het gesprek voordat je verderloopt";
+    const uitleg="Lees het gesprek aandachtig en reageer voordat je verderloopt";
     knop.title=nodig ? uitleg : knop.getAttribute("aria-label");
     knop.setAttribute("aria-description",nodig ? uitleg : "Je kunt verderlopen");
   }
@@ -813,8 +790,7 @@ function pauzeerLeestijd(){
 function verversLeestijd(){
   if(gesprek.hidden || document.hidden)return;
   controleerGesprekAfgerond();
-  verversLeestijdStatus();
-  if(!gesprekNodig() || resterendeLeesSeconden()===0){
+  if(!gesprekNodig() || leesVerstreken(plaats)>=MIN_LEESTIJD_MS){
     // Laat na afloop van de leestijd het scherm ongemoeid; het gesprek kan doorgaan.
     pauzeerLeestijd();
   }
@@ -824,7 +800,6 @@ function startLeestijd(){
   actieveLeesPlek=plaats;
   leesStart=performance.now();
   leesTimer=window.setInterval(verversLeestijd,250);
-  verversLeestijdStatus();
 }
 document.addEventListener("visibilitychange",()=>{
   if(document.hidden)pauzeerLeestijd();
@@ -834,14 +809,10 @@ function registreerGesprek(){
   if(!plekken[plaats]?.stem || gesprokenPlekken.has(plaats))return;
   reageerdePlekken.add(plaats);
   controleerGesprekAfgerond();
-  verversLeestijdStatus();
 }
 let meldingTimer;
 function toonGesprekMelding(){
-  const seconden=resterendeLeesSeconden();
-  gesprekMelding.textContent=seconden>0
-    ? "Lees eerst nog "+seconden+" seconden in het gesprek"
-    : "Reageer eerst op de persoon voordat je verdergaat";
+  gesprekMelding.textContent="Praat met de persoon en lees het gesprek aandachtig voordat je verdergaat";
   gesprekMelding.hidden=false;
   window.clearTimeout(meldingTimer);
   meldingTimer=window.setTimeout(()=>{gesprekMelding.hidden=true;},2800);
@@ -1110,7 +1081,6 @@ function openGesprek(){
   const gaNaLezen = doel => {
     if(gesprekNodig()){
       // Ook directe sprongen vanuit een gespreksantwoord moeten 15 s wachten.
-      verversLeestijdStatus();
       toonGesprekMelding();
       return;
     }
