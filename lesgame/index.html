@@ -278,7 +278,7 @@ main{padding:0}
 <button class="knop" id="sluit" type="button">Terug naar de plaat</button>
 <div id="chat">
 <h2 id="rol"></h2>
-<p id="leestijd-status" role="timer" aria-live="off">Nog 30 seconden leestijd</p>
+<p id="leestijd-status" role="timer" aria-live="off">Nog 15 seconden leestijd</p>
 <p class="tekst" id="antwoord" tabindex="-1"><span id="leesbare-tekst"></span><span id="typende-tekst" aria-hidden="true"></span></p>
 <div id="opties"></div>
 </div>
@@ -750,8 +750,8 @@ try {
     if (Number.isInteger(id) && plekken[id]?.stem) gesprokenPlekken.add(id);
   }
 } catch { /* Zonder opslag werkt de gespreksplicht in deze lesronde gewoon door. */ }
-// Per bezoekbare plaat minstens dertig seconden daadwerkelijk leestijd in het geopende gesprek.
-const MIN_LEESTIJD_MS=30000;
+// Per bezoekbare plaat minstens vijftien seconden daadwerkelijk leestijd in het geopende gesprek.
+const MIN_LEESTIJD_MS=15000;
 const reageerdePlekken=new Set();
 const leestijdPerPlek=new Map();
 let actieveLeesPlek=null;
@@ -1109,7 +1109,7 @@ function openGesprek(){
   const terug = () => zetGesprek(false);
   const gaNaLezen = doel => {
     if(gesprekNodig()){
-      // Ook directe sprongen vanuit een gespreksantwoord moeten 30 s wachten.
+      // Ook directe sprongen vanuit een gespreksantwoord moeten 15 s wachten.
       verversLeestijdStatus();
       toonGesprekMelding();
       return;
