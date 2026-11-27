@@ -52,6 +52,16 @@ async function assertConversationVisible(page, errors){
   }
   assert.equal(visible,true,"Gesprek hoort zichtbaar te zijn");
 }
+async function praatKort(page) {
+  await page.locator("#praat").click();
+  await page.locator("#gesprek").waitFor({state:"visible"});
+  const toonHeleTekst=page.getByRole("button",{name:"Toon hele tekst"});
+  if (await toonHeleTekst.count()) await toonHeleTekst.click();
+  const eersteReactie=page.locator("#opties .keuze").first();
+  await eersteReactie.click();
+  await page.locator("#sluit").click();
+  await page.locator("#gesprek").waitFor({state:"hidden"});
+}
 async function assertNoPageErrors(errors) {
   assert.deepEqual(errors, [], "Er trad een JavaScript- of netwerkfout op");
 }
@@ -76,6 +86,82 @@ try {
     } finally { await page.close(); }
   });
 
+  await test("Gespreksplicht: vooruit vergrendeld, terug vrij en gesprek vereist een echte reactie", async () => {
+    const {page,errors}=await openGame(browser,{width:1366,height:768});
+    try{
+      const verder=page.locator("#routes button[data-heen]");
+      assert.equal(await verder.getAttribute("data-locked"),"");
+      await verder.click();
+      await page.locator("#gesprek").waitFor({state:"visible"});
+      await expectPlace(page,"Dorpsrand");
+      await page.locator("#sluit").click();
+      await page.locator("#gesprek").waitFor({state:"hidden"});
+      assert.equal(await verder.getAttribute("data-locked"),"","Openen en sluiten alleen mag de route niet vrijgeven");
+
+      await page.locator("#praat").click();
+      const skip=page.getByRole("button",{name:"Toon hele tekst"});
+      if(await skip.count())await skip.click();
+      assert.equal(await verder.getAttribute("data-locked"),"","Alleen de tekst tonen telt nog niet");
+      await page.getByRole("button",{name:"Lees verder"}).first().click();
+      await page.locator("#sluit").click();
+      assert.equal(await verder.getAttribute("data-locked"),null,"Een echte reactie ontgrendelt de route");
+      await verder.click();
+      await expectPlace(page,"Bij de heg");
+      const vervolg=page.locator("#routes button[data-heen]");
+      assert.equal(await vervolg.getAttribute("data-locked"),"","Elke nieuwe plaat heeft zijn eigen gespreksplicht");
+
+      await page.keyboard.press("ArrowRight");
+      await page.locator("#gesprek").waitFor({state:"visible"});
+      await expectPlace(page,"Bij de heg");
+      await page.locator("#sluit").click();
+      assert.equal(await vervolg.getAttribute("data-locked"),"","Pijltjestoets mag de vergrendeling niet omzeilen");
+
+      await page.getByRole("button",{name:"Dorpsrand",exact:true}).click();
+      await expectPlace(page,"Dorpsrand");
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null,"Eerder gehouden gesprek blijft afgerond");
+      await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
+      await expectPlace(page,"Bij de heg");
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
+  await test("Nieuwe lesronde maakt de gesprekken weer verplicht", async () => {
+    const {page,errors}=await openGame(browser,{width:1280,height:800});
+    try{
+      await praatKort(page);
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null);
+      await page.locator("#herstart").click();
+      await page.locator("#start-ronde").click();
+      await expectPlace(page,"Dorpsrand");
+      assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),"");
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
+  await test("School: zijdeur blijft dicht tot gesprek, terugweg blijft open", async () => {
+    const {page,errors}=await openGame(browser,{width:1366,height:768});
+    try{
+      for(let i=0;i<3;i++){
+        await praatKort(page);
+        await page.locator("#routes button[data-heen]").click();
+      }
+      await expectPlace(page,"Bij de school");
+      const deur=page.getByRole("button",{name:"Ga het schoollokaal in"});
+      assert.equal(await deur.getAttribute("data-locked"),"");
+      await deur.click();
+      await page.locator("#gesprek").waitFor({state:"visible"});
+      await expectPlace(page,"Bij de school");
+      await page.locator("#sluit").click();
+      await praatKort(page);
+      assert.equal(await deur.getAttribute("data-locked"),null);
+      await deur.click();
+      await expectPlace(page,"In het schoollokaal");
+      await page.getByRole("button",{name:"Terug naar buiten bij de school"}).click();
+      await expectPlace(page,"Bij de school");
+      await assertNoPageErrors(errors);
+    }finally{await page.close();}
+  });
+
   await test("Gehele hoofdroute: vooruit, terug, alle schilderijen geladen", async () => {
     const { page, errors } = await openGame(browser,{width:1440,height:900});
     try {
@@ -83,6 +169,7 @@ try {
       for (let i=0;i<expected.length;i++) {
         await expectPlace(page, expected[i]);
         await loadedImage(page);
+        if (i<expected.length-1) await praatKort(page);
         if (i===1) {
           await page.getByRole("button",{name:"Dorpsrand",exact:true}).click();
           await expectPlace(page, "Dorpsrand");
@@ -141,6 +228,9 @@ try {
         await page.locator("#gesprek").waitFor({state:"visible"});
         assert.ok((await page.locator("#rol").textContent()).trim().length>0,"Ontbrekend personage op "+names[i]);
         await loadedImage(page,"#portret");
+        const heleTekst=page.getByRole("button",{name:"Toon hele tekst"});
+        if (await heleTekst.count()) await heleTekst.click();
+        await page.locator("#opties .keuze").first().click();
         await page.locator("#sluit").click();
         await page.locator("#gesprek").waitFor({state:"hidden"});
         await expectPlace(page,names[i]);
@@ -153,7 +243,10 @@ try {
   await test("Café: doeken bekijken, interactie openen en teruggaan", async () => {
     const {page,errors}=await openGame(browser,{width:1366,height:768});
     try{
-      for(let i=0;i<11;i++)await page.locator("#routes button[data-heen]").click();
+      for(let i=0;i<11;i++){
+        await praatKort(page);
+        await page.locator("#routes button[data-heen]").click();
+      }
       await expectPlace(page,"In Café Van Hoven");
       await page.locator("#praat").click();
       await page.locator("#gesprek").waitFor({state:"visible"});
@@ -207,6 +300,7 @@ try {
   await test("Nieuwe lesronde vanuit het spel", async () => {
     const {page,errors}=await openGame(browser,{width:1280,height:800});
     try{
+      await praatKort(page);
       await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
       await page.locator("#herstart").click();
       assert.equal(await page.locator("#bevestig-ronde").evaluate(x=>x.open),true);
@@ -233,6 +327,7 @@ try {
         assert.ok(metrics.game.w>0 && metrics.game.h>0);
         const next=page.getByRole("button",{name:"Volg de weg het dorp in"});
         assert.equal(await next.isVisible(),true,"Navigatie ontbreekt "+JSON.stringify(viewport));
+        await praatKort(page);
         await next.click();
         await expectPlace(page, "Bij de heg");
         await page.locator("#praat").click();
@@ -251,6 +346,7 @@ try {
         const {page,errors}=await openGame(safari,viewport);
         try{
           await loadedImage(page);
+          await praatKort(page);
           await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
           await expectPlace(page,"Bij de heg");
           await page.locator("#praat").click();
