@@ -27,6 +27,14 @@ async function loadedImage(page, selector = "#plaat") {
     return img && img.complete && img.naturalWidth > 0;
   }, selector, { timeout: 15000 });
 }
+async function expectPlace(page, title) {
+  await page.waitForFunction(
+    text => document.querySelector("#plek")?.textContent === text,
+    title,
+    { timeout: 20000 }
+  );
+  assert.equal(await page.locator("#plek").textContent(), title);
+}
 async function assertNoPageErrors(errors) {
   assert.deepEqual(errors, [], "Er trad een JavaScript- of netwerkfout op");
 }
@@ -44,7 +52,7 @@ try {
       await page.waitForFunction(() => document.querySelector("#intro").dataset.proloog === "2", null, {timeout: 5500});
       assert.equal(await page.locator("#intro").isVisible(), true);
       await page.locator("#intro").waitFor({state:"hidden",timeout:10000});
-      assert.equal(await page.locator("#plek").textContent(), "Dorpsrand");
+      await expectPlace(page, "Dorpsrand");
       await loadedImage(page);
       assert.equal(await page.getByRole("button",{name:"Volg de weg het dorp in"}).isVisible(),true);
       await assertNoPageErrors(errors);
@@ -56,20 +64,20 @@ try {
     try {
       const expected=["Dorpsrand","Bij de heg","Eerste contact","Bij de school","Aan de Grijzegraaf","Tussen de dorpshuizen","De dorpsstraat","Bij de buren","Het dorpshart","Langs de velden","Voor Café Van Hoven","In Café Van Hoven","In de schuilkelder","Bij de veldkeuken"];
       for (let i=0;i<expected.length;i++) {
-        assert.equal(await page.locator("#plek").textContent(),expected[i],"Verkeerde hoofdroute bij "+i);
+        await expectPlace(page, expected[i]);
         await loadedImage(page);
         if (i===1) {
           await page.getByRole("button",{name:"Dorpsrand",exact:true}).click();
-          assert.equal(await page.locator("#plek").textContent(),"Dorpsrand");
+          await expectPlace(page, "Dorpsrand");
           await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
-          assert.equal(await page.locator("#plek").textContent(),"Bij de heg");
+          await expectPlace(page, "Bij de heg");
         }
         if (i===3) {
           await page.getByRole("button",{name:"Ga het schoollokaal in"}).click();
-          assert.equal(await page.locator("#plek").textContent(),"In het schoollokaal");
+          await expectPlace(page, "In het schoollokaal");
           await loadedImage(page);
           await page.getByRole("button",{name:"Terug naar buiten bij de school"}).click();
-          assert.equal(await page.locator("#plek").textContent(),"Bij de school");
+          await expectPlace(page, "Bij de school");
         }
         if (i<expected.length-1) {
           const btn=page.locator("#routes button[data-heen]");
@@ -96,7 +104,7 @@ try {
       assert.equal(await page.locator("#gesprek").isVisible(),true);
       await page.locator("#sluit").click();
       assert.equal(await page.locator("#gesprek").isHidden(),true);
-      assert.equal(await page.locator("#plek").textContent(),"Dorpsrand");
+      await expectPlace(page, "Dorpsrand");
       await page.getByRole("button",{name:"Volg de weg het dorp in"}).click();
       await page.locator("#praat").click();
       assert.equal(await page.locator("#gesprek").isVisible(),true);
@@ -112,7 +120,7 @@ try {
       await page.locator("#herstart").click();
       assert.equal(await page.locator("#bevestig-ronde").evaluate(x=>x.open),true);
       await page.locator("#start-ronde").click();
-      assert.equal(await page.locator("#plek").textContent(),"Dorpsrand");
+      await expectPlace(page, "Dorpsrand");
       assert.equal(await page.locator("#intro").isHidden(),true,"Nieuwe ronde herhaalt geen intro");
       await loadedImage(page);
       await assertNoPageErrors(errors);
@@ -135,7 +143,7 @@ try {
         const next=page.getByRole("button",{name:"Volg de weg het dorp in"});
         assert.equal(await next.isVisible(),true,"Navigatie ontbreekt "+JSON.stringify(viewport));
         await next.click();
-        assert.equal(await page.locator("#plek").textContent(),"Bij de heg");
+        await expectPlace(page, "Bij de heg");
         await page.locator("#praat").click();
         assert.equal(await page.locator("#gesprek").isVisible(),true);
         assert.equal(await page.locator("#sluit").isVisible(),true);
