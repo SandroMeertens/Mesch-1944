@@ -193,8 +193,12 @@ try {
       for(let i=0;i<names.length;i++){
         await expectPlace(page,names[i]);
         await antwoordGesprek(page);
-        assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null);
-        if(i<names.length-1)await page.locator("#routes button[data-heen]").click();
+        if(i<names.length-1){
+          assert.equal(await page.locator("#routes button[data-heen]").getAttribute("data-locked"),null);
+          await page.locator("#routes button[data-heen]").click();
+        } else {
+          assert.equal(await page.locator("#routes button[data-heen]").count(),0,"De veldkeuken is het einde van de hoofdroute");
+        }
       }
       await assertNoPageErrors(errors);
     }finally{await page.close();}
